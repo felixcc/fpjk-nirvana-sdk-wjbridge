@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/fpjk-nirvana-sdk-wjbridge.iml" filepath="$PROJECT_DIR$/fpjk-nirvana-sdk-wjbridge.iml" />
-      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wjbridge/wjbridge.iml" filepath="$PROJECT_DIR$/wjbridge/wjbridge.iml" />
     </modules>
   </component>
 </project>

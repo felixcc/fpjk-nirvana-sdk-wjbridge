@@ -19,6 +19,3 @@ hs_err_pid*
 /app/app.iml
 /gradle/wrapper/gradle-wrapper.jar
 .gradle/
-wjbridge/libs/
-wjbridge/src/main/assets/
-wjbridge/src/main/java/

@@ -7,4 +7,6 @@
             android:supportsRtl="true">
     </application>
 
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 </manifest>

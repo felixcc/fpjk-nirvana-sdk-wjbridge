@@ -1,1 +1,1 @@
-include ':app', ':wjbridge'
+include ':app', ':nirvana'

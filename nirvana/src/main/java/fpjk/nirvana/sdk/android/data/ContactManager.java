@@ -62,7 +62,7 @@ public class ContactManager {
         try {
             return (List<DBContactsEntity>) DataBaseDaoHelper.getInstance().queryAll(iDataBaseDao.create());
         } catch (SQLException e) {
-            L.e(e);
+            L.e("getHistoryContacts[%s]", e);
         }
         return null;
     }
@@ -113,7 +113,7 @@ public class ContactManager {
                     }
                     phoneCursor.close();
                 } catch (Exception e) {
-                    L.e(e);
+                    L.e("submitContacts[%s]", e);
                 }
                 return contactBean;
             }
@@ -134,7 +134,7 @@ public class ContactManager {
                 .subscribe(new Action1<List<DBContactsEntity>>() {
                     @Override
                     public void call(List<DBContactsEntity> dbContactsEntities) {
-                        L.d(dbContactsEntities.toString());
+                        L.i(dbContactsEntities.toString());
                         if (!dbContactsEntities.isEmpty()) {
                             //入库
                             List<Object> insertDB = new ArrayList<>();

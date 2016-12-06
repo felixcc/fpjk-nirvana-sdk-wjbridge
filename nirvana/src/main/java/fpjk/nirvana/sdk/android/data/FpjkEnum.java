@@ -13,6 +13,7 @@ package fpjk.nirvana.sdk.android.data;
 public class FpjkEnum {
     public enum Business {
         GET_DEVICE_INFO("getDeviceInfo"),
+        OPEN_URL("openUrl"),
         GET_COOKIE("getCookie"),
         GET_LOCATION("getLocation"),
         GET_CONTACTS("getContacts");

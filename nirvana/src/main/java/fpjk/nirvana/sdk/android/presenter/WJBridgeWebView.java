@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.webkit.CookieManager;
 import android.webkit.WebView;
 
 import java.util.List;
@@ -16,10 +17,6 @@ import fpjk.nirvana.sdk.android.jsbridge.WJMessage;
 import fpjk.nirvana.sdk.android.jsbridge.WJWebLoader;
 import fpjk.nirvana.sdk.android.jsbridge.WebViewJavascriptBridge;
 
-/**
- * author: EwenQin
- * since : 2016/10/24 下午4:14.
- */
 public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge, WJWebLoader {
 
     private static final String TAG = "WJBridgeWebView";
@@ -92,6 +89,10 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
     @Override
     public void setDefaultHandler(WJBridgeHandler handler) {
         this.mProvider.setDefaultHandler(handler);
+    }
+
+    public String getCookie(String url) {
+        return CookieManager.getInstance().getCookie(url);
     }
 
     @Override

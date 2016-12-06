@@ -21,10 +21,6 @@ import android.webkit.WebViewClient;
 
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeProvider;
 
-/**
- * author: EwenQin
- * since : 2016/10/23 下午12:59.
- */
 public class WJBridgeWebViewClient extends WebViewClient {
 
     private static final String TAG = "WJBridgeWebViewClient";

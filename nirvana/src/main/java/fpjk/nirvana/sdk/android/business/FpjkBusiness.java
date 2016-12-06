@@ -1,6 +1,7 @@
 package fpjk.nirvana.sdk.android.business;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.webkit.CookieManager;
 
@@ -9,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import fpjk.nirvana.sdk.android.OpenUrlActivity;
 import fpjk.nirvana.sdk.android.data.ContactManager;
 import fpjk.nirvana.sdk.android.data.DeviceManager;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
@@ -22,6 +24,7 @@ import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.android.jsbridge.WJWebLoader;
 import fpjk.nirvana.sdk.android.logger.L;
+import fpjk.nirvana.sdk.android.logger.Logger;
 import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 import rx.functions.Action1;
 
@@ -51,6 +54,7 @@ public class FpjkBusiness {
 
     private FpjkBusiness(@NonNull WJWebLoader webLoader) {
         mWebLoader = new WeakReference<>(webLoader);
+        Logger.init("Fpjk");
     }
 
     public void process() {
@@ -68,7 +72,7 @@ public class FpjkBusiness {
                     String mLocationInfo = ((EventLocation) o).getLocationInfo();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
                     wjCallbacks.onCallback(mLocationInfo);
-                    L.d("EventLocation->[%s]", mLocationInfo);
+//                    L.d("EventLocation->[%s]", mLocationInfo);
                 }
             }
         });
@@ -80,7 +84,6 @@ public class FpjkBusiness {
             wjBridgeWebView.registerHandler(cN, new WJBridgeHandler() {
                 @Override
                 public void handler(String data, WJCallbacks callbacks) {
-                    L.d("registerHandler->[%s]", data);
                     dispatchMessages(data, callbacks);
                 }
             });
@@ -96,6 +99,7 @@ public class FpjkBusiness {
         if (StringUtils.isEmpty(jsonData)) {
             return;
         }
+        L.json(jsonData);
         try {
             ProcessBusinessEntity entity = GsonManager.newInstance().json2Object(jsonData, ProcessBusinessEntity.class);
             if (FpjkEnum.Business.GET_CONTACTS.getValue().equals(entity.getOpt())) {
@@ -103,17 +107,23 @@ public class FpjkBusiness {
                     @Override
                     public void onCompleted(List<DBContactsEntity> contactsEntities) {
                         String contactJson = GsonManager.newInstance().toJSONString(contactsEntities);
-                        L.d("ContactManager.submitContacts->[%s]", contactJson);
+                        L.i("ContactManager.submitContacts->[%s]", contactJson);
                         wjCallbacks.onCallback(contactJson);
                     }
                 });
+            } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
+                DataTransferEntity dataTransferEntity = entity.getData();
+                Intent intent = new Intent(mContext, OpenUrlActivity.class);
+                intent.putExtra(OpenUrlActivity.EXTRA_SHOW_ME, dataTransferEntity);
+                mContext.startActivity(intent);
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {
                     return;
                 }
                 DataTransferEntity dataTransferEntity = entity.getData();
                 String cookie = CookieManager.getInstance().getCookie(dataTransferEntity.getUrl());
-                wjCallbacks.onCallback(cookie);
+                CookieEntity cookieEntity = mDeviceManager.formatCookie(cookie);
+                wjCallbacks.onCallback(GsonManager.newInstance().toJSONString(cookieEntity));
             } else if (FpjkEnum.Business.GET_DEVICE_INFO.getValue().equals(entity.getOpt())) {
                 DeviceInfoEntity deviceInfoEntity = new DeviceInfoEntity();
                 deviceInfoEntity.setDeviceInfo(new DeviceInfoEntity.DeviceInfo()
@@ -130,9 +140,8 @@ public class FpjkBusiness {
                 mLocationManager.buildCallback(wjCallbacks);
                 mLocationManager.start();
             }
-            L.d("dispatchMessages->[%s]", entity);
         } catch (Exception e) {
-            L.e("JavaScript invoke Native is Error:[%s]", jsonData, e);
+            L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);
         }
     }
 

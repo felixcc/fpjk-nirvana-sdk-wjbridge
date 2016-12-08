@@ -6,9 +6,9 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
-import fpjk.nirvana.sdk.android.business.CookieEntity;
 import fpjk.nirvana.sdk.android.business.DataTransferEntity;
-import fpjk.nirvana.sdk.android.data.DeviceManager;
+import fpjk.nirvana.sdk.android.business.OpenUrlResponse;
+import fpjk.nirvana.sdk.android.data.GsonManager;
 import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 import fpjk.nirvana.sdk.wjbridge.R;
 
@@ -31,18 +31,24 @@ public class OpenUrlActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_open_url);
+        mDataTransferEntity = getIntent().getParcelableExtra(EXTRA_SHOW_ME);
+
+        if (null == mDataTransferEntity) {
+            finish();
+        }
 
         mTextView = (TextView) findViewById(R.id.txtOpenUrlTitle);
         mWJBridgeWebView = (WJBridgeWebView) findViewById(R.id.wjBridgeWebView);
-        mDataTransferEntity = getIntent().getParcelableExtra(EXTRA_SHOW_ME);
 
         mWJBridgeWebView.loadUrl(mDataTransferEntity.getUrl());
         mTextView.setText(mDataTransferEntity.getTitle());
     }
 
     public void finishMySelf(View view) {
-        String cookie = mWJBridgeWebView.getCookie(mDataTransferEntity.getFinishUrl());
-        CookieEntity cookieEntity = DeviceManager.newInstance(this).formatCookie(cookie);
+        OpenUrlResponse openUrlResponse = new OpenUrlResponse();
+        openUrlResponse.switchManualProcessingMode();
+        String reponses = GsonManager.newInstance().toJSONString(openUrlResponse);
+//        mWJCallbacks.onCallback(reponses);
         this.finish();
     }
 }

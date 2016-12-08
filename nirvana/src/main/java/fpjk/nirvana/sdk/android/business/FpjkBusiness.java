@@ -1,6 +1,6 @@
 package fpjk.nirvana.sdk.android.business;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.webkit.CookieManager;
@@ -43,7 +43,7 @@ public class FpjkBusiness {
     private final String cN = "fpjkBridgeCallNative";
     private final String cJ = "fpjkBridgeCallJavaScript";
 
-    private Context mContext;
+    private Activity mContext;
     private DeviceManager mDeviceManager;
     private ContactManager mContactManager;
     private LocationManager mLocationManager;
@@ -72,7 +72,6 @@ public class FpjkBusiness {
                     String mLocationInfo = ((EventLocation) o).getLocationInfo();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
                     wjCallbacks.onCallback(mLocationInfo);
-//                    L.d("EventLocation->[%s]", mLocationInfo);
                 }
             }
         });
@@ -88,7 +87,7 @@ public class FpjkBusiness {
                 }
             });
 
-            mContext = wjBridgeWebView.getContext();
+            mContext = (Activity) wjBridgeWebView.getContext();
             mDeviceManager = DeviceManager.newInstance(mContext);
             mContactManager = ContactManager.newInstance(mContext);
             mLocationManager = LocationManager.newInstance(mContext);
@@ -116,6 +115,8 @@ public class FpjkBusiness {
                 Intent intent = new Intent(mContext, OpenUrlActivity.class);
                 intent.putExtra(OpenUrlActivity.EXTRA_SHOW_ME, dataTransferEntity);
                 mContext.startActivity(intent);
+//                OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext);
+//                openUrlDialog.show();
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {
                     return;
@@ -137,8 +138,8 @@ public class FpjkBusiness {
                 String json = GsonManager.newInstance().toJSONString(deviceInfoEntity);
                 wjCallbacks.onCallback(json);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
-                mLocationManager.buildCallback(wjCallbacks);
-                mLocationManager.start();
+//                mLocationManager.buildCallback(wjCallbacks);
+//                mLocationManager.start();
             }
         } catch (Exception e) {
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);

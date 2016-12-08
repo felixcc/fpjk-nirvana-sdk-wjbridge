@@ -29,4 +29,21 @@ public class FpjkEnum {
             return value;
         }
     }
+
+    public enum ErrorCode {
+        GET_DEVICE_INFO(10001),//用户拒绝通讯录权限
+        OPEN_URL(10002),//用户拒绝定位权限
+        GET_COOKIE(10003);//用户手机定位服务关闭
+
+        private final int value;
+
+        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
+        ErrorCode(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

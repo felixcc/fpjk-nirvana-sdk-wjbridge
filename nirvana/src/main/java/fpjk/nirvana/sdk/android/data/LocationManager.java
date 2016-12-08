@@ -1,13 +1,17 @@
 package fpjk.nirvana.sdk.android.data;
 
-import android.content.Context;
+import android.Manifest;
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.tbruyelle.rxpermissions.Permission;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import fpjk.nirvana.sdk.android.business.AddressInfo;
 import fpjk.nirvana.sdk.android.business.CoordinateInfo;
@@ -15,6 +19,9 @@ import fpjk.nirvana.sdk.android.business.LocationEntity;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
+import fpjk.nirvana.sdk.android.logger.L;
+import rx.functions.Action0;
+import rx.functions.Action1;
 
 /**
  * Summary:
@@ -29,21 +36,25 @@ import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
 public class LocationManager {
     private AMapLocationClient locationClient = null;
     private WJCallbacks wjCallbacks;
+    private RxPermissions mRxPermissions = null;
 
-    public static LocationManager newInstance(@NonNull Context context) {
+    public static LocationManager newInstance(@NonNull Activity context) {
         return new LocationManager(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
     }
 
-    private LocationManager(Context context) {
+    private LocationManager(Activity context) {
         //初始化client
         locationClient = new AMapLocationClient(context.getApplicationContext());
         //设置定位参数
         locationClient.setLocationOption(getDefaultOption());
-        // 设置定位监听
+        //设置定位监听
         locationClient.setLocationListener(locationListener);
+        //permissions
+        mRxPermissions = new RxPermissions(context);
+        mRxPermissions.setLogging(true);
     }
 
-    public void start() {
+    private void start() {
         if (locationClient.isStarted()) {
             locationClient.stopLocation();
         }
@@ -54,16 +65,6 @@ public class LocationManager {
         locationClient.stopLocation();
     }
 
-    public void buildCallback(WJCallbacks wjCallbacks) {
-        this.wjCallbacks = wjCallbacks;
-    }
-
-    /**
-     * 默认的定位参数
-     *
-     * @author hongming.wang
-     * @since 2.8.0
-     */
     private AMapLocationClientOption getDefaultOption() {
         AMapLocationClientOption mOption = new AMapLocationClientOption();
         mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
@@ -125,5 +126,49 @@ public class LocationManager {
             return GsonManager.newInstance().toJSONString(locationEntity);
         }
         return location.getErrorInfo();
+    }
+
+    private void start(final Activity context, WJCallbacks wjCallbacks) {
+        this.wjCallbacks = wjCallbacks;
+        mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS)
+                .subscribe(new Action1<Permission>() {
+                               @Override
+                               public void call(Permission permission) {
+                                   L.i("Permission result " + permission);
+                                   if (permission.granted) {
+                                       start();
+                                       Toast.makeText(context,
+                                               "permission.granted",
+                                               Toast.LENGTH_SHORT).show();
+                                   } else if (permission.shouldShowRequestPermissionRationale) {
+                                       stop();
+                                       // Denied permission without ask never again
+                                       Toast.makeText(context,
+                                               "Denied permission without ask never again",
+                                               Toast.LENGTH_SHORT).show();
+                                   } else {
+                                       stop();
+                                       // Denied permission with ask never again
+                                       // Need to go to the settings
+                                       Toast.makeText(context,
+                                               "Permission denied, can't enable the camera",
+                                               Toast.LENGTH_SHORT).show();
+                                   }
+                               }
+                           },
+                        new Action1<Throwable>() {
+                            @Override
+                            public void call(Throwable t) {
+                                stop();
+                                L.e("onError", t);
+                            }
+                        },
+                        new Action0() {
+                            @Override
+                            public void call() {
+                                stop();
+                                L.i("OnComplete");
+                            }
+                        });
     }
 }

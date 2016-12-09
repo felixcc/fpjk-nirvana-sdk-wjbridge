@@ -25,9 +25,7 @@ import fpjk.nirvana.sdk.android.logger.L;
 import rx.functions.Action0;
 import rx.functions.Action1;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.ACCESS_NETWORK_STATE;
 
 /**
  * Summary:
@@ -131,9 +129,9 @@ public class LocationMgr {
         return location.getErrorInfo();
     }
 
-    public void start(final Activity context, WJCallbacks wjCallbacks) {
+    public void start(final Activity context, final WJCallbacks wjCallbacks) {
         this.wjCallbacks = wjCallbacks;
-        ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
+        final ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
         if (!isLocationOpen(context)) {
             L.i("定位未打开[%s]", false);
             errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
@@ -141,7 +139,7 @@ public class LocationMgr {
             wjCallbacks.onCallback(callBack);
             return;
         }
-        mRxPermissions.requestEach(ACCESS_COARSE_LOCATION, ACCESS_NETWORK_STATE, ACCESS_FINE_LOCATION)
+        mRxPermissions.requestEach(ACCESS_FINE_LOCATION)
                 .subscribe(new Action1<Permission>() {
                                @Override
                                public void call(Permission permission) {
@@ -151,19 +149,13 @@ public class LocationMgr {
                                        Toast.makeText(context,
                                                "permission.granted",
                                                Toast.LENGTH_SHORT).show();
-                                   } else if (permission.shouldShowRequestPermissionRationale) {
-                                       stop();
-                                       // Denied permission without ask never again
-                                       Toast.makeText(context,
-                                               "Denied permission without ask never again",
-                                               Toast.LENGTH_SHORT).show();
                                    } else {
                                        stop();
                                        // Denied permission with ask never again
                                        // Need to go to the settings
-                                       Toast.makeText(context,
-                                               "Permission denied, can't enable the camera",
-                                               Toast.LENGTH_SHORT).show();
+                                       errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_LOCATION.getValue());
+                                       String callBack = GsonManager.newInstance().toJSONString(errorCodeEntity);
+                                       wjCallbacks.onCallback(callBack);
                                    }
                                }
                            },

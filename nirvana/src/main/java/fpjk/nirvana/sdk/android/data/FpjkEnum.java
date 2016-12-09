@@ -31,9 +31,9 @@ public class FpjkEnum {
     }
 
     public enum ErrorCode {
-        GET_DEVICE_INFO(10001),//用户拒绝通讯录权限
-        OPEN_URL(10002),//用户拒绝定位权限
-        GET_COOKIE(10003);//用户手机定位服务关闭
+        USER_DENIED_ACCESS(10001),//用户拒绝通讯录权限
+        USER_DENIED_LOCATION(10002),//用户拒绝定位权限
+        USER_MOBILE_LOCATION_SERVICES_OFF(10003);//用户手机定位服务关闭
 
         private final int value;
 

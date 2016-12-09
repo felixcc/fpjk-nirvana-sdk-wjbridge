@@ -16,7 +16,7 @@ import fpjk.nirvana.sdk.android.data.ContactManager;
 import fpjk.nirvana.sdk.android.data.DeviceManager;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
 import fpjk.nirvana.sdk.android.data.GsonManager;
-import fpjk.nirvana.sdk.android.data.LocationManager;
+import fpjk.nirvana.sdk.android.data.LocationMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;
@@ -47,7 +47,7 @@ public class FpjkBusiness {
     private Activity mContext;
     private DeviceManager mDeviceManager;
     private ContactManager mContactManager;
-    private LocationManager mLocationManager;
+    private LocationMgr mLocationMgr;
 
     public static FpjkBusiness newInstance(WJWebLoader webLoader) {
         return new FpjkBusiness(WJBridgeUtils.checkNoNull(webLoader, "WJWebLoader not NULL!"));
@@ -68,8 +68,6 @@ public class FpjkBusiness {
             @Override
             public void call(Object o) {
                 if (o instanceof EventLocation) {
-                    mLocationManager.stop();
-
                     String mLocationInfo = ((EventLocation) o).getLocationInfo();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
                     wjCallbacks.onCallback(mLocationInfo);
@@ -91,7 +89,7 @@ public class FpjkBusiness {
             mContext = (Activity) wjBridgeWebView.getContext();
             mDeviceManager = DeviceManager.newInstance(mContext);
             mContactManager = ContactManager.newInstance(mContext);
-            mLocationManager = LocationManager.newInstance(mContext);
+            mLocationMgr = LocationMgr.newInstance(mContext);
         }
     }
 
@@ -140,8 +138,8 @@ public class FpjkBusiness {
                 String json = GsonManager.newInstance().toJSONString(deviceInfoEntity);
                 wjCallbacks.onCallback(json);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
-//                mLocationManager.buildCallback(wjCallbacks);
-//                mLocationManager.start();
+//                mLocationMgr.buildCallback(wjCallbacks);
+                mLocationMgr.start(mContext, wjCallbacks);
             }
         } catch (Exception e) {
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);

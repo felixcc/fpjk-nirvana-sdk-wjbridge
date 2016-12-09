@@ -23,6 +23,18 @@ public class LocationEntity {
     @JSONField(name = "addressInfo")
     private AddressInfo addressInfo;
 
+    @JSONField(name = "errorCode")
+    private int errorCode;
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public LocationEntity setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+        return this;
+    }
+
     /**
      * @return The mapType
      */
@@ -71,6 +83,7 @@ public class LocationEntity {
                 "mapType='" + mapType + '\'' +
                 ", coordinateInfo=" + coordinateInfo +
                 ", addressInfo=" + addressInfo +
+                ", errorCode=" + errorCode +
                 '}';
     }
 }

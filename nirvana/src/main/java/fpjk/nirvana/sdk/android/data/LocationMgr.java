@@ -1,7 +1,8 @@
 package fpjk.nirvana.sdk.android.data;
 
-import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.tbruyelle.rxpermissions.RxPermissions;
 
 import fpjk.nirvana.sdk.android.business.AddressInfo;
 import fpjk.nirvana.sdk.android.business.CoordinateInfo;
+import fpjk.nirvana.sdk.android.business.ErrorCodeEntity;
 import fpjk.nirvana.sdk.android.business.LocationEntity;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
@@ -22,6 +24,10 @@ import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.android.logger.L;
 import rx.functions.Action0;
 import rx.functions.Action1;
+
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.ACCESS_NETWORK_STATE;
 
 /**
  * Summary:
@@ -33,16 +39,16 @@ import rx.functions.Action1;
  * Version 1.0
  */
 
-public class LocationManager {
+public class LocationMgr {
     private AMapLocationClient locationClient = null;
     private WJCallbacks wjCallbacks;
     private RxPermissions mRxPermissions = null;
 
-    public static LocationManager newInstance(@NonNull Activity context) {
-        return new LocationManager(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
+    public static LocationMgr newInstance(@NonNull Activity context) {
+        return new LocationMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
     }
 
-    private LocationManager(Activity context) {
+    private LocationMgr(Activity context) {
         //初始化client
         locationClient = new AMapLocationClient(context.getApplicationContext());
         //设置定位参数
@@ -55,9 +61,6 @@ public class LocationManager {
     }
 
     private void start() {
-        if (locationClient.isStarted()) {
-            locationClient.stopLocation();
-        }
         locationClient.startLocation();
     }
 
@@ -128,9 +131,17 @@ public class LocationManager {
         return location.getErrorInfo();
     }
 
-    private void start(final Activity context, WJCallbacks wjCallbacks) {
+    public void start(final Activity context, WJCallbacks wjCallbacks) {
         this.wjCallbacks = wjCallbacks;
-        mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS)
+        ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
+        if (!isLocationOpen(context)) {
+            L.i("定位未打开[%s]", false);
+            errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
+            String callBack = GsonManager.newInstance().toJSONString(errorCodeEntity);
+            wjCallbacks.onCallback(callBack);
+            return;
+        }
+        mRxPermissions.requestEach(ACCESS_COARSE_LOCATION, ACCESS_NETWORK_STATE, ACCESS_FINE_LOCATION)
                 .subscribe(new Action1<Permission>() {
                                @Override
                                public void call(Permission permission) {
@@ -170,5 +181,22 @@ public class LocationManager {
                                 L.i("OnComplete");
                             }
                         });
+    }
+
+    /**
+     * 判断GPS是否开启，GPS或者AGPS开启一个就认为是开启的
+     *
+     * @return true 表示开启
+     */
+    private boolean isLocationOpen(final Activity context) {
+        LocationManager locationMgr = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        // 通过GPS卫星定位，定位级别可以精确到街（通过24颗卫星定位，在室外和空旷的地方定位准确、速度快）
+        boolean gps = locationMgr.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // 通过WLAN或移动网络(3G/2G)确定的位置（也称作AGPS，辅助GPS定位。主要用于在室内或遮盖物（建筑群或茂密的深林等）密集的地方定位）
+        boolean network = locationMgr.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        if (gps || network) {
+            return true;
+        }
+        return false;
     }
 }

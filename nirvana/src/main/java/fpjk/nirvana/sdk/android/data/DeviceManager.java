@@ -84,10 +84,8 @@ public class DeviceManager {
         return "";
     }
 
-    public String getSysVersion() {
-        return "手机型号:" + Build.MODEL +
-                ",SDK版本:" + Build.VERSION.SDK +
-                ",系统版本:" + Build.VERSION.RELEASE;
+    public String getSyVersion() {
+        return String.format("SDK版本:[%s],系统版本:[%s]", Build.VERSION.SDK, Build.VERSION.RELEASE);
     }
 
     /**

@@ -2,6 +2,7 @@ package fpjk.nirvana.sdk.android.business;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.webkit.CookieManager;
 
@@ -129,11 +130,12 @@ public class FpjkBusiness {
                 DeviceInfoEntity deviceInfoEntity = new DeviceInfoEntity();
                 deviceInfoEntity.setDeviceInfo(new DeviceInfoEntity.DeviceInfo()
                         .setOs("android")
-                        .setSysVersion(mDeviceManager.getSysVersion())
+                        .setSysVersion(mDeviceManager.getSyVersion())
                         .setUs("us")
                         .setDeviceState(mDeviceManager.isEmulator() + "")
-                        .setVersion(mDeviceManager.getVersionCode() + "")
-                        .setVersionName(mDeviceManager.getVersionName())
+                        .setVersion(mDeviceManager.getVersionName())
+                        .setVersionCode(mDeviceManager.getVersionCode() + "")
+                        .setDeviceModel(Build.MODEL)
                         .setPid(mDeviceManager.getIMEI()));
                 String json = GsonManager.newInstance().toJSONString(deviceInfoEntity);
                 wjCallbacks.onCallback(json);

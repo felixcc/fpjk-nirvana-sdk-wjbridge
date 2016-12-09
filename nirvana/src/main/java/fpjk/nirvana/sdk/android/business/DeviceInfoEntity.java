@@ -42,14 +42,14 @@ public class DeviceInfoEntity {
         @JSONField(name = "pid")
         private String pid;
 
-        @JSONField(name = "cellPhoneType")
-        private String cellPhoneType;
+        @JSONField(name = "deviceModel")
+        private String deviceModel;
 
         @JSONField(name = "version")
         private String version;
 
-        @JSONField(name = "versionName")
-        private String versionName;
+        @JSONField(name = "versionCode")
+        private String versionCode;
 
         @JSONField(name = "us")
         private String us;
@@ -84,12 +84,12 @@ public class DeviceInfoEntity {
             return this;
         }
 
-        public String getCellPhoneType() {
-            return cellPhoneType;
+        public String getDeviceModel() {
+            return deviceModel;
         }
 
-        public DeviceInfo setCellPhoneType(String cellPhoneType) {
-            this.cellPhoneType = cellPhoneType;
+        public DeviceInfo setDeviceModel(String deviceModel) {
+            this.deviceModel = deviceModel;
             return this;
         }
 
@@ -102,12 +102,12 @@ public class DeviceInfoEntity {
             return this;
         }
 
-        public String getVersionName() {
-            return versionName;
+        public String getVersionCode() {
+            return versionCode;
         }
 
-        public DeviceInfo setVersionName(String versionName) {
-            this.versionName = versionName;
+        public DeviceInfo setVersionCode(String versionCode) {
+            this.versionCode = versionCode;
             return this;
         }
 
@@ -135,9 +135,9 @@ public class DeviceInfoEntity {
                     "os='" + os + '\'' +
                     ", sysVersion='" + sysVersion + '\'' +
                     ", pid='" + pid + '\'' +
-                    ", cellPhoneType='" + cellPhoneType + '\'' +
+                    ", deviceModel='" + deviceModel + '\'' +
                     ", version='" + version + '\'' +
-                    ", versionName='" + versionName + '\'' +
+                    ", versionCode='" + versionCode + '\'' +
                     ", us='" + us + '\'' +
                     ", deviceState='" + deviceState + '\'' +
                     '}';

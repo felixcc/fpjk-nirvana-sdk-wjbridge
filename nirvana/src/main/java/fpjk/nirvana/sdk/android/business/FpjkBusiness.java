@@ -139,7 +139,7 @@ public class FpjkBusiness {
                 wjCallbacks.onCallback(json);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
 //                mLocationMgr.buildCallback(wjCallbacks);
-                mLocationMgr.start(mContext, wjCallbacks);
+                mLocationMgr.start(wjCallbacks);
             }
         } catch (Exception e) {
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);

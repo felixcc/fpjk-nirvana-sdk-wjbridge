@@ -5,12 +5,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
-import android.support.annotation.StyleRes;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.TextView;
 
+import fpjk.nirvana.sdk.android.business.DataTransferEntity;
+import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 import fpjk.nirvana.sdk.wjbridge.R;
 
 /**
@@ -23,20 +26,23 @@ import fpjk.nirvana.sdk.wjbridge.R;
  * Version 1.0
  */
 
-public class OpenUrlDialog extends Dialog {
+public class OpenUrlDialog extends Dialog implements View.OnClickListener {
     private Context mContext;
+    private DataTransferEntity mDataTransferEntity;
+    private WJBridgeWebView mWJBridgeWebView;
+    private TextView mTxtOpenUrlTitle;
+    private Button mBtnOpenUrlBack;
 
-    public OpenUrlDialog(@NonNull Context context) {
-        this(context, R.style.popupDialog);
-    }
-
-    public OpenUrlDialog(@NonNull Context context, @StyleRes int themeResId) {
+    public OpenUrlDialog(@NonNull Context context, DataTransferEntity dataTransferEntity, int width, int height) {
         super(context, R.style.popupDialog);
-        mContext = context;
-        buildConfigs();
+        mDataTransferEntity = dataTransferEntity;
+        buildConfigs(width, height);
     }
 
-    private void buildConfigs() {
+    private void buildConfigs(int width, int height) {
+        if (getWindow() == null) {
+            return;
+        }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_open_url);
         setCanceledOnTouchOutside(false);
@@ -45,11 +51,22 @@ public class OpenUrlDialog extends Dialog {
         DisplayMetrics dm = new DisplayMetrics();
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
         Rect rect = new Rect();
-        View view = getWindow().getDecorView();//decorView是window中的最顶层view，可以从window中获取到decorView
+        View view = getWindow().getDecorView();
         view.getWindowVisibleDisplayFrame(rect);
-//        lay.height = dm.heightPixels - rect.top;
-//        lay.width = dm.widthPixels;
-        lay.height = dm.heightPixels - rect.top;
-        lay.width = dm.widthPixels;
+        lay.height = height;
+        lay.width = width;
+
+        mWJBridgeWebView = (WJBridgeWebView) findViewById(R.id.wjBridgeWebView);
+        mTxtOpenUrlTitle = (TextView) findViewById(R.id.txtOpenUrlTitle);
+        mBtnOpenUrlBack = (Button) findViewById(R.id.btnOpenUrlBack);
+        mBtnOpenUrlBack.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        if (id == R.id.btnOpenUrlBack) {
+            dismiss();
+        }
     }
 }

@@ -11,29 +11,33 @@ package fpjk.nirvana.sdk.android.logger;
 public class L {
     private static boolean isDebug = true;
 
-    private static final String TAG = "FELIX";
-
     public static void json(String json) {
         if (isDebug) {
-            Logger.json(TAG, json);
+            Logger.json(json);
+        }
+    }
+
+    public static void d(String msg, Object... args) {
+        if (isDebug) {
+            Logger.d(String.format(msg, args));
         }
     }
 
     public static void i(String msg, Object... args) {
         if (isDebug) {
-            Logger.i(TAG, String.format(msg, args));
+            Logger.i(String.format(msg, args));
         }
     }
 
     public static void e(String msg, Object... args) {
         if (isDebug) {
-            Logger.e(TAG, String.format(msg, args));
+            Logger.e(String.format(msg, args));
         }
     }
 
     public static void e(String msg, Throwable error) {
         if (isDebug) {
-            Logger.e(TAG, msg, error);
+            Logger.e(msg, error);
         }
     }
 }

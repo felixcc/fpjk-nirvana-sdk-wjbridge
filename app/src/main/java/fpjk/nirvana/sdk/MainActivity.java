@@ -28,14 +28,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         final String url = mEditText.getText().toString();
         mWJBridgeWebView.loadUrl(url);
-
-//        String url = "file:///android_asset/index.html";
-//        mWJBridgeWebView.registerObtainCookie(new IObtainCookie() {
-//            @Override
-//            public void obtain(String cookie) {
-//                L.d("wjBridgeWebView.registerObtainCookie->[%s]", cookie);
-//            }
-//        });
     }
 
     @Override

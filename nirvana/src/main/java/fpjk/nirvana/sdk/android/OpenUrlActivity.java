@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import fpjk.nirvana.sdk.android.business.DataTransferEntity;
 import fpjk.nirvana.sdk.android.business.OpenUrlResponse;
-import fpjk.nirvana.sdk.android.data.GsonManager;
+import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 import fpjk.nirvana.sdk.wjbridge.R;
 
@@ -47,7 +47,7 @@ public class OpenUrlActivity extends Activity {
     public void finishMySelf(View view) {
         OpenUrlResponse openUrlResponse = new OpenUrlResponse();
         openUrlResponse.switchManualProcessingMode();
-        String reponses = GsonManager.newInstance().toJSONString(openUrlResponse);
+        String reponses = GsonMgr.get().toJSONString(openUrlResponse);
 //        mWJCallbacks.onCallback(reponses);
         this.finish();
     }

@@ -1,9 +1,9 @@
 package fpjk.nirvana.sdk.android.business;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.webkit.CookieManager;
 
 import org.apache.commons.lang.StringUtils;
@@ -11,7 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import fpjk.nirvana.sdk.android.OpenUrlActivity;
+import fpjk.nirvana.sdk.android.OpenUrlDialog;
 import fpjk.nirvana.sdk.android.data.ContactMgr;
 import fpjk.nirvana.sdk.android.data.DeviceMgr;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
@@ -48,6 +48,8 @@ public class FpjkBusiness {
     private DeviceMgr mDeviceMgr;
     private ContactMgr mContactMgr;
     private LocationMgr mLocationMgr;
+    private int mWJWebLoaderWidth = 0;
+    private int mWJWebLoaderHeight = 0;
 
     public static FpjkBusiness newInstance(WJWebLoader webLoader) {
         return new FpjkBusiness(WJBridgeUtils.checkNoNull(webLoader, "WJWebLoader not NULL!"));
@@ -86,6 +88,15 @@ public class FpjkBusiness {
                 }
             });
 
+            wjBridgeWebView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    mWJWebLoaderWidth = wjBridgeWebView.getWidth();
+                    mWJWebLoaderHeight = wjBridgeWebView.getHeight();
+                    L.d("addOnLayoutChangeListener.width[%s],height[%s]", mWJWebLoaderWidth, mWJWebLoaderHeight);
+                }
+            });
+
             mContext = (Activity) wjBridgeWebView.getContext();
             mDeviceMgr = DeviceMgr.newInstance(mContext);
             mContactMgr = ContactMgr.newInstance(mContext);
@@ -111,11 +122,11 @@ public class FpjkBusiness {
                 });
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
-                Intent intent = new Intent(mContext, OpenUrlActivity.class);
-                intent.putExtra(OpenUrlActivity.EXTRA_SHOW_ME, dataTransferEntity);
-                mContext.startActivity(intent);
-//                OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext);
-//                openUrlDialog.show();
+//                Intent intent = new Intent(mContext, OpenUrlActivity.class);
+//                intent.putExtra(OpenUrlActivity.EXTRA_SHOW_ME, dataTransferEntity);
+//                mContext.startActivity(intent);
+                OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext, mWJWebLoaderWidth, mWJWebLoaderHeight);
+                openUrlDialog.show();
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {
                     return;

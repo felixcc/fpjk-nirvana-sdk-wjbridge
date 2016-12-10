@@ -19,11 +19,11 @@ package fpjk.nirvana.sdk.android.presenter;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import fpjk.nirvana.sdk.android.data.RxBus;
+import fpjk.nirvana.sdk.android.data.event.EventPageFinished;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeProvider;
 
 public class WJBridgeWebViewClient extends WebViewClient {
-
-    private static final String TAG = "WJBridgeWebViewClient";
 
     private WJBridgeProvider mProvider;
 
@@ -41,5 +41,6 @@ public class WJBridgeWebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         this.mProvider.onPageFinished();
+        RxBus.get().send(new EventPageFinished().setCurrentUrl(url));
     }
 }

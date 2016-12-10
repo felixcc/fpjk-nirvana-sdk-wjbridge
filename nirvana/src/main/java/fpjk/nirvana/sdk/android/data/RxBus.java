@@ -21,7 +21,7 @@ public class RxBus {
     }
 
     // 单例RxBus
-    public static RxBus newInstance() {
+    public static RxBus get() {
         if (defaultInstance == null) {
             synchronized (RxBus.class) {
                 if (defaultInstance == null) {

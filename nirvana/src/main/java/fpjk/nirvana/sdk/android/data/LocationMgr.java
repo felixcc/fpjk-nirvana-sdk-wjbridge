@@ -93,7 +93,7 @@ public class LocationMgr {
                 result = "定位失败";
             }
             L.i("onLocationChanged: " + result);
-            RxBus.newInstance().send(new EventLocation().setWjCallbacks(wjCallbacks).setLocationInfo(result));
+            RxBus.get().send(new EventLocation().setWjCallbacks(wjCallbacks).setLocationInfo(result));
         }
     };
 

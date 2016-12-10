@@ -27,7 +27,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mWJBridgeWebView = (WJBridgeWebView) findViewById(R.id.wJBridgeX5WebView);
 
         final String url = mEditText.getText().toString();
-        mWJBridgeWebView.loadUrl(url);
+        mWJBridgeWebView.loadUrl("https://www.baidu.com/");
     }
 
     @Override

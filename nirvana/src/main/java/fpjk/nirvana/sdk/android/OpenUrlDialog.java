@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import fpjk.nirvana.sdk.android.business.DataTransferEntity;
+import fpjk.nirvana.sdk.android.business.OpenUrlResponse;
+import fpjk.nirvana.sdk.android.data.GsonMgr;
+import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 import fpjk.nirvana.sdk.wjbridge.R;
 
@@ -30,11 +33,17 @@ public class OpenUrlDialog extends Dialog implements View.OnClickListener {
     private Context mContext;
     private DataTransferEntity mDataTransferEntity;
     private WJBridgeWebView mWJBridgeWebView;
+    private WJCallbacks mWjCallbacks;
     private TextView mTxtOpenUrlTitle;
     private Button mBtnOpenUrlBack;
 
-    public OpenUrlDialog(@NonNull Context context, DataTransferEntity dataTransferEntity, int width, int height) {
+    public OpenUrlDialog(@NonNull Context context,
+                         DataTransferEntity dataTransferEntity,
+                         WJCallbacks wjCallbacks,
+                         int width,
+                         int height) {
         super(context, R.style.popupDialog);
+        mWjCallbacks = wjCallbacks;
         mDataTransferEntity = dataTransferEntity;
         buildConfigs(width, height);
     }
@@ -60,12 +69,18 @@ public class OpenUrlDialog extends Dialog implements View.OnClickListener {
         mTxtOpenUrlTitle = (TextView) findViewById(R.id.txtOpenUrlTitle);
         mBtnOpenUrlBack = (Button) findViewById(R.id.btnOpenUrlBack);
         mBtnOpenUrlBack.setOnClickListener(this);
+
+        mTxtOpenUrlTitle.setText(mDataTransferEntity.getTitle());
+        mWJBridgeWebView.loadUrl(mDataTransferEntity.getUrl());
     }
 
     @Override
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.btnOpenUrlBack) {
+            OpenUrlResponse openUrlResponse = new OpenUrlResponse();
+            openUrlResponse.switchManualProcessingMode();
+            mWjCallbacks.onCallback(GsonMgr.get().toJSONString(openUrlResponse));
             dismiss();
         }
     }

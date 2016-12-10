@@ -19,6 +19,7 @@ import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.data.LocationMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
+import fpjk.nirvana.sdk.android.data.event.EventPageFinished;
 import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
@@ -66,7 +67,7 @@ public class FpjkBusiness {
     }
 
     private void processCookieEvent() {
-        RxBus.newInstance().toObserverable().subscribe(new Action1<Object>() {
+        RxBus.get().toObserverable().subscribe(new Action1<Object>() {
             @Override
             public void call(Object o) {
                 if (o instanceof EventLocation) {
@@ -74,6 +75,9 @@ public class FpjkBusiness {
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
                     wjCallbacks.onCallback(mLocationInfo);
                 }
+                if (o instanceof EventPageFinished) {
+                }
+                L.d("toObserverable[%s]", o);
             }
         });
     }
@@ -122,10 +126,7 @@ public class FpjkBusiness {
                 });
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
-//                Intent intent = new Intent(mContext, OpenUrlActivity.class);
-//                intent.putExtra(OpenUrlActivity.EXTRA_SHOW_ME, dataTransferEntity);
-//                mContext.startActivity(intent);
-                OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext, mWJWebLoaderWidth, mWJWebLoaderHeight);
+                OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext, dataTransferEntity, wjCallbacks, mWJWebLoaderWidth, mWJWebLoaderHeight);
                 openUrlDialog.show();
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {

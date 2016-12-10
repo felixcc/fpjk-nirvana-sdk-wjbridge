@@ -36,7 +36,7 @@ import rx.schedulers.Schedulers;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class ContactManager {
+public class ContactMgr {
     private Context mContext;
 
     private Subscription mSubscription;
@@ -49,11 +49,11 @@ public class ContactManager {
         void onCompleted(List<DBContactsEntity> contactsEntities);
     }
 
-    public static ContactManager newInstance(@NonNull Context context) {
-        return new ContactManager(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
+    public static ContactMgr newInstance(@NonNull Context context) {
+        return new ContactMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
     }
 
-    private ContactManager(Context context) {
+    private ContactMgr(Context context) {
         mContext = context;
         iDataBaseDao = new ContactDao(mContext);
     }
@@ -101,15 +101,11 @@ public class ContactManager {
                     if (null == phoneCursor) {
                         return null;
                     }
-                    StringBuilder phoneNumber = new StringBuilder();
+                    List<String> nums = new ArrayList<>();
                     while (phoneCursor.moveToNext() && !phoneCursor.isClosed()) {
                         String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        if (phoneCursor.isLast()) {
-                            phoneNumber.append(null != phone ? phone : "");
-                        } else {
-                            phoneNumber.append(null != phone ? phone + "," : "");
-                        }
-                        contactBean.setPhoneNum(escapeSql(phoneNumber.toString()));
+                        nums.add(escapeSql(phone));
+                        contactBean.setPhoneNumList(nums);
                     }
                     phoneCursor.close();
                 } catch (Exception e) {
@@ -123,7 +119,7 @@ public class ContactManager {
                     @Override
                     public Boolean call(DBContactsEntity dbContactsEntity) {
                         for (DBContactsEntity inside : mHistoryContacts) {
-                            if (inside.getPhoneNum().equals(dbContactsEntity.getPhoneNum()) && inside.getFullName().equals(dbContactsEntity.getFullName())) {
+                            if (inside.getFullName().equals(dbContactsEntity.getFullName())) {
                                 return false;
                             }
                         }

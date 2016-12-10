@@ -7,6 +7,8 @@ import android.os.Parcelable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.List;
+
 /**
  * 联系人数据模型
  */
@@ -18,8 +20,8 @@ public class DBContactsEntity implements Parcelable {
     @DatabaseField(columnName = "fullName")
     private String fullName;
 
-    @DatabaseField(columnName = "phoneNum")
-    private String phoneNum;
+    @DatabaseField(columnName = "phoneNumList")
+    private List<String> phoneNumList;
 
     public int getId() {
         return id;
@@ -39,12 +41,12 @@ public class DBContactsEntity implements Parcelable {
         return this;
     }
 
-    public String getPhoneNum() {
-        return phoneNum;
+    public List<String> getPhoneNumList() {
+        return phoneNumList;
     }
 
-    public DBContactsEntity setPhoneNum(String phoneNum) {
-        this.phoneNum = phoneNum;
+    public DBContactsEntity setPhoneNumList(List<String> phoneNumList) {
+        this.phoneNumList = phoneNumList;
         return this;
     }
 
@@ -57,7 +59,7 @@ public class DBContactsEntity implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.id);
         dest.writeString(this.fullName);
-        dest.writeString(this.phoneNum);
+        dest.writeStringList(this.phoneNumList);
     }
 
     public DBContactsEntity() {
@@ -66,7 +68,7 @@ public class DBContactsEntity implements Parcelable {
     protected DBContactsEntity(Parcel in) {
         this.id = in.readInt();
         this.fullName = in.readString();
-        this.phoneNum = in.readString();
+        this.phoneNumList = in.createStringArrayList();
     }
 
     public static final Creator<DBContactsEntity> CREATOR = new Creator<DBContactsEntity>() {
@@ -86,7 +88,7 @@ public class DBContactsEntity implements Parcelable {
         return "DBContactsEntity{" +
                 "id=" + id +
                 ", fullName='" + fullName + '\'' +
-                ", phoneNum='" + phoneNum + '\'' +
+                ", phoneNumList=" + phoneNumList +
                 '}';
     }
 }

@@ -15,13 +15,13 @@ import fpjk.nirvana.sdk.android.logger.L;
  * QQ:74104
  * Email:lovejiuwei@gmail.com
  */
-public class GsonManager {
+public class GsonMgr {
 
-    public static GsonManager newInstance() {
-        return new GsonManager();
+    public static GsonMgr get() {
+        return new GsonMgr();
     }
 
-    private GsonManager() {
+    private GsonMgr() {
     }
 
     public final <T> T json2Object(String json, Class<T> clazz) {
@@ -29,7 +29,7 @@ public class GsonManager {
         try {
             ob = JSON.parseObject(json, clazz);
         } catch (Exception e) {
-            L.e("GsonManager->[%s]", e);
+            L.e("GsonMgr->[%s]", e);
         }
         return ob;
     }

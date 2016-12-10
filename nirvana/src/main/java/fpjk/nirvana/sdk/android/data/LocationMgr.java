@@ -57,11 +57,11 @@ public class LocationMgr {
         mActivity = context;
     }
 
-    private void start() {
+    private void startLocation() {
         locationClient.startLocation();
     }
 
-    public void stop() {
+    public void stopLocation() {
         locationClient.stopLocation();
     }
 
@@ -122,7 +122,7 @@ public class LocationMgr {
             addressInfo.setAddress(location.getAddress());
             locationEntity.setAddressInfo(addressInfo);
 
-            return GsonManager.newInstance().toJSONString(locationEntity);
+            return GsonMgr.get().toJSONString(locationEntity);
         }
         return location.getErrorInfo();
     }
@@ -133,7 +133,7 @@ public class LocationMgr {
         if (!isLocationOpen(mActivity)) {
             L.i("定位未打开[%s]", false);
             errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
-            String callBack = GsonManager.newInstance().toJSONString(errorCodeEntity);
+            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
             wjCallbacks.onCallback(callBack);
             return;
         }
@@ -144,31 +144,31 @@ public class LocationMgr {
                         L.i("Permission result " + permission);
                         if (permission.granted) {
                             L.i("granted");
-                            start();
+                            startLocation();
                         } else if (permission.shouldShowRequestPermissionRationale) {
                             // Denied permission without ask never again
                             L.i("shouldShowRequestPermissionRationale");
                             errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_LOCATION.getValue());
-                            String callBack = GsonManager.newInstance().toJSONString(errorCodeEntity);
+                            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
                             wjCallbacks.onCallback(callBack);
                         } else {
                             // Denied permission with ask never again
                             // Need to go to the settings
                             L.i("Need to go to the settings");
                             errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
-                            String callBack = GsonManager.newInstance().toJSONString(errorCodeEntity);
+                            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
                             wjCallbacks.onCallback(callBack);
                         }
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        stop();
+                        stopLocation();
                     }
                 }, new Action0() {
                     @Override
                     public void call() {
-                        stop();
+                        stopLocation();
                     }
                 });
     }

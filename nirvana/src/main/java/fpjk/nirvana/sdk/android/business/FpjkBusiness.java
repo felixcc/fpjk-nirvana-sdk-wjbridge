@@ -12,10 +12,10 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import fpjk.nirvana.sdk.android.OpenUrlActivity;
-import fpjk.nirvana.sdk.android.data.ContactManager;
-import fpjk.nirvana.sdk.android.data.DeviceManager;
+import fpjk.nirvana.sdk.android.data.ContactMgr;
+import fpjk.nirvana.sdk.android.data.DeviceMgr;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
-import fpjk.nirvana.sdk.android.data.GsonManager;
+import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.data.LocationMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
@@ -45,8 +45,8 @@ public class FpjkBusiness {
     private final String cJ = "fpjkBridgeCallJavaScript";
 
     private Activity mContext;
-    private DeviceManager mDeviceManager;
-    private ContactManager mContactManager;
+    private DeviceMgr mDeviceMgr;
+    private ContactMgr mContactMgr;
     private LocationMgr mLocationMgr;
 
     public static FpjkBusiness newInstance(WJWebLoader webLoader) {
@@ -87,8 +87,8 @@ public class FpjkBusiness {
             });
 
             mContext = (Activity) wjBridgeWebView.getContext();
-            mDeviceManager = DeviceManager.newInstance(mContext);
-            mContactManager = ContactManager.newInstance(mContext);
+            mDeviceMgr = DeviceMgr.newInstance(mContext);
+            mContactMgr = ContactMgr.newInstance(mContext);
             mLocationMgr = LocationMgr.newInstance(mContext);
         }
     }
@@ -99,13 +99,13 @@ public class FpjkBusiness {
         }
         L.json(jsonData);
         try {
-            ProcessBusinessEntity entity = GsonManager.newInstance().json2Object(jsonData, ProcessBusinessEntity.class);
+            ProcessBusinessEntity entity = GsonMgr.get().json2Object(jsonData, ProcessBusinessEntity.class);
             if (FpjkEnum.Business.GET_CONTACTS.getValue().equals(entity.getOpt())) {
-                mContactManager.submitContacts(new ContactManager.ICallBack() {
+                mContactMgr.submitContacts(new ContactMgr.ICallBack() {
                     @Override
                     public void onCompleted(List<DBContactsEntity> contactsEntities) {
-                        String contactJson = GsonManager.newInstance().toJSONString(contactsEntities);
-                        L.i("ContactManager.submitContacts->[%s]", contactJson);
+                        String contactJson = GsonMgr.get().toJSONString(contactsEntities);
+                        L.i("ContactMgr.submitContacts->[%s]", contactJson);
                         wjCallbacks.onCallback(contactJson);
                     }
                 });
@@ -122,23 +122,22 @@ public class FpjkBusiness {
                 }
                 DataTransferEntity dataTransferEntity = entity.getData();
                 String cookie = CookieManager.getInstance().getCookie(dataTransferEntity.getUrl());
-                CookieEntity cookieEntity = mDeviceManager.formatCookie(cookie);
-                wjCallbacks.onCallback(GsonManager.newInstance().toJSONString(cookieEntity));
+                CookieEntity cookieEntity = mDeviceMgr.formatCookie(cookie);
+                wjCallbacks.onCallback(GsonMgr.get().toJSONString(cookieEntity));
             } else if (FpjkEnum.Business.GET_DEVICE_INFO.getValue().equals(entity.getOpt())) {
                 DeviceInfoEntity deviceInfoEntity = new DeviceInfoEntity();
                 deviceInfoEntity.setDeviceInfo(new DeviceInfoEntity.DeviceInfo()
                         .setOs("android")
-                        .setSysVersion(mDeviceManager.getSyVersion())
+                        .setSysVersion(mDeviceMgr.getSyVersion())
                         .setUs("us")
-                        .setDeviceState(mDeviceManager.isEmulator() + "")
-                        .setVersion(mDeviceManager.getVersionName())
-                        .setVersionCode(mDeviceManager.getVersionCode() + "")
+                        .setDeviceState(mDeviceMgr.isEmulator() + "")
+                        .setVersion(mDeviceMgr.getVersionName())
+                        .setVersionCode(mDeviceMgr.getVersionCode() + "")
                         .setDeviceModel(Build.MODEL)
-                        .setPid(mDeviceManager.getIMEI()));
-                String json = GsonManager.newInstance().toJSONString(deviceInfoEntity);
+                        .setPid(mDeviceMgr.getIMEI()));
+                String json = GsonMgr.get().toJSONString(deviceInfoEntity);
                 wjCallbacks.onCallback(json);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
-//                mLocationMgr.buildCallback(wjCallbacks);
                 mLocationMgr.start(wjCallbacks);
             }
         } catch (Exception e) {

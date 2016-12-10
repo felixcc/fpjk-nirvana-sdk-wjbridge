@@ -29,15 +29,15 @@ import fpjk.nirvana.sdk.android.logger.Logger;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class DeviceManager {
+public class DeviceMgr {
 
     private Context mContext = null;
 
-    public static DeviceManager newInstance(@NonNull Context context) {
-        return new DeviceManager(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
+    public static DeviceMgr newInstance(@NonNull Context context) {
+        return new DeviceMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
     }
 
-    private DeviceManager(Context context) {
+    private DeviceMgr(Context context) {
         mContext = context;
     }
 
@@ -47,7 +47,7 @@ public class DeviceManager {
         return channelName;
     }
 
-    public DeviceManager setChannelName(String channelName) {
+    public DeviceMgr setChannelName(String channelName) {
         this.channelName = channelName;
         return this;
     }

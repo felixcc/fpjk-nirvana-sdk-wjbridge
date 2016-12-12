@@ -36,6 +36,7 @@ import rx.functions.Action1;
 
 public class LocationMgr {
     private AMapLocationClient locationClient = null;
+    private AMapLocationClientOption locationOption = new AMapLocationClientOption();
     private WJCallbacks wjCallbacks;
     private RxPermissions mRxPermissions = null;
     private Activity mActivity;
@@ -47,8 +48,9 @@ public class LocationMgr {
     private LocationMgr(Activity context) {
         //初始化client
         locationClient = new AMapLocationClient(context.getApplicationContext());
+        locationOption = getDefaultOption();
         //设置定位参数
-        locationClient.setLocationOption(getDefaultOption());
+        locationClient.setLocationOption(locationOption);
         //设置定位监听
         locationClient.setLocationListener(locationListener);
         //permissions
@@ -58,11 +60,14 @@ public class LocationMgr {
     }
 
     private void startLocation() {
+        // 设置定位参数
+        locationClient.setLocationOption(locationOption);
+        // 启动定位
         locationClient.startLocation();
     }
 
     public void stopLocation() {
-        locationClient.stopLocation();
+//        locationClient.stopLocation();
     }
 
     private AMapLocationClientOption getDefaultOption() {
@@ -72,7 +77,7 @@ public class LocationMgr {
         mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
         mOption.setInterval(1000);//可选，设置定位间隔。默认为2秒
         mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
-        mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
+        mOption.setOnceLocation(true);//可选，设置是否单次定位。默认是false
         mOption.setOnceLocationLatest(false);//可选，设置是否等待wifi刷新，默认为false.如果设置为true,会自动变为单次定位，持续定位时不要使用
         AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);//可选， 设置网络请求的协议。可选HTTP或者HTTPS。默认为HTTP
         mOption.setSensorEnable(false);//可选，设置是否使用传感器。默认是false

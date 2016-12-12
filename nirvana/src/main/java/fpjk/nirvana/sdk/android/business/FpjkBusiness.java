@@ -1,6 +1,7 @@
 package fpjk.nirvana.sdk.android.business;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -10,7 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.lang.ref.WeakReference;
 
-import fpjk.nirvana.sdk.android.OpenUrlDialog;
+import fpjk.nirvana.sdk.android.OpenUrlActivity;
 import fpjk.nirvana.sdk.android.data.ContactMgr;
 import fpjk.nirvana.sdk.android.data.DeviceMgr;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
@@ -119,8 +120,9 @@ public class FpjkBusiness {
                 mContactMgr.obtainContacts(uid, wjCallbacks);
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
-                OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext, dataTransferEntity, wjCallbacks, mWJWebLoaderWidth, mWJWebLoaderHeight);
-                openUrlDialog.show();
+                Intent intent = new Intent(mContext, OpenUrlActivity.class);
+                intent.putExtra(OpenUrlActivity.EXTRA_KEY, dataTransferEntity);
+                mContext.startActivity(intent);
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {
                     return;

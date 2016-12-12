@@ -12,6 +12,8 @@
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService">
         </service>
+
+        <activity android:name="fpjk.nirvana.sdk.android.OpenUrlActivity"/>
     </application>
 
     <uses-permission android:name="android.permission.READ_CONTACTS"/>

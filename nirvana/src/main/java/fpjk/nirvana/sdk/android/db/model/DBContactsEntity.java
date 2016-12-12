@@ -8,7 +8,10 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "fpjk_local_mobile")
 public class DBContactsEntity implements Parcelable {
-    @DatabaseField(id = true, columnName = "uid")
+    @DatabaseField(generatedId = true)
+    private long id;
+
+    @DatabaseField(columnName = "uid")
     private long uid;
 
     @DatabaseField(columnName = "fullName")
@@ -16,6 +19,15 @@ public class DBContactsEntity implements Parcelable {
 
     @DatabaseField(columnName = "phoneNum") //ContactListEntity
     private String phoneNum;
+
+    public long getId() {
+        return id;
+    }
+
+    public DBContactsEntity setId(long id) {
+        this.id = id;
+        return this;
+    }
 
     public long getUid() {
         return uid;
@@ -51,6 +63,7 @@ public class DBContactsEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.id);
         dest.writeLong(this.uid);
         dest.writeString(this.fullName);
         dest.writeString(this.phoneNum);
@@ -60,6 +73,7 @@ public class DBContactsEntity implements Parcelable {
     }
 
     protected DBContactsEntity(Parcel in) {
+        this.id = in.readLong();
         this.uid = in.readLong();
         this.fullName = in.readString();
         this.phoneNum = in.readString();
@@ -80,7 +94,8 @@ public class DBContactsEntity implements Parcelable {
     @Override
     public String toString() {
         return "DBContactsEntity{" +
-                "uid=" + uid +
+                "id=" + id +
+                ", uid=" + uid +
                 ", fullName='" + fullName + '\'' +
                 ", phoneNum='" + phoneNum + '\'' +
                 '}';

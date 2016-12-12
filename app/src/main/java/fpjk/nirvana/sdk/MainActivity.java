@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
+import fpjk.nirvana.sdk.android.data.ContactMgr;
+import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
+import fpjk.nirvana.sdk.android.logger.L;
 import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -29,6 +32,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
         final String url = mEditText.getText().toString();
 //        mWJBridgeWebView.loadUrl("https://www.baidu.com/");
         mWJBridgeWebView.loadUrl(url);
+
+        ContactMgr.newInstance(this).obtainContacts(10060L, new WJCallbacks() {
+            @Override
+            public void onCallback(String data) {
+                L.d("onCallback[%s]", data);
+            }
+        });
     }
 
     @Override

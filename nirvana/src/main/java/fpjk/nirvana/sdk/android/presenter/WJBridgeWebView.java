@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.webkit.CookieManager;
 import android.webkit.WebView;
 
 import java.util.List;
@@ -19,36 +18,33 @@ import fpjk.nirvana.sdk.android.jsbridge.WebViewJavascriptBridge;
 
 public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge, WJWebLoader {
 
-    private static final String TAG = "WJBridgeWebView";
-
     private WJBridgeProvider mProvider;
 
     public WJBridgeWebView(Context context) {
         super(context);
-        this._init();
+        init();
     }
 
     public WJBridgeWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this._init();
+        init();
     }
 
     public WJBridgeWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this._init();
+        init();
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private void _init() {
-        this.mProvider = WJBridgeProvider.newInstance(this);
-        this.setVerticalScrollBarEnabled(false);
-        this.setHorizontalScrollBarEnabled(false);
-        this.getSettings().setJavaScriptEnabled(true);
+    private void init() {
+        mProvider = WJBridgeProvider.newInstance(this);
+        setVerticalScrollBarEnabled(false);
+        setHorizontalScrollBarEnabled(false);
+        getSettings().setJavaScriptEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-        this.setWebViewClient(onCreateWebViewClient(mProvider));
-
+        setWebViewClient(onCreateWebViewClient(mProvider));
         FpjkBusiness.newInstance(this).process();
     }
 
@@ -58,46 +54,42 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
 
     @Override
     public void send(String data) {
-        this.mProvider.send(data);
+        mProvider.send(data);
     }
 
     @Override
     public void send(String data, WJCallbacks callbacks) {
-        this.mProvider.send(data, callbacks);
+        mProvider.send(data, callbacks);
     }
 
     @Override
     public void setStartupMessages(List<WJMessage> messages) {
-        this.mProvider.setStartupMessages(messages);
+        mProvider.setStartupMessages(messages);
     }
 
     @Override
     public void loadUrl(String jsUrl, WJCallbacks callbacks) {
-        this.mProvider.loadUrl(jsUrl, callbacks);
+        mProvider.loadUrl(jsUrl, callbacks);
     }
 
     @Override
     public void callHandler(String handlerName, String data, WJCallbacks callbacks) {
-        this.mProvider.callHandler(handlerName, data, callbacks);
+        mProvider.callHandler(handlerName, data, callbacks);
     }
 
     @Override
     public void registerHandler(String handlerName, WJBridgeHandler handler) {
-        this.mProvider.registerHandler(handlerName, handler);
+        mProvider.registerHandler(handlerName, handler);
     }
 
     @Override
     public void setDefaultHandler(WJBridgeHandler handler) {
-        this.mProvider.setDefaultHandler(handler);
-    }
-
-    public String getCookie(String url) {
-        return CookieManager.getInstance().getCookie(url);
+        mProvider.setDefaultHandler(handler);
     }
 
     @Override
     public void destroy() {
-        this.mProvider.destroy();
+        mProvider.destroy();
         super.destroy();
     }
 }

@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,9 +14,13 @@ import android.widget.TextView;
 import fpjk.nirvana.sdk.android.business.DataTransferEntity;
 import fpjk.nirvana.sdk.android.business.OpenUrlResponse;
 import fpjk.nirvana.sdk.android.data.GsonMgr;
+import fpjk.nirvana.sdk.android.data.RxBus;
+import fpjk.nirvana.sdk.android.data.event.EventPageFinished;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
+import fpjk.nirvana.sdk.android.logger.L;
 import fpjk.nirvana.sdk.android.presenter.WJBridgeWebView;
 import fpjk.nirvana.sdk.wjbridge.R;
+import rx.functions.Action1;
 
 /**
  * Summary:
@@ -30,7 +33,6 @@ import fpjk.nirvana.sdk.wjbridge.R;
  */
 
 public class OpenUrlDialog extends Dialog implements View.OnClickListener {
-    private Context mContext;
     private DataTransferEntity mDataTransferEntity;
     private WJBridgeWebView mWJBridgeWebView;
     private WJCallbacks mWjCallbacks;
@@ -43,35 +45,56 @@ public class OpenUrlDialog extends Dialog implements View.OnClickListener {
                          int width,
                          int height) {
         super(context, R.style.popupDialog);
+        setContentView(R.layout.view_open_url);
+
+        buildConfigs(context, width, height);
+
         mWjCallbacks = wjCallbacks;
         mDataTransferEntity = dataTransferEntity;
-        buildConfigs(width, height);
     }
 
-    private void buildConfigs(int width, int height) {
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.view_open_url);
+//
+//        mWJBridgeWebView = (WJBridgeWebView) findViewById(R.id.wjBridgeWebView);
+//        mTxtOpenUrlTitle = (TextView) findViewById(R.id.txtOpenUrlTitle);
+//        mBtnOpenUrlBack = (Button) findViewById(R.id.btnOpenUrlBack);
+//        mBtnOpenUrlBack.setOnClickListener(this);
+//
+//        mTxtOpenUrlTitle.setText(mDataTransferEntity.getTitle());
+//        mWJBridgeWebView.loadUrl(mDataTransferEntity.getUrl());
+//
+//        processingEvent();
+//    }
+
+    private void buildConfigs(Context context, int width, int height) {
         if (getWindow() == null) {
             return;
         }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_open_url);
+
         setCanceledOnTouchOutside(false);
         setCancelable(false);
         WindowManager.LayoutParams lay = getWindow().getAttributes();
         DisplayMetrics dm = new DisplayMetrics();
-        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
         Rect rect = new Rect();
         View view = getWindow().getDecorView();
         view.getWindowVisibleDisplayFrame(rect);
         lay.height = height;
         lay.width = width;
+    }
 
-        mWJBridgeWebView = (WJBridgeWebView) findViewById(R.id.wjBridgeWebView);
-        mTxtOpenUrlTitle = (TextView) findViewById(R.id.txtOpenUrlTitle);
-        mBtnOpenUrlBack = (Button) findViewById(R.id.btnOpenUrlBack);
-        mBtnOpenUrlBack.setOnClickListener(this);
-
-        mTxtOpenUrlTitle.setText(mDataTransferEntity.getTitle());
-        mWJBridgeWebView.loadUrl(mDataTransferEntity.getUrl());
+    private void processingEvent() {
+        RxBus.get().toObserverable().subscribe(new Action1<Object>() {
+            @Override
+            public void call(Object o) {
+                if (o instanceof EventPageFinished) {
+                }
+                L.d("processingEvent[%s]", o);
+            }
+        });
     }
 
     @Override

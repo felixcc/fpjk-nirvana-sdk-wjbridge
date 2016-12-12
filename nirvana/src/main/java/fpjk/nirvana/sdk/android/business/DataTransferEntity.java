@@ -24,6 +24,9 @@ public class DataTransferEntity implements Parcelable {
     @JSONField(name = "finishUrl")
     private String finishUrl = "";
 
+    @JSONField(name = "uid")
+    private Long uid = 0L;
+
     public String getUrl() {
         return url;
     }
@@ -51,13 +54,13 @@ public class DataTransferEntity implements Parcelable {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "DataTransferEntity{" +
-                "url='" + url + '\'' +
-                ", title='" + title + '\'' +
-                ", finishUrl='" + finishUrl + '\'' +
-                '}';
+    public Long getUid() {
+        return uid;
+    }
+
+    public DataTransferEntity setUid(Long uid) {
+        this.uid = uid;
+        return this;
     }
 
     @Override
@@ -70,6 +73,7 @@ public class DataTransferEntity implements Parcelable {
         dest.writeString(this.url);
         dest.writeString(this.title);
         dest.writeString(this.finishUrl);
+        dest.writeLong(this.uid);
     }
 
     public DataTransferEntity() {
@@ -79,9 +83,10 @@ public class DataTransferEntity implements Parcelable {
         this.url = in.readString();
         this.title = in.readString();
         this.finishUrl = in.readString();
+        this.uid = in.readLong();
     }
 
-    public static final Parcelable.Creator<DataTransferEntity> CREATOR = new Parcelable.Creator<DataTransferEntity>() {
+    public static final Creator<DataTransferEntity> CREATOR = new Creator<DataTransferEntity>() {
         @Override
         public DataTransferEntity createFromParcel(Parcel source) {
             return new DataTransferEntity(source);
@@ -92,4 +97,14 @@ public class DataTransferEntity implements Parcelable {
             return new DataTransferEntity[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "DataTransferEntity{" +
+                "url='" + url + '\'' +
+                ", title='" + title + '\'' +
+                ", finishUrl='" + finishUrl + '\'' +
+                ", uid='" + uid + '\'' +
+                '}';
+    }
 }

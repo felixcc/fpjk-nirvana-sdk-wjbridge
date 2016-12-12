@@ -1,34 +1,28 @@
 package fpjk.nirvana.sdk.android.db.model;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.List;
-
-/**
- * 联系人数据模型
- */
-@DatabaseTable(tableName = "t_Mobile")
+@DatabaseTable(tableName = "fpjk_local_mobile")
 public class DBContactsEntity implements Parcelable {
-    @DatabaseField(generatedId = true)
-    private int id;
+    @DatabaseField(id = true, columnName = "uid")
+    private long uid;
 
     @DatabaseField(columnName = "fullName")
     private String fullName;
 
-    @DatabaseField(columnName = "phoneNumList")
-    private List<String> phoneNumList;
+    @DatabaseField(columnName = "phoneNum") //ContactListEntity
+    private String phoneNum;
 
-    public int getId() {
-        return id;
+    public long getUid() {
+        return uid;
     }
 
-    public DBContactsEntity setId(int id) {
-        this.id = id;
+    public DBContactsEntity setUid(long uid) {
+        this.uid = uid;
         return this;
     }
 
@@ -41,12 +35,12 @@ public class DBContactsEntity implements Parcelable {
         return this;
     }
 
-    public List<String> getPhoneNumList() {
-        return phoneNumList;
+    public String getPhoneNum() {
+        return phoneNum;
     }
 
-    public DBContactsEntity setPhoneNumList(List<String> phoneNumList) {
-        this.phoneNumList = phoneNumList;
+    public DBContactsEntity setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
         return this;
     }
 
@@ -57,18 +51,18 @@ public class DBContactsEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.id);
+        dest.writeLong(this.uid);
         dest.writeString(this.fullName);
-        dest.writeStringList(this.phoneNumList);
+        dest.writeString(this.phoneNum);
     }
 
     public DBContactsEntity() {
     }
 
     protected DBContactsEntity(Parcel in) {
-        this.id = in.readInt();
+        this.uid = in.readLong();
         this.fullName = in.readString();
-        this.phoneNumList = in.createStringArrayList();
+        this.phoneNum = in.readString();
     }
 
     public static final Creator<DBContactsEntity> CREATOR = new Creator<DBContactsEntity>() {
@@ -86,9 +80,9 @@ public class DBContactsEntity implements Parcelable {
     @Override
     public String toString() {
         return "DBContactsEntity{" +
-                "id=" + id +
+                "uid=" + uid +
                 ", fullName='" + fullName + '\'' +
-                ", phoneNumList=" + phoneNumList +
+                ", phoneNum='" + phoneNum + '\'' +
                 '}';
     }
 }

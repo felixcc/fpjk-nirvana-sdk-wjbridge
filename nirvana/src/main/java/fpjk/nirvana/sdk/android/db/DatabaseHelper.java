@@ -54,9 +54,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
-            sqLiteDatabase.execSQL("DROP TABLE t_Mobile");
-            sqLiteDatabase.execSQL("DROP TABLE t_Cookie");
-
+            sqLiteDatabase.execSQL("DROP TABLE fpjk_local_mobile");
             TableUtils.createTableIfNotExists(connectionSource, DBContactsEntity.class);
         } catch (SQLException e) {
             L.e(TAG, e);

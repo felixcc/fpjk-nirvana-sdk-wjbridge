@@ -9,7 +9,6 @@ import android.webkit.CookieManager;
 import org.apache.commons.lang.StringUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import fpjk.nirvana.sdk.android.OpenUrlDialog;
 import fpjk.nirvana.sdk.android.data.ContactMgr;
@@ -20,7 +19,6 @@ import fpjk.nirvana.sdk.android.data.LocationMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.data.event.EventPageFinished;
-import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
@@ -116,14 +114,9 @@ public class FpjkBusiness {
         try {
             ProcessBusinessEntity entity = GsonMgr.get().json2Object(jsonData, ProcessBusinessEntity.class);
             if (FpjkEnum.Business.GET_CONTACTS.getValue().equals(entity.getOpt())) {
-                mContactMgr.submitContacts(new ContactMgr.ICallBack() {
-                    @Override
-                    public void onCompleted(List<DBContactsEntity> contactsEntities) {
-                        String contactJson = GsonMgr.get().toJSONString(contactsEntities);
-                        L.i("ContactMgr.submitContacts->[%s]", contactJson);
-                        wjCallbacks.onCallback(contactJson);
-                    }
-                });
+                DataTransferEntity dataTransferEntity = entity.getData();
+                long uid = dataTransferEntity.getUid();
+                mContactMgr.obtainContacts(uid, wjCallbacks);
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 OpenUrlDialog openUrlDialog = new OpenUrlDialog(mContext, dataTransferEntity, wjCallbacks, mWJWebLoaderWidth, mWJWebLoaderHeight);

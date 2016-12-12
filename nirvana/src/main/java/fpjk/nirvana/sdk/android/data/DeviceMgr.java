@@ -85,7 +85,7 @@ public class DeviceMgr {
     }
 
     public String getSyVersion() {
-        return String.format("SDK版本:[%s],系统版本:[%s]", Build.VERSION.SDK, Build.VERSION.RELEASE);
+        return Build.VERSION.RELEASE + "";
     }
 
     /**

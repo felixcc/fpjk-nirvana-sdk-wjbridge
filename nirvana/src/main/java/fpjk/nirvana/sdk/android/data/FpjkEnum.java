@@ -46,4 +46,20 @@ public class FpjkEnum {
             return value;
         }
     }
+
+    public enum OpenUrlStatus {
+        USER_SHUTDOWN(0),//手动关闭
+        AUTO_SHUTDOWN(1);//检测到指定URL关闭
+
+        private final int value;
+
+        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
+        OpenUrlStatus(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

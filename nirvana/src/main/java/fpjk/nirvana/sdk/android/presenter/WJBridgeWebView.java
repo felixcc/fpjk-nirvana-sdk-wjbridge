@@ -8,7 +8,6 @@ import android.webkit.WebView;
 
 import java.util.List;
 
-import fpjk.nirvana.sdk.android.business.FpjkBusiness;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeProvider;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
@@ -45,7 +44,6 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
             WebView.setWebContentsDebuggingEnabled(true);
         }
         setWebViewClient(onCreateWebViewClient(mProvider));
-        FpjkBusiness.newInstance(this).process();
     }
 
     protected WJBridgeWebViewClient onCreateWebViewClient(WJBridgeProvider provider) {

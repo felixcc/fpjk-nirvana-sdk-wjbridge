@@ -1,7 +1,6 @@
 package fpjk.nirvana.sdk.android.business;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -11,7 +10,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.lang.ref.WeakReference;
 
-import fpjk.nirvana.sdk.android.OpenUrlActivity;
 import fpjk.nirvana.sdk.android.data.ContactMgr;
 import fpjk.nirvana.sdk.android.data.DeviceMgr;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
@@ -19,7 +17,6 @@ import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.data.LocationMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
-import fpjk.nirvana.sdk.android.data.event.EventPageFinished;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
@@ -50,17 +47,28 @@ public class FpjkBusiness {
     private LocationMgr mLocationMgr;
     private int mWJWebLoaderWidth = 0;
     private int mWJWebLoaderHeight = 0;
+    private ITabViewSwitcher mITabViewSwitcher;
 
-    public static FpjkBusiness newInstance(WJWebLoader webLoader) {
-        return new FpjkBusiness(WJBridgeUtils.checkNoNull(webLoader, "WJWebLoader not NULL!"));
+    public interface ITabViewSwitcher {
+        void showOpenUrlTab(DataTransferEntity dataTransferEntity, WJCallbacks wjCallbacks);
     }
 
-    private FpjkBusiness(@NonNull WJWebLoader webLoader) {
+    public static FpjkBusiness newInstance(Activity activity, WJWebLoader webLoader) {
+        return new FpjkBusiness(activity, WJBridgeUtils.checkNoNull(webLoader, "WJWebLoader not NULL!"));
+    }
+
+    private FpjkBusiness(@NonNull Activity activity, @NonNull WJWebLoader webLoader) {
         mWebLoader = new WeakReference<>(webLoader);
+        mContext = activity;
         Logger.init("Fpjk");
     }
 
-    public void process() {
+    public FpjkBusiness registerSwitcher(ITabViewSwitcher ITabViewSwitcher) {
+        mITabViewSwitcher = ITabViewSwitcher;
+        return this;
+    }
+
+    public void execute() {
         processMessages();
         processCookieEvent();
     }
@@ -73,8 +81,6 @@ public class FpjkBusiness {
                     String mLocationInfo = ((EventLocation) o).getLocationInfo();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
                     wjCallbacks.onCallback(mLocationInfo);
-                }
-                if (o instanceof EventPageFinished) {
                 }
                 L.d("toObserverable[%s]", o);
             }
@@ -100,7 +106,6 @@ public class FpjkBusiness {
                 }
             });
 
-            mContext = (Activity) wjBridgeWebView.getContext();
             mDeviceMgr = DeviceMgr.newInstance(mContext);
             mContactMgr = ContactMgr.newInstance(mContext);
             mLocationMgr = LocationMgr.newInstance(mContext);
@@ -120,9 +125,9 @@ public class FpjkBusiness {
                 mContactMgr.obtainContacts(uid, wjCallbacks);
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
-                Intent intent = new Intent(mContext, OpenUrlActivity.class);
-                intent.putExtra(OpenUrlActivity.EXTRA_KEY, dataTransferEntity);
-                mContext.startActivity(intent);
+                if (null != mITabViewSwitcher) {
+                    mITabViewSwitcher.showOpenUrlTab(dataTransferEntity, wjCallbacks);
+                }
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {
                     return;

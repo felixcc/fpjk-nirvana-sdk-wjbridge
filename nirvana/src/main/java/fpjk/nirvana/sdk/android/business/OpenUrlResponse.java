@@ -1,5 +1,7 @@
 package fpjk.nirvana.sdk.android.business;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 /**
  * Summary:
  * Created by Felix
@@ -9,17 +11,23 @@ package fpjk.nirvana.sdk.android.business;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-
 public class OpenUrlResponse {
-    //0=手动，1是自动
-    private int success = 0;
 
-    public void switchManualProcessingMode() {
-        success = 0;
+    @JSONField(name = "success")
+    private Integer success;
+
+    /**
+     * @return The success
+     */
+    public Integer getSuccess() {
+        return success;
     }
 
-    public void switchAutoProcessingMode() {
-        success = 1;
+    /**
+     * @param success The success
+     */
+    public void setSuccess(Integer success) {
+        this.success = success;
     }
 
     @Override

@@ -19,3 +19,5 @@ hs_err_pid*
 /app/app.iml
 /gradle/wrapper/gradle-wrapper.jar
 .gradle/
+/fpjk-nirvana-sdk-wjbridge.iml
+/nirvana/nirvana.iml

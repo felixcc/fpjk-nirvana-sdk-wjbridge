@@ -30,7 +30,6 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -65,8 +64,14 @@ public class ContactMgr {
         mRxPermissions.setLogging(true);
     }
 
+    private void buildReturnMsg(WJCallbacks wjCallbacks, int errorCode) {
+        ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
+        errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
+        String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
+        wjCallbacks.onCallback(callBack);
+    }
+
     public void obtainContacts(final Long uid, final WJCallbacks wjCallbacks) {
-        final ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
         mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS)
                 .subscribe(new Action1<Permission>() {
                     @Override
@@ -78,30 +83,19 @@ public class ContactMgr {
                         } else if (permission.shouldShowRequestPermissionRationale) {
                             // Denied permission without ask never again
                             L.i("shouldShowRequestPermissionRationale");
-                            errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-                            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                            wjCallbacks.onCallback(callBack);
+                            buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
                         } else {
                             // Denied permission with ask never again
                             // Need to go to the settings
                             L.i("Need to go to the settings");
-                            errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-                            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                            wjCallbacks.onCallback(callBack);
+                            buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
                         }
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         L.e("call", throwable);
-                        errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-                        String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                        wjCallbacks.onCallback(callBack);
-                    }
-                }, new Action0() {
-                    @Override
-                    public void call() {
-                        L.i("completed -^^-");
+                        buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
                     }
                 });
     }
@@ -110,17 +104,22 @@ public class ContactMgr {
         mSubscription = Observable.create(new Observable.OnSubscribe<Cursor>() {
             @Override
             public void call(Subscriber<? super Cursor> subscriber) {
-                ContentResolver contentResolver = mContext.getContentResolver();
-                Cursor cursor = contentResolver.query(ContactsContract.RawContacts.CONTENT_URI, null, null, null, null);
-                if (null == cursor) {
-                    subscriber.onError(new Throwable());
-                    return;
+                try {
+                    ContentResolver contentResolver = mContext.getContentResolver();
+                    Cursor cursor = contentResolver.query(ContactsContract.RawContacts.CONTENT_URI, null, null, null, null);
+                    if (null == cursor) {
+                        subscriber.onError(new Throwable("CONTENT_URI == Null"));
+                        return;
+                    }
+                    while (cursor.moveToNext() && !cursor.isClosed()) {
+                        subscriber.onNext(cursor);
+                    }
+                    cursor.close();
+                    subscriber.onCompleted();
+                } catch (Exception e) {
+                    subscriber.onError(new Throwable("请开启通讯录权限"));
+                    L.e("submitContacts", e);
                 }
-                while (cursor.moveToNext() && !cursor.isClosed()) {
-                    subscriber.onNext(cursor);
-                }
-                cursor.close();
-                subscriber.onCompleted();
             }
         }).map(new Func1<Cursor, ContactList>() {
             @Override
@@ -151,9 +150,7 @@ public class ContactMgr {
                 }
                 return contactBean;
             }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .filter(new Func1<ContactList, Boolean>() {
                     @Override
                     public Boolean call(ContactList contactList) {
@@ -168,9 +165,21 @@ public class ContactMgr {
                         }
                         return !phones.isEmpty();
                     }
-                }).toList().subscribe(new Action1<List<ContactList>>() {
+                })
+                .toList()
+                .subscribe(new Subscriber<List<ContactList>>() {
                     @Override
-                    public void call(List<ContactList> contactLists) {
+                    public void onCompleted() {
+                        L.d("onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        L.e("Subscriber", e);
+                    }
+
+                    @Override
+                    public void onNext(List<ContactList> contactLists) {
                         ContactListEntity contactListEntity = new ContactListEntity();
                         contactListEntity.setContactList(contactLists);
                         String returnJSString = GsonMgr.get().toJSONString(contactListEntity);
@@ -193,15 +202,6 @@ public class ContactMgr {
                 });
     }
 
-    private boolean isHistoryExits(long uid, String phoneNum) {
-        try {
-            return DataBaseDaoHelper.newInstance(mContext).query(mContactDao, uid, phoneNum);
-        } catch (Exception e) {
-            L.e("getHistoryContacts[%s]", e);
-        }
-        return false;
-    }
-
     private void destory() {
         if (null != mSubscription && !mSubscription.isUnsubscribed()) {
             mSubscription.unsubscribe();
@@ -217,5 +217,4 @@ public class ContactMgr {
     private String escapeSql(String sqlcolumn) {
         return StringEscapeUtils.escapeSql(sqlcolumn);
     }
-
 }

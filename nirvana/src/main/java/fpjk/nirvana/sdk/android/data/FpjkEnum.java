@@ -33,7 +33,9 @@ public class FpjkEnum {
     public enum ErrorCode {
         USER_DENIED_ACCESS(10001),//用户拒绝通讯录权限
         USER_DENIED_LOCATION(10002),//用户拒绝定位权限
-        USER_MOBILE_LOCATION_SERVICES_OFF(10003);//用户手机定位服务关闭
+        USER_MOBILE_LOCATION_SERVICES_OFF(10003),//用户手机定位服务关闭
+        USER_REJECT_CALL_RECORD(10004),//用户拒绝通话记录权限
+        USERS_REFUSE_SMS_PERMISSIONS(10005);//用户拒绝短信权限
 
         private final int value;
 

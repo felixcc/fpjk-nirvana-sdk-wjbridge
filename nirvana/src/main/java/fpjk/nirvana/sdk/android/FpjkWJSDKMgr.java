@@ -3,6 +3,7 @@ package fpjk.nirvana.sdk.android;
 import android.app.Activity;
 
 import fpjk.nirvana.sdk.android.business.FpjkBusiness;
+import fpjk.nirvana.sdk.android.business.FpjkView;
 
 /**
  * Summary:暴露给第三方的管理者

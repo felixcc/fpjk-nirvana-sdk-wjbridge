@@ -1,4 +1,4 @@
-package fpjk.nirvana.sdk.android.business;
+package fpjk.nirvana.sdk.android.business.entity;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

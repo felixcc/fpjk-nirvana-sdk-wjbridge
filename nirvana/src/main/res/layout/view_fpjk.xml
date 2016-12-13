@@ -15,10 +15,10 @@
                 android:layout_height="match_parent">
         </fpjk.nirvana.sdk.android.presenter.WJBridgeWebView>
 
-        <fpjk.nirvana.sdk.android.OpenUrlView
+        <fpjk.nirvana.sdk.android.business.OpenUrlView
                 android:id="@+id/openUrlView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-        </fpjk.nirvana.sdk.android.OpenUrlView>
+        </fpjk.nirvana.sdk.android.business.OpenUrlView>
     </ViewFlipper>
 </LinearLayout>

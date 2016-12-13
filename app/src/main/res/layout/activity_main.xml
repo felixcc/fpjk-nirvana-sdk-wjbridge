@@ -13,12 +13,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <fpjk.nirvana.sdk.android.FpjkView
+    <fpjk.nirvana.sdk.android.business.FpjkView
             android:id="@+id/fpjkView"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-    </fpjk.nirvana.sdk.android.FpjkView>
+    </fpjk.nirvana.sdk.android.business.FpjkView>
     <!--<fpjk.nirvana.sdk.android.presenter.WJBridgeWebView-->
     <!--android:id="@+id/wJBridgeX5WebView"-->
     <!--android:layout_weight="1"-->

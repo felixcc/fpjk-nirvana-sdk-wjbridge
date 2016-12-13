@@ -17,9 +17,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import fpjk.nirvana.sdk.android.business.ContactList;
-import fpjk.nirvana.sdk.android.business.ContactListEntity;
-import fpjk.nirvana.sdk.android.business.ErrorCodeEntity;
+import fpjk.nirvana.sdk.android.business.entity.ContactList;
+import fpjk.nirvana.sdk.android.business.entity.ContactListEntity;
+import fpjk.nirvana.sdk.android.business.entity.ErrorCodeEntity;
 import fpjk.nirvana.sdk.android.db.DataBaseDaoHelper;
 import fpjk.nirvana.sdk.android.db.dao.ContactDao;
 import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;

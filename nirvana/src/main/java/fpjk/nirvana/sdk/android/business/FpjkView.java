@@ -1,4 +1,4 @@
-package fpjk.nirvana.sdk.android;
+package fpjk.nirvana.sdk.android.business;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -7,9 +7,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.ViewFlipper;
 
-import fpjk.nirvana.sdk.android.business.DataTransferEntity;
-import fpjk.nirvana.sdk.android.business.FpjkBusiness;
-import fpjk.nirvana.sdk.android.business.OpenUrlResponse;
+import fpjk.nirvana.sdk.android.business.entity.DataTransferEntity;
+import fpjk.nirvana.sdk.android.business.entity.OpenUrlResponse;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
 import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
@@ -113,6 +112,11 @@ public class FpjkView extends RelativeLayout implements FpjkBusiness.ITabViewSwi
                 if (o instanceof EventPageFinished) {
                     String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
                     if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {
+                        OpenUrlResponse openUrlResponse = new OpenUrlResponse();
+                        openUrlResponse.setSuccess(FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
+                        String callBack = GsonMgr.get().toJSONString(openUrlResponse);
+                        mWjCallbacks.onCallback(callBack);
+                        showDefaultTab();
                         L.d("匹配到了指定URL，即将爆炸[%s]", o);
                     }
                 }

@@ -13,10 +13,10 @@ import com.amap.api.location.AMapLocationListener;
 import com.tbruyelle.rxpermissions.Permission;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
-import fpjk.nirvana.sdk.android.business.AddressInfo;
-import fpjk.nirvana.sdk.android.business.CoordinateInfo;
-import fpjk.nirvana.sdk.android.business.ErrorCodeEntity;
-import fpjk.nirvana.sdk.android.business.LocationEntity;
+import fpjk.nirvana.sdk.android.business.entity.AddressInfo;
+import fpjk.nirvana.sdk.android.business.entity.CoordinateInfo;
+import fpjk.nirvana.sdk.android.business.entity.ErrorCodeEntity;
+import fpjk.nirvana.sdk.android.business.entity.LocationEntity;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;

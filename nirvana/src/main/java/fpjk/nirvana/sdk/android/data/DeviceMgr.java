@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import fpjk.nirvana.sdk.android.business.CookieEntity;
-import fpjk.nirvana.sdk.android.business.CookieList;
+import fpjk.nirvana.sdk.android.business.entity.CookieEntity;
+import fpjk.nirvana.sdk.android.business.entity.CookieList;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.android.logger.Logger;
 

@@ -10,6 +10,10 @@ import org.apache.commons.lang.StringUtils;
 
 import java.lang.ref.WeakReference;
 
+import fpjk.nirvana.sdk.android.business.entity.CookieEntity;
+import fpjk.nirvana.sdk.android.business.entity.DataTransferEntity;
+import fpjk.nirvana.sdk.android.business.entity.DeviceInfoEntity;
+import fpjk.nirvana.sdk.android.business.entity.ProcessBusinessEntity;
 import fpjk.nirvana.sdk.android.data.ContactMgr;
 import fpjk.nirvana.sdk.android.data.DeviceMgr;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;

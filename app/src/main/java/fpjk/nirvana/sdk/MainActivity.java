@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
-import fpjk.nirvana.sdk.android.FpjkView;
+import fpjk.nirvana.sdk.android.business.FpjkView;
 import fpjk.nirvana.sdk.android.FpjkWJSDKMgr;
 
 public class MainActivity extends Activity implements View.OnClickListener {

@@ -64,4 +64,21 @@ public class FpjkEnum {
             return value;
         }
     }
+
+    public enum Record {
+        INCOMING_TYPE(0),//呼入
+        OUTGOING_TYPE(1),//呼出
+        MISSED_TYPE(2);//未接
+
+        private final int value;
+
+        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
+        Record(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

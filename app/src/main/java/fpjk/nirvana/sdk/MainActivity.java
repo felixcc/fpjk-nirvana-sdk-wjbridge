@@ -7,6 +7,8 @@ import android.widget.EditText;
 
 import fpjk.nirvana.sdk.android.FpjkWJSDKMgr;
 import fpjk.nirvana.sdk.android.business.FpjkView;
+import fpjk.nirvana.sdk.android.data.SmsMgr;
+import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
@@ -28,6 +30,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         final String url = mEditText.getText().toString();
         FpjkWJSDKMgr.initWebView(mFpjkView, this, url);
+
+        SmsMgr.newInstance(this).obtainSms(74104, new WJCallbacks() {
+            @Override
+            public void onCallback(String data) {
+
+            }
+        });
     }
 
     @Override

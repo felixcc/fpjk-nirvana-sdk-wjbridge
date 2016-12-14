@@ -20,6 +20,9 @@ public class DBRecordEntity implements Parcelable {
     @DatabaseField(columnName = "name")
     private String name;
 
+    @DatabaseField(columnName = "content")
+    private String content;
+
     @DatabaseField(columnName = "date")
     private Long date;
 
@@ -65,6 +68,15 @@ public class DBRecordEntity implements Parcelable {
         return this;
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public DBRecordEntity setContent(String content) {
+        this.content = content;
+        return this;
+    }
+
     public Long getDate() {
         return date;
     }
@@ -103,7 +115,8 @@ public class DBRecordEntity implements Parcelable {
         dest.writeLong(this.uid);
         dest.writeString(this.phoneNum);
         dest.writeString(this.name);
-        dest.writeLong(this.date);
+        dest.writeString(this.content);
+        dest.writeValue(this.date);
         dest.writeLong(this.duration);
         dest.writeValue(this.type);
     }
@@ -116,7 +129,8 @@ public class DBRecordEntity implements Parcelable {
         this.uid = in.readLong();
         this.phoneNum = in.readString();
         this.name = in.readString();
-        this.date = in.readLong();
+        this.content = in.readString();
+        this.date = (Long) in.readValue(Long.class.getClassLoader());
         this.duration = in.readLong();
         this.type = (Integer) in.readValue(Integer.class.getClassLoader());
     }
@@ -140,7 +154,8 @@ public class DBRecordEntity implements Parcelable {
                 ", uid=" + uid +
                 ", phoneNum='" + phoneNum + '\'' +
                 ", name='" + name + '\'' +
-                ", date='" + date + '\'' +
+                ", content='" + content + '\'' +
+                ", date=" + date +
                 ", duration=" + duration +
                 ", type=" + type +
                 '}';

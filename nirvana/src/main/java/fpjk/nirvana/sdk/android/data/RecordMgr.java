@@ -3,9 +3,11 @@ package fpjk.nirvana.sdk.android.data;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.CallLog;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
 import com.j256.ormlite.dao.Dao;
@@ -94,6 +96,10 @@ public class RecordMgr extends PhoneStatus {
             public void call(Subscriber<? super Cursor> subscriber) {
                 try {
                     ContentResolver contentResolver = mContext.getContentResolver();
+                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+                        subscriber.onError(new Throwable("请开启获取通讯录权限"));
+                        return;
+                    }
                     Cursor cursor = contentResolver.query(CallLog.Calls.CONTENT_URI, null, null, null, null);
                     if (null == cursor) {
                         subscriber.onError(new Throwable("CONTENT_URI == Null"));

@@ -20,6 +20,7 @@ import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.data.LocationMgr;
 import fpjk.nirvana.sdk.android.data.RecordMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
+import fpjk.nirvana.sdk.android.data.SmsMgr;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
@@ -50,6 +51,7 @@ public class FpjkBusiness {
     private ContactMgr mContactMgr;
     private LocationMgr mLocationMgr;
     private RecordMgr mRecordMgr;
+    private SmsMgr mSmsMgr;
     private ITabViewSwitcher mITabViewSwitcher;
 
     public interface ITabViewSwitcher {
@@ -100,11 +102,11 @@ public class FpjkBusiness {
             });
         }
 
-        mRecordMgr = RecordMgr.newInstance(mContext);
+        mSmsMgr = SmsMgr.newInstance(mContext);
         mDeviceMgr = DeviceMgr.newInstance(mContext);
+        mRecordMgr = RecordMgr.newInstance(mContext);
         mContactMgr = ContactMgr.newInstance(mContext);
         mLocationMgr = LocationMgr.newInstance(mContext);
-
         Logger.init("Fpjk");
     }
 
@@ -149,6 +151,9 @@ public class FpjkBusiness {
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
                 mLocationMgr.start(wjCallbacks);
             } else if (FpjkEnum.Business.GET_SMS_RECORDS.getValue().equals(entity.getOpt())) {
+                DataTransferEntity dataTransferEntity = entity.getData();
+                long uid = dataTransferEntity.getUid();
+                mSmsMgr.obtainSms(uid, wjCallbacks);
             } else if (FpjkEnum.Business.GET_CALL_RECORDS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();

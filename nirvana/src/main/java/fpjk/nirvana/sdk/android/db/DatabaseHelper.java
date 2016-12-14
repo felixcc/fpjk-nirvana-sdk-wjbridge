@@ -29,14 +29,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final int VERSION = 1;
 
     public DatabaseHelper(Context context) {
-        /*File file = context.getDatabasePath(DB_NAME);
-        //判断数据库文件存在与否
-		if(file.exists()){
-			//根据数据库路径打开已经存在的数据库 可以进 行读写
-			SQLiteDatabase db = SQLiteDatabase.openDatabase(context.getDatabasePath(DB_NAME).getPath(), null,
-					SQLiteDatabase.OPEN_READWRITE);
-			connectionSource = new AndroidConnectionSource(db);
-		}  */
         super(context, DB_NAME, null, VERSION);
     }
 

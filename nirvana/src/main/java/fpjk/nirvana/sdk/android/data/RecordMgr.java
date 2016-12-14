@@ -111,7 +111,7 @@ public class RecordMgr extends PhoneStatus {
                     cursor.close();
                     subscriber.onCompleted();
                 } catch (Exception e) {
-                    subscriber.onError(new Throwable("请开启获取通讯录权限"));
+                    subscriber.onError(e);
                     L.e("submitContacts", e);
                 }
             }
@@ -140,14 +140,13 @@ public class RecordMgr extends PhoneStatus {
                     recordList.setDuration(duration);
                     recordList.setDate(date);
                 }
-                cursor.close();
                 return recordList;
             }
         })
                 .filter(new Func1<RecordList, Boolean>() {
                     @Override
                     public Boolean call(RecordList recordList) {
-                        return !DataBaseDaoHelper.newInstance(mContext).queryRecordExists(mRecordDao, uid, recordList.getPhoneNum(), recordList.getDate());
+                        return !DataBaseDaoHelper.get(mContext).queryRecordExists(mRecordDao, uid, recordList.getPhoneNum(), recordList.getDate());
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -179,7 +178,7 @@ public class RecordMgr extends PhoneStatus {
                             dbRecordEntity.setName(value.getName());
                             dbRecordEntity.setDuration(value.getDuration());
                             dbRecordEntity.setDate(value.getDate());
-                            DataBaseDaoHelper.newInstance(mContext).createIfNotExists(mRecordDao, dbRecordEntity);
+                            DataBaseDaoHelper.get(mContext).createIfNotExists(mRecordDao, dbRecordEntity);
                         }
                         //
                         destory();

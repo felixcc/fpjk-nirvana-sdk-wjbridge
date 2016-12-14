@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 
 import com.j256.ormlite.dao.Dao;
 import com.tbruyelle.rxpermissions.Permission;
@@ -112,7 +113,7 @@ public class SmsMgr extends PhoneStatus {
                     cursor.close();
                     subscriber.onCompleted();
                 } catch (Exception e) {
-                    subscriber.onError(new Throwable("请开启获取短信权限"));
+                    subscriber.onError(e);
                     L.e("submitContacts", e);
                 }
             }
@@ -126,20 +127,22 @@ public class SmsMgr extends PhoneStatus {
                     String name = cursor.getString(cursor.getColumnIndex("person"));
                     String body = cursor.getString(cursor.getColumnIndex("body"));
                     long date = cursor.getLong(cursor.getColumnIndex("date"));
+                    if (TextUtils.isEmpty(phone)) {
+                        continue;
+                    }
                     recordList.setPhoneNum(phone);
                     recordList.setName(name);
                     recordList.setType(type);
                     recordList.setContent(body);
                     recordList.setDate(date);
                 }
-                cursor.close();
                 return recordList;
             }
         })
                 .filter(new Func1<RecordList, Boolean>() {
                     @Override
                     public Boolean call(RecordList recordList) {
-                        return !DataBaseDaoHelper.newInstance(mContext).querySmsExists(mSmsDao, uid, recordList.getPhoneNum(), recordList.getDate());
+                        return !DataBaseDaoHelper.get(mContext).querySmsExists(mSmsDao, uid, recordList.getPhoneNum(), recordList.getDate());
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -171,7 +174,7 @@ public class SmsMgr extends PhoneStatus {
                             dbRecordEntity.setName(value.getName());
                             dbRecordEntity.setContent(value.getContent());
                             dbRecordEntity.setDate(value.getDate());
-                            DataBaseDaoHelper.newInstance(mContext).createIfNotExists(mSmsDao, dbRecordEntity);
+                            DataBaseDaoHelper.get(mContext).createIfNotExists(mSmsDao, dbRecordEntity);
                         }
                         //
                         destory();

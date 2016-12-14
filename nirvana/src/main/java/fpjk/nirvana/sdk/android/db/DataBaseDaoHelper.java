@@ -17,7 +17,7 @@ import fpjk.nirvana.sdk.android.logger.L;
 public class DataBaseDaoHelper {
     private static final String TAG = "DataBaseDaoHelper";
 
-    public static DataBaseDaoHelper newInstance(@NonNull Activity context) {
+    public static DataBaseDaoHelper get(@NonNull Activity context) {
         return new DataBaseDaoHelper(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
     }
 

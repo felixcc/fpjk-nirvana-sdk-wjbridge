@@ -107,7 +107,7 @@ public class ContactMgr extends PhoneStatus {
                     cursor.close();
                     subscriber.onCompleted();
                 } catch (Exception e) {
-                    subscriber.onError(new Throwable("请开启通讯录权限"));
+                    subscriber.onError(e);
                     L.e("submitContacts", e);
                 }
             }
@@ -147,7 +147,7 @@ public class ContactMgr extends PhoneStatus {
                         List<String> phones = contactList.getPhoneNumList();
                         for (int i = 0; i < phones.size(); i++) {
                             String phone = phones.get(i);
-                            boolean result = DataBaseDaoHelper.newInstance(mContext).queryContactExists(mContactDao, uid, phone);
+                            boolean result = DataBaseDaoHelper.get(mContext).queryContactExists(mContactDao, uid, phone);
                             if (result) {
                                 phones.remove(i);
                                 --i;
@@ -182,7 +182,7 @@ public class ContactMgr extends PhoneStatus {
                             if (value.getPhoneNumList().size() > 0) {
                                 for (String phoneNum : value.getPhoneNumList()) {
                                     dbContactsEntity.setPhoneNum(phoneNum);
-                                    DataBaseDaoHelper.newInstance(mContext).createIfNotExists(mContactDao, dbContactsEntity);
+                                    DataBaseDaoHelper.get(mContext).createIfNotExists(mContactDao, dbContactsEntity);
                                 }
                             }
                         }

@@ -7,8 +7,6 @@ import android.widget.EditText;
 
 import fpjk.nirvana.sdk.android.FpjkWJSDKMgr;
 import fpjk.nirvana.sdk.android.business.FpjkView;
-import fpjk.nirvana.sdk.android.data.SmsMgr;
-import fpjk.nirvana.sdk.android.jsbridge.WJCallbacks;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
@@ -28,38 +26,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mEditText = (EditText) findViewById(R.id.address);
         mFpjkView = (FpjkView) findViewById(R.id.fpjkView);
 
+        FpjkWJSDKMgr.get().buildConfiguration(this, mFpjkView);
+
         final String url = mEditText.getText().toString();
-        FpjkWJSDKMgr.initWebView(mFpjkView, this, url);
-
-        SmsMgr.newInstance(this).obtainSms(74104, new WJCallbacks() {
-            @Override
-            public void onCallback(String data) {
-
-            }
-        });
+        FpjkWJSDKMgr.get().loadUrl(url);
     }
 
     @Override
     public void onClick(View view) {
-//        int id = view.getId();
-//        switch (id) {
-//            case R.id.goBack:
-//                if (mWJBridgeWebView.canGoBack()) {
-//                    mWJBridgeWebView.goBack();
-//                }
-//                break;
-//            case R.id.forward:
-//                if (mWJBridgeWebView.canGoForward()) {
-//                    mWJBridgeWebView.goForward();
-//                }
-//                break;
-//            case R.id.reload:
-////                final String url = mEditText.getText().toString();
-////                mWJBridgeWebView.loadUrl(url);
-//                mWJBridgeWebView.reload();
-//                break;
-//            default:
-//                break;
-//        }
+        int id = view.getId();
+        switch (id) {
+            case R.id.goBack:
+                if (FpjkWJSDKMgr.get().canGoBack()) {
+                    FpjkWJSDKMgr.get().goBack();
+                }
+                break;
+            case R.id.forward:
+                if (FpjkWJSDKMgr.get().canGoForward()) {
+                    FpjkWJSDKMgr.get().goForward();
+                }
+                break;
+            case R.id.reload:
+//                final String url = mEditText.getText().toString();
+//                mWJBridgeWebView.loadUrl(url);
+                FpjkWJSDKMgr.get().reload();
+                break;
+            default:
+                break;
+        }
     }
 }

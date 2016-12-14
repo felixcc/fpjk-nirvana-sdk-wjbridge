@@ -2,6 +2,8 @@ package fpjk.nirvana.sdk.android.business.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import java.util.List;
+
 /**
  * Summary:
  * Created by Felix
@@ -16,6 +18,9 @@ public class DeviceInfoEntity {
     @JSONField(name = "deviceInfo")
     private DeviceInfo deviceInfo;
 
+    @JSONField(name = "appList")
+    private List<InstalledAppInfoEntity> appList;
+
     public DeviceInfo getDeviceInfo() {
         return deviceInfo;
     }
@@ -25,11 +30,13 @@ public class DeviceInfoEntity {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "DeviceInfoEntity{" +
-                "deviceInfo=" + deviceInfo +
-                '}';
+    public List<InstalledAppInfoEntity> getAppList() {
+        return appList;
+    }
+
+    public DeviceInfoEntity setAppList(List<InstalledAppInfoEntity> appList) {
+        this.appList = appList;
+        return this;
     }
 
     public static class DeviceInfo {
@@ -142,5 +149,13 @@ public class DeviceInfoEntity {
                     ", deviceState='" + deviceState + '\'' +
                     '}';
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceInfoEntity{" +
+                "deviceInfo=" + deviceInfo +
+                ", appList=" + appList +
+                '}';
     }
 }

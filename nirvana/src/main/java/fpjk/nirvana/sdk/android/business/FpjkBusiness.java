@@ -143,6 +143,7 @@ public class FpjkBusiness {
                         .setVersionCode(mDeviceMgr.getVersionCode() + "")
                         .setDeviceModel(Build.MODEL)
                         .setPid(mDeviceMgr.getIMEI()));
+                deviceInfoEntity.setAppList(mDeviceMgr.getIntalledAppList());
                 String json = GsonMgr.get().toJSONString(deviceInfoEntity);
                 wjCallbacks.onCallback(json);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {

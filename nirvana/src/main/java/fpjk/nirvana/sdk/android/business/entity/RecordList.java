@@ -22,6 +22,9 @@ public class RecordList implements Parcelable {
     @JSONField(name = "name")
     private String name;
 
+    @JSONField(name = "content")
+    private String content;
+
     @JSONField(name = "date")
     private Long date;
 
@@ -46,6 +49,15 @@ public class RecordList implements Parcelable {
 
     public RecordList setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public RecordList setContent(String content) {
+        this.content = content;
         return this;
     }
 
@@ -85,7 +97,8 @@ public class RecordList implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.phoneNum);
         dest.writeString(this.name);
-        dest.writeLong(this.date);
+        dest.writeString(this.content);
+        dest.writeValue(this.date);
         dest.writeLong(this.duration);
         dest.writeValue(this.type);
     }
@@ -96,12 +109,13 @@ public class RecordList implements Parcelable {
     protected RecordList(Parcel in) {
         this.phoneNum = in.readString();
         this.name = in.readString();
-        this.date = in.readLong();
+        this.content = in.readString();
+        this.date = (Long) in.readValue(Long.class.getClassLoader());
         this.duration = in.readLong();
         this.type = (Integer) in.readValue(Integer.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<RecordList> CREATOR = new Parcelable.Creator<RecordList>() {
+    public static final Creator<RecordList> CREATOR = new Creator<RecordList>() {
         @Override
         public RecordList createFromParcel(Parcel source) {
             return new RecordList(source);
@@ -118,7 +132,8 @@ public class RecordList implements Parcelable {
         return "RecordList{" +
                 "phoneNum='" + phoneNum + '\'' +
                 ", name='" + name + '\'' +
-                ", date='" + date + '\'' +
+                ", content='" + content + '\'' +
+                ", date=" + date +
                 ", duration=" + duration +
                 ", type=" + type +
                 '}';

@@ -2,6 +2,7 @@ package fpjk.nirvana.sdk.android.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -17,7 +18,9 @@ import java.util.UUID;
 
 import fpjk.nirvana.sdk.android.business.entity.CookieEntity;
 import fpjk.nirvana.sdk.android.business.entity.CookieList;
+import fpjk.nirvana.sdk.android.business.entity.InstalledAppInfoEntity;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
+import fpjk.nirvana.sdk.android.logger.L;
 import fpjk.nirvana.sdk.android.logger.Logger;
 
 /**
@@ -237,7 +240,31 @@ public class DeviceMgr {
                 || (Build.FINGERPRINT.contains("generic/vbox86p/vbox86p"))) {
             return 1;
         }
-
         return 0;
+    }
+
+    /**
+     * 获取已安装应用信息（不包含系统自带）
+     */
+    public List<InstalledAppInfoEntity> getIntalledAppList() {
+        ArrayList<InstalledAppInfoEntity> infos = new ArrayList<>();
+        try {
+            List<PackageInfo> packages = mContext.getPackageManager().getInstalledPackages(0);
+
+            for (PackageInfo packageInfo : packages) {
+                // 判断系统/非系统应用
+                if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                    InstalledAppInfoEntity info = new InstalledAppInfoEntity();
+                    info.setAppName(packageInfo.applicationInfo.loadLabel(mContext.getPackageManager()).toString());
+                    info.setPackageName(packageInfo.packageName);
+                    info.setVersionCode(packageInfo.versionCode);
+                    info.setVersionName(packageInfo.versionName);
+                    infos.add(info);
+                }
+            }
+        } catch (Exception e) {
+            L.e("getIntalledAppList", e);
+        }
+        return infos;
     }
 }

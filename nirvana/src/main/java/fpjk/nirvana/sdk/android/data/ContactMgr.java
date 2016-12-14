@@ -12,14 +12,11 @@ import com.j256.ormlite.dao.Dao;
 import com.tbruyelle.rxpermissions.Permission;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import fpjk.nirvana.sdk.android.business.entity.ContactList;
 import fpjk.nirvana.sdk.android.business.entity.ContactListEntity;
-import fpjk.nirvana.sdk.android.business.entity.ErrorCodeEntity;
 import fpjk.nirvana.sdk.android.db.DataBaseDaoHelper;
 import fpjk.nirvana.sdk.android.db.dao.ContactDao;
 import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;
@@ -43,7 +40,7 @@ import rx.schedulers.Schedulers;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class ContactMgr {
+public class ContactMgr extends PhoneStatus {
     private Activity mContext;
 
     private Subscription mSubscription;
@@ -62,13 +59,6 @@ public class ContactMgr {
         //permissions
         mRxPermissions = new RxPermissions(context);
         mRxPermissions.setLogging(true);
-    }
-
-    private void buildReturnMsg(WJCallbacks wjCallbacks, int errorCode) {
-        ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
-        errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-        String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-        wjCallbacks.onCallback(callBack);
     }
 
     public void obtainContacts(final Long uid, final WJCallbacks wjCallbacks) {
@@ -157,7 +147,7 @@ public class ContactMgr {
                         List<String> phones = contactList.getPhoneNumList();
                         for (int i = 0; i < phones.size(); i++) {
                             String phone = phones.get(i);
-                            boolean result = DataBaseDaoHelper.newInstance(mContext).query(mContactDao, uid, phone);
+                            boolean result = DataBaseDaoHelper.newInstance(mContext).queryContactExists(mContactDao, uid, phone);
                             if (result) {
                                 phones.remove(i);
                                 --i;
@@ -206,15 +196,5 @@ public class ContactMgr {
         if (null != mSubscription && !mSubscription.isUnsubscribed()) {
             mSubscription.unsubscribe();
         }
-    }
-
-    /**
-     * 对存入数据库的字段进行特殊字符处理
-     *
-     * @param sqlcolumn 需要存入数据的字符串
-     * @return 格式化的字符串
-     */
-    private String escapeSql(String sqlcolumn) {
-        return StringEscapeUtils.escapeSql(sqlcolumn);
     }
 }

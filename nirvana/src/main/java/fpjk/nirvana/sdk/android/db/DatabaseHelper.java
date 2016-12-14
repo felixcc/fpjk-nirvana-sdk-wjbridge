@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;
+import fpjk.nirvana.sdk.android.db.model.DBRecordEntity;
 import fpjk.nirvana.sdk.android.logger.L;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -45,6 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
             TableUtils.createTableIfNotExists(connectionSource, DBContactsEntity.class);
+            TableUtils.createTableIfNotExists(connectionSource, DBRecordEntity.class);
         } catch (SQLException e) {
             L.e(TAG, e);
         }
@@ -54,8 +56,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
-            sqLiteDatabase.execSQL("DROP TABLE fpjk_local_mobile");
+            sqLiteDatabase.execSQL("DROP TABLE fpjk_local_contacts");
+            sqLiteDatabase.execSQL("DROP TABLE fpjk_local_call_log");
+
             TableUtils.createTableIfNotExists(connectionSource, DBContactsEntity.class);
+            TableUtils.createTableIfNotExists(connectionSource, DBRecordEntity.class);
         } catch (SQLException e) {
             L.e(TAG, e);
         }

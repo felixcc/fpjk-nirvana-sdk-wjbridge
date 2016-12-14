@@ -1,5 +1,8 @@
 package fpjk.nirvana.sdk.android.business.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
@@ -12,7 +15,7 @@ import com.alibaba.fastjson.annotation.JSONField;
  * Version 1.0
  */
 
-public class RecordList {
+public class RecordList implements Parcelable {
     @JSONField(name = "phoneNum")
     private String phoneNum;
 
@@ -20,90 +23,102 @@ public class RecordList {
     private String name;
 
     @JSONField(name = "date")
-    private Integer date;
+    private Long date;
 
     @JSONField(name = "duration")
-    private Integer duration;
+    private long duration;
 
     @JSONField(name = "type")
     private Integer type;
 
-    /**
-     * @return The phoneNum
-     */
     public String getPhoneNum() {
         return phoneNum;
     }
 
-    /**
-     * @param phoneNum The phoneNum
-     */
-    public void setPhoneNum(String phoneNum) {
+    public RecordList setPhoneNum(String phoneNum) {
         this.phoneNum = phoneNum;
+        return this;
     }
 
-    /**
-     * @return The name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name The name
-     */
-    public void setName(String name) {
+    public RecordList setName(String name) {
         this.name = name;
+        return this;
     }
 
-    /**
-     * @return The date
-     */
-    public Integer getDate() {
+    public Long getDate() {
         return date;
     }
 
-    /**
-     * @param date The date
-     */
-    public void setDate(Integer date) {
+    public RecordList setDate(Long date) {
         this.date = date;
+        return this;
     }
 
-    /**
-     * @return The duration
-     */
-    public Integer getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    /**
-     * @param duration The duration
-     */
-    public void setDuration(Integer duration) {
+    public RecordList setDuration(long duration) {
         this.duration = duration;
+        return this;
     }
 
-    /**
-     * @return The type
-     */
     public Integer getType() {
         return type;
     }
 
-    /**
-     * @param type The type
-     */
-    public void setType(Integer type) {
+    public RecordList setType(Integer type) {
         this.type = type;
+        return this;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.phoneNum);
+        dest.writeString(this.name);
+        dest.writeLong(this.date);
+        dest.writeLong(this.duration);
+        dest.writeValue(this.type);
+    }
+
+    public RecordList() {
+    }
+
+    protected RecordList(Parcel in) {
+        this.phoneNum = in.readString();
+        this.name = in.readString();
+        this.date = in.readLong();
+        this.duration = in.readLong();
+        this.type = (Integer) in.readValue(Integer.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<RecordList> CREATOR = new Parcelable.Creator<RecordList>() {
+        @Override
+        public RecordList createFromParcel(Parcel source) {
+            return new RecordList(source);
+        }
+
+        @Override
+        public RecordList[] newArray(int size) {
+            return new RecordList[size];
+        }
+    };
 
     @Override
     public String toString() {
         return "RecordList{" +
                 "phoneNum='" + phoneNum + '\'' +
                 ", name='" + name + '\'' +
-                ", date=" + date +
+                ", date='" + date + '\'' +
                 ", duration=" + duration +
                 ", type=" + type +
                 '}';

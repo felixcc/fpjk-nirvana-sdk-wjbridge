@@ -32,10 +32,26 @@ public class DataBaseDaoHelper {
         }
     }
 
-    public synchronized boolean query(Dao daoInstance, Long uid, String mobile) {
+    public synchronized boolean queryContactExists(Dao daoInstance, Long uid, String mobile) {
         try {
             QueryBuilder<Account, String> queryBuilder = daoInstance.queryBuilder();
             return queryBuilder.where().eq("uid", uid).and().eq("phoneNum", mobile).countOf() > 0;
+        } catch (Exception e) {
+            L.e(TAG, e);
+        }
+        return false;
+    }
+
+    public synchronized boolean queryRecordExists(Dao daoInstance, Long uid, String mobile, Long date) {
+        try {
+            QueryBuilder<Account, String> queryBuilder = daoInstance.queryBuilder();
+            return queryBuilder.where()
+                    .eq("uid", uid)
+                    .and()
+                    .eq("phoneNum", mobile)
+                    .and()
+                    .eq("date", date)
+                    .countOf() > 0;
         } catch (Exception e) {
             L.e(TAG, e);
         }

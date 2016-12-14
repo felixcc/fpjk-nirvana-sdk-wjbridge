@@ -16,6 +16,8 @@ public class FpjkEnum {
         OPEN_URL("openUrl"),
         GET_COOKIE("getCookie"),
         GET_LOCATION("getLocation"),
+        GET_CALL_RECORDS("getCallRecords"),
+        GET_SMS_RECORDS("getSMSRecords"),
         GET_CONTACTS("getContacts");
 
         private final String value;

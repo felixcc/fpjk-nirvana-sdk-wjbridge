@@ -6,12 +6,12 @@ import android.os.Parcelable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-@DatabaseTable(tableName = "fpjk_local_mobile")
+@DatabaseTable(tableName = "fpjk_local_contacts")
 public class DBContactsEntity implements Parcelable {
     @DatabaseField(generatedId = true)
     private long id;
 
-    @DatabaseField(columnName = "uid")
+    @DatabaseField(columnName = "uid", index = true)
     private long uid;
 
     @DatabaseField(columnName = "fullName")

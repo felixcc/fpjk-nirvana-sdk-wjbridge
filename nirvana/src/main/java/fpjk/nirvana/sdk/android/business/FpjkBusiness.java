@@ -3,7 +3,6 @@ package fpjk.nirvana.sdk.android.business;
 import android.app.Activity;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.view.View;
 import android.webkit.CookieManager;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +18,7 @@ import fpjk.nirvana.sdk.android.data.DeviceMgr;
 import fpjk.nirvana.sdk.android.data.FpjkEnum;
 import fpjk.nirvana.sdk.android.data.GsonMgr;
 import fpjk.nirvana.sdk.android.data.LocationMgr;
+import fpjk.nirvana.sdk.android.data.RecordMgr;
 import fpjk.nirvana.sdk.android.data.RxBus;
 import fpjk.nirvana.sdk.android.data.event.EventLocation;
 import fpjk.nirvana.sdk.android.jsbridge.WJBridgeHandler;
@@ -49,8 +49,7 @@ public class FpjkBusiness {
     private DeviceMgr mDeviceMgr;
     private ContactMgr mContactMgr;
     private LocationMgr mLocationMgr;
-    private int mWJWebLoaderWidth = 0;
-    private int mWJWebLoaderHeight = 0;
+    private RecordMgr mRecordMgr;
     private ITabViewSwitcher mITabViewSwitcher;
 
     public interface ITabViewSwitcher {
@@ -64,7 +63,6 @@ public class FpjkBusiness {
     private FpjkBusiness(@NonNull Activity activity, @NonNull WJWebLoader webLoader) {
         mWebLoader = new WeakReference<>(webLoader);
         mContext = activity;
-        Logger.init("Fpjk");
     }
 
     public FpjkBusiness registerSwitcher(ITabViewSwitcher ITabViewSwitcher) {
@@ -100,20 +98,14 @@ public class FpjkBusiness {
                     dispatchMessages(data, callbacks);
                 }
             });
-
-            wjBridgeWebView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    mWJWebLoaderWidth = wjBridgeWebView.getWidth();
-                    mWJWebLoaderHeight = wjBridgeWebView.getHeight();
-                    L.d("addOnLayoutChangeListener.width[%s],height[%s]", mWJWebLoaderWidth, mWJWebLoaderHeight);
-                }
-            });
-
-            mDeviceMgr = DeviceMgr.newInstance(mContext);
-            mContactMgr = ContactMgr.newInstance(mContext);
-            mLocationMgr = LocationMgr.newInstance(mContext);
         }
+
+        mRecordMgr = RecordMgr.newInstance(mContext);
+        mDeviceMgr = DeviceMgr.newInstance(mContext);
+        mContactMgr = ContactMgr.newInstance(mContext);
+        mLocationMgr = LocationMgr.newInstance(mContext);
+
+        Logger.init("Fpjk");
     }
 
     private void dispatchMessages(String jsonData, final WJCallbacks wjCallbacks) {
@@ -155,6 +147,11 @@ public class FpjkBusiness {
                 wjCallbacks.onCallback(json);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
                 mLocationMgr.start(wjCallbacks);
+            } else if (FpjkEnum.Business.GET_SMS_RECORDS.getValue().equals(entity.getOpt())) {
+            } else if (FpjkEnum.Business.GET_CALL_RECORDS.getValue().equals(entity.getOpt())) {
+                DataTransferEntity dataTransferEntity = entity.getData();
+                long uid = dataTransferEntity.getUid();
+                mRecordMgr.obtainRecords(uid, wjCallbacks);
             }
         } catch (Exception e) {
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);

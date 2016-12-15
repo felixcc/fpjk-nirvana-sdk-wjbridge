@@ -4,10 +4,12 @@ package fpjk.nirvana.sdk.android.data;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 
 import com.j256.ormlite.dao.Dao;
 import com.tbruyelle.rxpermissions.Permission;
@@ -96,6 +98,10 @@ public class ContactMgr extends PhoneStatus {
             @Override
             public void call(Subscriber<? super Cursor> subscriber) {
                 try {
+                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+                        subscriber.onError(new Throwable("请开启获取联系人权限"));
+                        return;
+                    }
                     Uri uri = ContactsContract.Contacts.CONTENT_URI;
                     ContentResolver contentResolver = mContext.getContentResolver();
                     Cursor cursor = contentResolver.query(uri, null, null, null, null);

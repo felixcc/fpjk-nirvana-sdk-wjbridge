@@ -2,7 +2,6 @@ package fpjk.nirvana.sdk.android.data;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.provider.CallLog;
@@ -95,12 +94,20 @@ public class RecordMgr extends PhoneStatus {
             @Override
             public void call(Subscriber<? super Cursor> subscriber) {
                 try {
-                    ContentResolver contentResolver = mContext.getContentResolver();
                     if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
                         subscriber.onError(new Throwable("请开启获取通讯录权限"));
                         return;
                     }
-                    Cursor cursor = contentResolver.query(CallLog.Calls.CONTENT_URI, null, null, null, null);
+                    Cursor cursor = mContext.getContentResolver().query(
+                            CallLog.Calls.CONTENT_URI,
+                            new String[]{CallLog.Calls.DURATION,
+                                    CallLog.Calls.CACHED_NAME,
+                                    CallLog.Calls.TYPE,
+                                    CallLog.Calls.DATE,
+                                    CallLog.Calls.NUMBER},
+                            null,
+                            null,
+                            CallLog.Calls.DEFAULT_SORT_ORDER);
                     if (null == cursor) {
                         subscriber.onError(new Throwable("CONTENT_URI == Null"));
                         return;
@@ -118,29 +125,34 @@ public class RecordMgr extends PhoneStatus {
         }).map(new Func1<Cursor, RecordList>() {
             @Override
             public RecordList call(Cursor cursor) {
-                RecordList recordList = new RecordList();
-                int numberIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER);
-                int nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
-                int typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE);
-                int dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE);
-                int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
+                try {
+                    RecordList recordList = new RecordList();
+                    int phoneIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER);
+                    int nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
+                    int typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE);
+                    int dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE);
+                    int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
 
-                while (cursor.moveToNext() && !cursor.isClosed()) {
+                    String phoneNumber = cursor.getString(phoneIndex);
                     String name = cursor.getString(nameIndex);
-                    String phoneNumber = cursor.getString(numberIndex);
                     int type = cursor.getInt(typeIndex);
                     Long date = cursor.getLong(dateIndex);
                     long duration = cursor.getLong(durationIndex);
+
                     if (TextUtils.isEmpty(phoneNumber)) {
-                        continue;
+                        return null;
                     }
+
                     recordList.setPhoneNum(phoneNumber);
                     recordList.setName(name);
                     recordList.setType(type);
                     recordList.setDuration(duration);
                     recordList.setDate(date);
+                    return recordList;
+                } catch (Exception e) {
+                    L.e("", e);
                 }
-                return recordList;
+                return null;
             }
         })
                 .filter(new Func1<RecordList, Boolean>() {

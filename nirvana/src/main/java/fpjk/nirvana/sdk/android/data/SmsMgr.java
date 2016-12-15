@@ -102,7 +102,9 @@ public class SmsMgr extends PhoneStatus {
                         subscriber.onError(new Throwable("请开启获取短信权限"));
                         return;
                     }
-                    Cursor cursor = contentResolver.query(Uri.parse("content://sms/"), null, null, null, null);
+                    String[] projection = new String[]{"_id", "address", "person",
+                            "body", "date", "type"};
+                    Cursor cursor = contentResolver.query(Uri.parse("content://sms/"), projection, null, null, "date desc");
                     if (null == cursor) {
                         subscriber.onError(new Throwable("CONTENT_URI == Null"));
                         return;
@@ -120,23 +122,33 @@ public class SmsMgr extends PhoneStatus {
         }).map(new Func1<Cursor, RecordList>() {
             @Override
             public RecordList call(Cursor cursor) {
-                RecordList recordList = new RecordList();
-                while (cursor.moveToNext() && !cursor.isClosed()) {
-                    int type = cursor.getInt(cursor.getColumnIndex("type"));//短信类型1是接收到的，2是已发出
-                    String phone = cursor.getString(cursor.getColumnIndex("address"));
-                    String name = cursor.getString(cursor.getColumnIndex("person"));
-                    String body = cursor.getString(cursor.getColumnIndex("body"));
-                    long date = cursor.getLong(cursor.getColumnIndex("date"));
-                    if (TextUtils.isEmpty(phone)) {
-                        continue;
+                try {
+                    RecordList recordList = new RecordList();
+                    int index_Address = cursor.getColumnIndex("address");
+                    int index_Person = cursor.getColumnIndex("person");
+                    int index_Body = cursor.getColumnIndex("body");
+                    int index_Date = cursor.getColumnIndex("date");
+                    int index_Type = cursor.getColumnIndex("type");
+
+                    String strAddress = cursor.getString(index_Address);
+                    int intPerson = cursor.getInt(index_Person);
+                    String strbody = cursor.getString(index_Body);
+                    long longDate = cursor.getLong(index_Date);
+                    int intType = cursor.getInt(index_Type);
+
+                    if (TextUtils.isEmpty(strAddress)) {
+                        return null;
                     }
-                    recordList.setPhoneNum(phone);
-                    recordList.setName(name);
-                    recordList.setType(type);
-                    recordList.setContent(body);
-                    recordList.setDate(date);
+                    recordList.setPhoneNum(strAddress);
+                    recordList.setName(intPerson + "");
+                    recordList.setType(intType);
+                    recordList.setContent(strbody);
+                    recordList.setDate(longDate);
+                    return recordList;
+                } catch (Exception e) {
+                    L.e("", e);
                 }
-                return recordList;
+                return null;
             }
         })
                 .filter(new Func1<RecordList, Boolean>() {

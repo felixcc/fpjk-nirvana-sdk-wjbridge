@@ -161,7 +161,7 @@ public class RecordMgr extends PhoneStatus {
                         return !DataBaseDaoHelper.get(mContext).queryRecordExists(mRecordDao, uid, recordList.getPhoneNum(), recordList.getDate());
                     }
                 })
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList()
                 .subscribe(new Subscriber<List<RecordList>>() {

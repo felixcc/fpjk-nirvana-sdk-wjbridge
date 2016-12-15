@@ -7,7 +7,7 @@ import com.j256.ormlite.dao.Dao;
 import java.sql.SQLException;
 
 import fpjk.nirvana.sdk.android.db.DatabaseHelper;
-import fpjk.nirvana.sdk.android.db.model.DBSmsEntity;
+import fpjk.nirvana.sdk.android.db.model.DBRecordEntity;
 import fpjk.nirvana.sdk.android.logger.L;
 
 /**
@@ -31,7 +31,7 @@ public class SmsDao implements IDataBaseDao {
     @Override
     public Dao create() {
         try {
-            return DatabaseHelper.getHelper(mContext).getDao(DBSmsEntity.class);
+            return DatabaseHelper.getHelper(mContext).getDao(DBRecordEntity.class);
         } catch (SQLException e) {
             L.e("ContactDao", e);
         }

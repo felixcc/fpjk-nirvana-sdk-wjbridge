@@ -150,7 +150,7 @@ public class ContactMgr extends PhoneStatus {
                 }
                 return contactBean;
             }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
                 .filter(new Func1<ContactList, Boolean>() {
                     @Override
                     public Boolean call(ContactList contactList) {

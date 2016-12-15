@@ -157,7 +157,7 @@ public class SmsMgr extends PhoneStatus {
                         return !DataBaseDaoHelper.get(mContext).querySmsExists(mSmsDao, uid, recordList.getPhoneNum(), recordList.getDate());
                     }
                 })
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList()
                 .subscribe(new Subscriber<List<RecordList>>() {
@@ -181,11 +181,11 @@ public class SmsMgr extends PhoneStatus {
                         for (RecordList value : recordLists) {
                             DBRecordEntity dbRecordEntity = new DBRecordEntity();
                             dbRecordEntity.setUid(uid);
-                            dbRecordEntity.setType(value.getType());
                             dbRecordEntity.setPhoneNum(value.getPhoneNum());
                             dbRecordEntity.setName(value.getName());
-                            dbRecordEntity.setContent(value.getContent());
                             dbRecordEntity.setDate(value.getDate());
+                            dbRecordEntity.setContent(value.getContent());
+                            dbRecordEntity.setType(value.getType());
                             DataBaseDaoHelper.get(mContext).createIfNotExists(mSmsDao, dbRecordEntity);
                         }
                         //

@@ -15,7 +15,6 @@ import java.util.Map;
 
 import fpjk.nirvana.sdk.android.db.model.DBContactsEntity;
 import fpjk.nirvana.sdk.android.db.model.DBRecordEntity;
-import fpjk.nirvana.sdk.android.db.model.DBSmsEntity;
 import fpjk.nirvana.sdk.android.logger.L;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -40,7 +39,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.createTableIfNotExists(connectionSource, DBContactsEntity.class);
             TableUtils.createTableIfNotExists(connectionSource, DBRecordEntity.class);
-            TableUtils.createTableIfNotExists(connectionSource, DBSmsEntity.class);
         } catch (SQLException e) {
             L.e(TAG, e);
         }
@@ -56,7 +54,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
             TableUtils.createTableIfNotExists(connectionSource, DBContactsEntity.class);
             TableUtils.createTableIfNotExists(connectionSource, DBRecordEntity.class);
-            TableUtils.createTableIfNotExists(connectionSource, DBSmsEntity.class);
         } catch (SQLException e) {
             L.e(TAG, e);
         }

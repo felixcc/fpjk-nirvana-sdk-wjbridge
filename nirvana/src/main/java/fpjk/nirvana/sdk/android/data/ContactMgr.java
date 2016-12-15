@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 
@@ -95,8 +96,9 @@ public class ContactMgr extends PhoneStatus {
             @Override
             public void call(Subscriber<? super Cursor> subscriber) {
                 try {
+                    Uri uri = ContactsContract.Contacts.CONTENT_URI;
                     ContentResolver contentResolver = mContext.getContentResolver();
-                    Cursor cursor = contentResolver.query(ContactsContract.RawContacts.CONTENT_URI, null, null, null, null);
+                    Cursor cursor = contentResolver.query(uri, null, null, null, null);
                     if (null == cursor) {
                         subscriber.onError(new Throwable("CONTENT_URI == Null"));
                         return;
@@ -116,15 +118,17 @@ public class ContactMgr extends PhoneStatus {
             public ContactList call(Cursor cursor) {
                 ContactList contactBean = new ContactList();
                 try {
+                    //获取联系人的ID
+                    String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                    //获取联系人的姓名
                     String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                     contactBean.setFullName(escapeSql(name.trim()));
-                    //获取联系人号码
-                    String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                    //查询电话类型的数据操作
                     Cursor phoneCursor = mContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                             null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id,
-                            null,
-                            null);
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId,
+                            null, null);
+                    //获取联系人号码
                     if (null == phoneCursor) {
                         return null;
                     }

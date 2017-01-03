@@ -22,6 +22,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.goBack).setOnClickListener(this);
         findViewById(R.id.forward).setOnClickListener(this);
         findViewById(R.id.reload).setOnClickListener(this);
+        findViewById(R.id.jump).setOnClickListener(this);
 
         mEditText = (EditText) findViewById(R.id.address);
         mFpjkView = (FpjkView) findViewById(R.id.fpjkView);
@@ -47,9 +48,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 break;
             case R.id.reload:
-//                final String url = mEditText.getText().toString();
-//                mWJBridgeWebView.loadUrl(url);
                 FpjkWJSDKMgr.get().reload();
+                break;
+            case R.id.jump:
+                FpjkWJSDKMgr.get().loadUrl("");
+                final String url = mEditText.getText().toString();
+                FpjkWJSDKMgr.get().loadUrl(url);
                 break;
             default:
                 break;

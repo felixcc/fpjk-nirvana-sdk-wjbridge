@@ -7,9 +7,10 @@
         android:orientation="vertical">
 
     <EditText
-            android:text="http://10.10.191.154:9000/"
+            android:text="http://10.10.191.154:9527/"
             android:hint="请填写页面地址"
             android:id="@+id/address"
+            android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
@@ -57,6 +58,16 @@
                 android:layout_height="30dp"
                 android:text="goBack"
                 android:background="#AF3BCA"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:gravity="center"/>
+
+        <TextView
+                android:id="@+id/jump"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:text="Jump"
+                android:background="#AFABCA"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
                 android:gravity="center"/>

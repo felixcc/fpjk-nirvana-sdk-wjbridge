@@ -16,7 +16,6 @@ import fpjk.nirvana.sdk.android.jsbridge.WJBridgeUtils;
  * Version 1.0
  */
 public class FpjkWJSDKMgr {
-    private Activity mActivity;
     private FpjkView mFpjkView;
 
     private static FpjkWJSDKMgr mFpjkWJSDKMgr = new FpjkWJSDKMgr();
@@ -29,7 +28,6 @@ public class FpjkWJSDKMgr {
     }
 
     public void buildConfiguration(Activity context, FpjkView fpjkView) {
-        mActivity = context;
         mFpjkView = fpjkView;
         WJBridgeUtils.checkNoNull(context, "Activity not NULL!");
         FpjkBusiness.newInstance(context, fpjkView.getDefaultWJBridgeWebView()).registerSwitcher(fpjkView).execute();

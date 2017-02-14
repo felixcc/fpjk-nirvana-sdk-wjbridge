@@ -11,6 +11,10 @@ package fpjk.nirvana.sdk.android.logger;
 public class L {
     private static boolean isDebug = true;
 
+    private L() {
+
+    }
+
     public static void json(String json) {
         if (isDebug) {
             Logger.json(json);

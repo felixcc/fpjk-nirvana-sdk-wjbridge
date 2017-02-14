@@ -47,9 +47,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 }
                 break;
             case R.id.reload:
-//                final String url = mEditText.getText().toString();
-//                mWJBridgeWebView.loadUrl(url);
-                FpjkWJSDKMgr.get().reload();
+                final String url = mEditText.getText().toString();
+                FpjkWJSDKMgr.get().loadUrl(url);
                 break;
             default:
                 break;

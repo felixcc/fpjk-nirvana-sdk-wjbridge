@@ -1,6 +1,6 @@
 package fpjk.nirvana.sdk.android.business.entity;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import java.io.Serializable;
 
 /**
  * Summary:
@@ -11,18 +11,14 @@ import com.alibaba.fastjson.annotation.JSONField;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class CookieList {
+public class CookieList implements Serializable {
 
-    @JSONField(name = "path")
     private String path;
 
-    @JSONField(name = "value")
     private String value;
 
-    @JSONField(name = "name")
     private String name;
 
-    @JSONField(name = "domain")
     private String domain;
 
     public String getPath() {

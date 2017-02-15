@@ -7,7 +7,7 @@
         android:orientation="vertical">
 
     <EditText
-            android:text="gs"
+            android:text="http://172.16.88.88:8080/"
             android:hint="请填写页面地址"
             android:id="@+id/address"
             android:layout_width="match_parent"

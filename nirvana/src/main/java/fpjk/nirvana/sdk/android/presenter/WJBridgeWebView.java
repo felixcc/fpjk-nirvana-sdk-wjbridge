@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import java.util.List;
@@ -41,14 +42,23 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
         setHorizontalScrollBarEnabled(false);
         getSettings().setJavaScriptEnabled(true);
         getSettings().setDomStorageEnabled(true);
+        getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        getSettings().setDefaultTextEncodingName("UTF-8");
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         setWebViewClient(onCreateWebViewClient(mProvider));
+        setWebChromeClient(onCreateWJBridgeChromeClient(mProvider));
     }
 
     protected WJBridgeWebViewClient onCreateWebViewClient(WJBridgeProvider provider) {
         return new WJBridgeWebViewClient(provider);
+    }
+
+    private WJBridgeChromeClient onCreateWJBridgeChromeClient(WJBridgeProvider provider) {
+        return new WJBridgeChromeClient(provider);
     }
 
     @Override

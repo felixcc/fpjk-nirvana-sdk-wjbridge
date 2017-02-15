@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import fpjk.nirvana.sdk.android.FpjkWJSDKMgr;
 import fpjk.nirvana.sdk.android.business.FpjkView;
@@ -48,6 +49,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.reload:
                 final String url = mEditText.getText().toString();
+                Toast.makeText(this, url, Toast.LENGTH_SHORT).show();
                 FpjkWJSDKMgr.get().loadUrl(url);
                 break;
             default:

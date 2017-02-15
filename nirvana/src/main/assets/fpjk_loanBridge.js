@@ -22,6 +22,7 @@ var fpjk_loanBridge = {
     registerJSFunc: function () {
         fpjk_loanBridge.bridge.registerHandler('fpjkBridgeCallJavaScript', function (data, responseCallback) {
             fpjk_loanBridge.jsFunc[data.opt](data.data, responseCallback);
+            console.log(data);
         });
     },
     callNativeFunc: function (name, data, func) {

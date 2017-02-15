@@ -62,4 +62,10 @@ public class FpjkWJSDKMgr {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
         mFpjkView.getDefaultWJBridgeWebView().reload();
     }
+
+    public void sendMessages(String msg) {
+        WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
+//        FpjkBusiness.newInstance(context, mFpjkView.getDefaultWJBridgeWebView()).sendMessages(msg);
+    }
+
 }

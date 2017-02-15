@@ -12,8 +12,11 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import fpjk.nirvana.sdk.android.business.entity.CookieEntity;
@@ -176,10 +179,14 @@ public class DeviceMgr {
 
     /**
      * 格式化cookie
+     *
+     * @param cookie 淘宝cookie
+     * @return 格式化完成的cookie数据列表
      */
     public CookieEntity formatCookie(String cookie) {
         CookieEntity cookieEntity = new CookieEntity();
         List<CookieList> cookieList = new ArrayList<>();
+        Map<String, CookieList> cookieMap = new HashMap<>();
         try {
             cookie = cookie.replaceAll(" ", "");
             String[] arr = cookie.split(";");
@@ -189,18 +196,43 @@ public class DeviceMgr {
                 itemArr[0] = item.substring(0, index);
                 itemArr[1] = item.substring(index + 1, item.length());
                 if (itemArr.length > 1) {
-                    CookieList value = new CookieList();
-                    value.setName(itemArr[0]);
-                    value.setValue(itemArr[1]);
-                    cookieList.add(value);
+                    CookieList bean = new CookieList();
+                    bean.setName(itemArr[0]);
+                    bean.setValue(URLEncoder.encode(itemArr[1], "UTF-8"));
+                    bean.setDomain(".taobao.com");
+                    bean.setPath("/");
+                    cookieMap.put(itemArr[0], bean);
+                    cookieList.add(bean);
                 }
             }
             cookieEntity.setCookieList(cookieList);
-            return cookieEntity;
+            setCookieDefaultDomain(cookieMap);
         } catch (Exception e) {
-            e.printStackTrace();
+            L.e("", e);
         }
-        return null;
+        return cookieEntity;
+    }
+
+    /**
+     * 设置cookie信息中默认的domain
+     *
+     * @param cookieMap 替换cookie字段数据字典
+     */
+    private void setCookieDefaultDomain(Map<String, CookieList> cookieMap) {
+        if (cookieMap.containsKey("_w_al_f"))
+            cookieMap.get("_w_al_f").setDomain(".m.taobao.com");
+        if (cookieMap.containsKey("_w_app_lg"))
+            cookieMap.get("_w_app_lg").setDomain(".m.taobao.com");
+        if (cookieMap.containsKey("imewweoriw"))
+            cookieMap.get("imewweoriw").setDomain(".m.taobao.com");
+        if (cookieMap.containsKey("ntm"))
+            cookieMap.get("ntm").setDomain(".m.taobao.com");
+        if (cookieMap.containsKey("WAPFDFDTGFG"))
+            cookieMap.get("WAPFDFDTGFG").setDomain(".m.taobao.com");
+        if (cookieMap.containsKey("ockeqeudmj"))
+            cookieMap.get("ockeqeudmj").setDomain(".m.taobao.com");
+        if (cookieMap.containsKey("_w_tb_nick"))
+            cookieMap.get("_w_tb_nick").setDomain(".m.taobao.com");
     }
 
     public final int isEmulator() {

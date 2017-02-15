@@ -131,9 +131,13 @@ public class FpjkBusiness {
                     return;
                 }
                 DataTransferEntity dataTransferEntity = entity.getData();
-                String cookie = CookieManager.getInstance().getCookie(dataTransferEntity.getUrl());
+
+                CookieManager manager = CookieManager.getInstance();
+                String cookie = manager.getCookie(dataTransferEntity.getUrl());
+
                 CookieEntity cookieEntity = mDeviceMgr.formatCookie(cookie);
-                wjCallbacks.onCallback(GsonMgr.get().toJSONString(cookieEntity));
+                String callBackJson = GsonMgr.get().toJSONString(cookieEntity);
+                wjCallbacks.onCallback(callBackJson);
             } else if (FpjkEnum.Business.GET_DEVICE_INFO.getValue().equals(entity.getOpt())) {
                 DeviceInfoEntity deviceInfoEntity = new DeviceInfoEntity();
                 deviceInfoEntity.setDeviceInfo(new DeviceInfoEntity.DeviceInfo()
@@ -170,6 +174,7 @@ public class FpjkBusiness {
             wjBridgeWebView.callHandler(cJ, sendData, new WJCallbacks() {
                 @Override
                 public void onCallback(String data) {
+                    L.d(data);
                 }
             });
         }

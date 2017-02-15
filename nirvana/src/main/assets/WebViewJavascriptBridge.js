@@ -75,7 +75,7 @@
 	function _dispatchMessageFromNative(messageJSON) {
 		setTimeout(function() {
 			var message = JSON.parse(messageJSON);
-			console.log("嗷嗷嗷啊：" + message.responseData + "---" +JSON.parse(message.responseData));
+//			console.log("嗷嗷嗷啊：" + message.responseData + "---" +JSON.parse(message.responseData));
 			var responseCallback;
 			//java call finished, now need to call js callback function
 			if (message.responseId) {
@@ -115,7 +115,7 @@
 
 	//提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以
 	function _handleMessageFromNative(messageJSON) {
-		console.log("提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以========"+messageJSON);
+//		console.log("提供给native调用,receiveMessageQueue 在会在页面加载完后赋值为null,所以========"+messageJSON);
 		if (receiveMessageQueue && receiveMessageQueue.length > 0) {
 			receiveMessageQueue.push(messageJSON);
 		} else {

@@ -287,10 +287,9 @@ public class DeviceMgr {
                 // 判断系统/非系统应用
                 if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                     InstalledAppInfoEntity info = new InstalledAppInfoEntity();
-                    info.setAppName(packageInfo.applicationInfo.loadLabel(mContext.getPackageManager()).toString());
-                    info.setPackageName(packageInfo.packageName);
-                    info.setVersionCode(packageInfo.versionCode);
-                    info.setVersionName(packageInfo.versionName);
+                    info.setAppId(packageInfo.applicationInfo.loadLabel(mContext.getPackageManager()).toString());
+                    info.setName(packageInfo.packageName);
+                    info.setVersion(packageInfo.versionName);
                     infos.add(info);
                 }
             }

@@ -30,7 +30,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         FpjkWJSDKMgr.get().buildConfiguration(this, mFpjkView);
 
         final String url = mEditText.getText().toString();
-        FpjkWJSDKMgr.get().loadUrl(url);
+        FpjkWJSDKMgr.get().loadUrl("file:///android_asset/index.html");
+//        FpjkWJSDKMgr.get().loadUrl(url);
     }
 
     @Override

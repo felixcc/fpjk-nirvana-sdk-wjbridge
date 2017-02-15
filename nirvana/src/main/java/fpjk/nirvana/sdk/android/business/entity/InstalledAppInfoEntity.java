@@ -14,44 +14,34 @@ import android.os.Parcelable;
  */
 
 public class InstalledAppInfoEntity implements Parcelable {
-    private String appName = "";
-    private String packageName = "";
-    private String versionName = "";
-    private int versionCode = 0;
+    private String appId = "";
+    private String name = "";
+    private String version = "";
 
-    public String getAppName() {
-        return appName;
+    public String getAppId() {
+        return appId;
     }
 
-    public InstalledAppInfoEntity setAppName(String appName) {
-        this.appName = appName;
+    public InstalledAppInfoEntity setAppId(String appId) {
+        this.appId = appId;
         return this;
     }
 
-    public String getPackageName() {
-        return packageName;
+    public String getName() {
+        return name;
     }
 
-    public InstalledAppInfoEntity setPackageName(String packageName) {
-        this.packageName = packageName;
+    public InstalledAppInfoEntity setName(String name) {
+        this.name = name;
         return this;
     }
 
-    public String getVersionName() {
-        return versionName;
+    public String getVersion() {
+        return version;
     }
 
-    public InstalledAppInfoEntity setVersionName(String versionName) {
-        this.versionName = versionName;
-        return this;
-    }
-
-    public int getVersionCode() {
-        return versionCode;
-    }
-
-    public InstalledAppInfoEntity setVersionCode(int versionCode) {
-        this.versionCode = versionCode;
+    public InstalledAppInfoEntity setVersion(String version) {
+        this.version = version;
         return this;
     }
 
@@ -62,23 +52,21 @@ public class InstalledAppInfoEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.appName);
-        dest.writeString(this.packageName);
-        dest.writeString(this.versionName);
-        dest.writeInt(this.versionCode);
+        dest.writeString(this.appId);
+        dest.writeString(this.name);
+        dest.writeString(this.version);
     }
 
     public InstalledAppInfoEntity() {
     }
 
     protected InstalledAppInfoEntity(Parcel in) {
-        this.appName = in.readString();
-        this.packageName = in.readString();
-        this.versionName = in.readString();
-        this.versionCode = in.readInt();
+        this.appId = in.readString();
+        this.name = in.readString();
+        this.version = in.readString();
     }
 
-    public static final Parcelable.Creator<InstalledAppInfoEntity> CREATOR = new Parcelable.Creator<InstalledAppInfoEntity>() {
+    public static final Creator<InstalledAppInfoEntity> CREATOR = new Creator<InstalledAppInfoEntity>() {
         @Override
         public InstalledAppInfoEntity createFromParcel(Parcel source) {
             return new InstalledAppInfoEntity(source);
@@ -93,10 +81,9 @@ public class InstalledAppInfoEntity implements Parcelable {
     @Override
     public String toString() {
         return "InstalledAppInfoEntity{" +
-                "appName='" + appName + '\'' +
-                ", packageName='" + packageName + '\'' +
-                ", versionName='" + versionName + '\'' +
-                ", versionCode=" + versionCode +
+                "appId='" + appId + '\'' +
+                ", name='" + name + '\'' +
+                ", version='" + version + '\'' +
                 '}';
     }
 }

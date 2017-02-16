@@ -5,11 +5,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-    <fpjk.nirvana.sdk.android.presenter.WJBridgeWebView
+    <fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView
             android:id="@+id/openUrlWJBridgeWebView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-    </fpjk.nirvana.sdk.android.presenter.WJBridgeWebView>
+    </fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView>
 
     <TextView
             android:padding="10dp"

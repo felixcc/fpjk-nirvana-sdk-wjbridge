@@ -9,17 +9,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <fpjk.nirvana.sdk.android.presenter.WJBridgeWebView
+        <fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView
                 android:id="@+id/defaultWJBridgeWebView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-        </fpjk.nirvana.sdk.android.presenter.WJBridgeWebView>
+        </fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView>
 
-        <fpjk.nirvana.sdk.android.business.OpenUrlView
+        <fpjk.nirvana.sdk.wjbridge.business.OpenUrlView
                 android:id="@+id/openUrlView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-        </fpjk.nirvana.sdk.android.business.OpenUrlView>
+        </fpjk.nirvana.sdk.wjbridge.business.OpenUrlView>
     </ViewFlipper>
 
 </LinearLayout>

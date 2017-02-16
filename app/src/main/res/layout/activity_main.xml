@@ -7,18 +7,18 @@
         android:orientation="vertical">
 
     <EditText
-            android:text="http://172.16.88.88:8080/"
+            android:text="http://10.10.232.242:9527/"
             android:hint="请填写页面地址"
             android:id="@+id/address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <fpjk.nirvana.sdk.android.business.FpjkView
+    <fpjk.nirvana.sdk.wjbridge.business.FpjkView
             android:id="@+id/fpjkView"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-    </fpjk.nirvana.sdk.android.business.FpjkView>
+    </fpjk.nirvana.sdk.wjbridge.business.FpjkView>
     <!--<fpjk.nirvana.sdk.android.presenter.WJBridgeWebView-->
     <!--android:id="@+id/wJBridgeX5WebView"-->
     <!--android:layout_weight="1"-->

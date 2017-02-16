@@ -6,8 +6,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import fpjk.nirvana.sdk.android.FpjkWJSDKMgr;
-import fpjk.nirvana.sdk.android.business.FpjkView;
+import fpjk.nirvana.sdk.wjbridge.business.FpjkWJSDKMgr;
+import fpjk.nirvana.sdk.wjbridge.business.FpjkView;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
@@ -30,8 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         FpjkWJSDKMgr.get().buildConfiguration(this, mFpjkView);
 
         final String url = mEditText.getText().toString();
-        FpjkWJSDKMgr.get().loadUrl("file:///android_asset/index.html");
-//        FpjkWJSDKMgr.get().loadUrl(url);
+        FpjkWJSDKMgr.get().loadUrl(url);
     }
 
     @Override

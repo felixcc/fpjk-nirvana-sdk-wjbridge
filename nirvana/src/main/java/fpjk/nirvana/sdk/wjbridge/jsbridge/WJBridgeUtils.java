@@ -94,9 +94,9 @@ public final class WJBridgeUtils {
     }
 
     public static void webViewLoadLocalJs(WJWebLoader loader, String path) {
-//        String jsContent = assetFile2Str(loader.getContext(), path);//原有逻辑是从 assets 读取。
-        String jsContent = WJBridgeConfigs.a;
+        String jsContent = assetFile2Str(loader.getContext(), path);//原有逻辑是从 assets 读取。
         loader.loadUrl("javascript:" + jsContent);
+//        loader.loadUrl("javascript:" + WJBridgeConfigs.a.matches("^\\s*\\/\\/.*"));
     }
 
     private static String assetFile2Str(Context context, String urlStr) {

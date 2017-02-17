@@ -26,13 +26,15 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.permission.Permission;
 import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Summary:
@@ -46,11 +48,11 @@ import rx.schedulers.Schedulers;
 public class ContactMgr extends PhoneStatus {
     private Activity mContext;
 
-    private Subscription mSubscription;
-
     private Dao mContactDao;
 
     private RxPermissions mRxPermissions = null;
+
+    private CompositeDisposable mCompositeDisposable;
 
     public static ContactMgr newInstance(@NonNull Activity context) {
         return new ContactMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
@@ -62,41 +64,41 @@ public class ContactMgr extends PhoneStatus {
         //permissions
         mRxPermissions = new RxPermissions(context);
         mRxPermissions.setLogging(true);
+        mCompositeDisposable = new CompositeDisposable();
     }
 
     public void obtainContacts(final Long uid, final WJCallbacks wjCallbacks) {
-        mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS)
-                .subscribe(new Action1<Permission>() {
-                    @Override
-                    public void call(Permission permission) {
-                        L.i("Permission result " + permission);
-                        if (permission.granted) {
-                            L.i("granted");
-                            submitContacts(uid, wjCallbacks);
-                        } else if (permission.shouldShowRequestPermissionRationale) {
-                            // Denied permission without ask never again
-                            L.i("shouldShowRequestPermissionRationale");
-                            buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-                        } else {
-                            // Denied permission with ask never again
-                            // Need to go to the settings
-                            L.i("Need to go to the settings");
-                            buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-                        }
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        L.e("call", throwable);
-                        buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
-                    }
-                });
+        mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS).subscribe(new Consumer<Permission>() {
+            @Override
+            public void accept(Permission permission) throws Exception {
+                L.i("Permission result " + permission);
+                if (permission.granted) {
+                    L.i("granted");
+                    submitContacts(uid, wjCallbacks);
+                } else if (permission.shouldShowRequestPermissionRationale) {
+                    // Denied permission without ask never again
+                    L.i("shouldShowRequestPermissionRationale");
+                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
+                } else {
+                    // Denied permission with ask never again
+                    // Need to go to the settings
+                    L.i("Need to go to the settings");
+                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                L.e("call", throwable);
+                buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue());
+            }
+        });
     }
 
     private void submitContacts(final Long uid, final WJCallbacks wjCallbacks) {
-        mSubscription = Observable.create(new Observable.OnSubscribe<Cursor>() {
+        mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
-            public void call(Subscriber<? super Cursor> subscriber) {
+            public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
                 try {
                     if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
                         subscriber.onError(new Throwable("请开启获取联系人权限"));
@@ -113,47 +115,50 @@ public class ContactMgr extends PhoneStatus {
                         subscriber.onNext(cursor);
                     }
                     cursor.close();
-                    subscriber.onCompleted();
+                    subscriber.onComplete();
                 } catch (Exception e) {
                     subscriber.onError(e);
                     L.e("submitContacts", e);
                 }
             }
-        }).map(new Func1<Cursor, ContactList>() {
-            @Override
-            public ContactList call(Cursor cursor) {
-                ContactList contactBean = new ContactList();
-                try {
-                    //获取联系人的ID
-                    String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                    //获取联系人的姓名
-                    String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    contactBean.setFullName(escapeSql(name.trim()));
-                    //查询电话类型的数据操作
-                    Cursor phoneCursor = mContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId,
-                            null, null);
-                    //获取联系人号码
-                    if (null == phoneCursor) {
-                        return null;
-                    }
-                    List<String> nums = new ArrayList<>();
-                    while (phoneCursor.moveToNext() && !phoneCursor.isClosed()) {
-                        String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        nums.add(escapeSql(phone.trim()));
-                    }
-                    contactBean.setPhoneNumList(nums);
-                    phoneCursor.close();
-                } catch (Exception e) {
-                    L.e("submitContacts[%s]", e);
-                }
-                return contactBean;
-            }
-        }).subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .filter(new Func1<ContactList, Boolean>() {
+        })
+                .map(new Function<Cursor, ContactList>() {
                     @Override
-                    public Boolean call(ContactList contactList) {
+                    public ContactList apply(Cursor cursor) throws Exception {
+                        ContactList contactBean = new ContactList();
+                        try {
+                            //获取联系人的ID
+                            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                            //获取联系人的姓名
+                            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                            contactBean.setFullName(escapeSql(name.trim()));
+                            //查询电话类型的数据操作
+                            Cursor phoneCursor = mContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                    null,
+                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId,
+                                    null, null);
+                            //获取联系人号码
+                            if (null == phoneCursor) {
+                                return null;
+                            }
+                            List<String> nums = new ArrayList<>();
+                            while (phoneCursor.moveToNext() && !phoneCursor.isClosed()) {
+                                String phone = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                                nums.add(escapeSql(phone.trim()));
+                            }
+                            contactBean.setPhoneNumList(nums);
+                            phoneCursor.close();
+                        } catch (Exception e) {
+                            L.e("submitContacts[%s]", e);
+                        }
+                        return contactBean;
+                    }
+                })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(new Predicate<ContactList>() {
+                    @Override
+                    public boolean test(ContactList contactList) throws Exception {
                         List<String> phones = contactList.getPhoneNumList();
                         for (int i = 0; i < phones.size(); i++) {
                             String phone = phones.get(i);
@@ -167,19 +172,9 @@ public class ContactMgr extends PhoneStatus {
                     }
                 })
                 .toList()
-                .subscribe(new Subscriber<List<ContactList>>() {
+                .subscribe(new Consumer<List<ContactList>>() {
                     @Override
-                    public void onCompleted() {
-                        L.d("onCompleted");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        L.e("Subscriber", e);
-                    }
-
-                    @Override
-                    public void onNext(List<ContactList> contactLists) {
+                    public void accept(List<ContactList> contactLists) throws Exception {
                         ContactListEntity contactListEntity = new ContactListEntity();
                         contactListEntity.setContactList(contactLists);
                         String returnJSString = GsonMgr.get().toJSONString(contactListEntity);
@@ -196,15 +191,9 @@ public class ContactMgr extends PhoneStatus {
                                 }
                             }
                         }
-                        //recycle
-                        destory();
+                        //destory
+                        mCompositeDisposable.clear();
                     }
-                });
-    }
-
-    private void destory() {
-        if (null != mSubscription && !mSubscription.isUnsubscribed()) {
-            mSubscription.unsubscribe();
-        }
+                }));
     }
 }

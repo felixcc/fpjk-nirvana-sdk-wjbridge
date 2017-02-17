@@ -23,13 +23,15 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.permission.Permission;
 import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Summary:
@@ -38,15 +40,14 @@ import rx.schedulers.Schedulers;
  * Mail:lovejiuwei@gmail.com
  * QQ:74104
  */
-
 public class RecordMgr extends PhoneStatus {
     private Activity mContext;
-
-    private Subscription mSubscription;
 
     private Dao mRecordDao;
 
     private RxPermissions mRxPermissions = null;
+
+    private CompositeDisposable mCompositeDisposable;
 
     public static RecordMgr newInstance(@NonNull Activity context) {
         return new RecordMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
@@ -58,41 +59,41 @@ public class RecordMgr extends PhoneStatus {
         //permissions
         mRxPermissions = new RxPermissions(context);
         mRxPermissions.setLogging(true);
+        mCompositeDisposable = new CompositeDisposable();
     }
 
     public void obtainRecords(final long uid, final WJCallbacks wjCallbacks) {
-        mRxPermissions.requestEach(Manifest.permission.READ_CALL_LOG)
-                .subscribe(new Action1<Permission>() {
-                    @Override
-                    public void call(Permission permission) {
-                        L.i("Permission result " + permission);
-                        if (permission.granted) {
-                            L.i("granted");
-                            submitRecords(uid, wjCallbacks);
-                        } else if (permission.shouldShowRequestPermissionRationale) {
-                            // Denied permission without ask never again
-                            L.i("shouldShowRequestPermissionRationale");
-                            buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
-                        } else {
-                            // Denied permission with ask never again
-                            // Need to go to the settings
-                            L.i("Need to go to the settings");
-                            buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
-                        }
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        L.e("call", throwable);
-                        buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
-                    }
-                });
+        mRxPermissions.requestEach(Manifest.permission.READ_CALL_LOG).subscribe(new Consumer<Permission>() {
+            @Override
+            public void accept(Permission permission) throws Exception {
+                L.i("Permission result " + permission);
+                if (permission.granted) {
+                    L.i("granted");
+                    submitRecords(uid, wjCallbacks);
+                } else if (permission.shouldShowRequestPermissionRationale) {
+                    // Denied permission without ask never again
+                    L.i("shouldShowRequestPermissionRationale");
+                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                } else {
+                    // Denied permission with ask never again
+                    // Need to go to the settings
+                    L.i("Need to go to the settings");
+                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                L.e("call", throwable);
+                buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+            }
+        });
     }
 
     private void submitRecords(final Long uid, final WJCallbacks wjCallbacks) {
-        mSubscription = Observable.create(new Observable.OnSubscribe<Cursor>() {
+        mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
-            public void call(Subscriber<? super Cursor> subscriber) {
+            public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
                 try {
                     if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
                         subscriber.onError(new Throwable("请开启获取通讯录权限"));
@@ -116,67 +117,58 @@ public class RecordMgr extends PhoneStatus {
                         subscriber.onNext(cursor);
                     }
                     cursor.close();
-                    subscriber.onCompleted();
+                    subscriber.onComplete();
                 } catch (Exception e) {
                     subscriber.onError(e);
                     L.e("submitContacts", e);
                 }
             }
-        }).map(new Func1<Cursor, RecordList>() {
-            @Override
-            public RecordList call(Cursor cursor) {
-                try {
-                    RecordList recordList = new RecordList();
-                    int phoneIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER);
-                    int nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
-                    int typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE);
-                    int dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE);
-                    int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
+        })
+                .map(new Function<Cursor, RecordList>() {
+                    @Override
+                    public RecordList apply(Cursor cursor) throws Exception {
+                        try {
+                            RecordList recordList = new RecordList();
+                            int phoneIndex = cursor.getColumnIndex(CallLog.Calls.NUMBER);
+                            int nameIndex = cursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
+                            int typeIndex = cursor.getColumnIndex(CallLog.Calls.TYPE);
+                            int dateIndex = cursor.getColumnIndex(CallLog.Calls.DATE);
+                            int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
 
-                    String phoneNumber = cursor.getString(phoneIndex);
-                    String name = cursor.getString(nameIndex);
-                    int type = cursor.getInt(typeIndex);
-                    Long date = cursor.getLong(dateIndex);
-                    long duration = cursor.getLong(durationIndex);
+                            String phoneNumber = cursor.getString(phoneIndex);
+                            String name = cursor.getString(nameIndex);
+                            int type = cursor.getInt(typeIndex);
+                            Long date = cursor.getLong(dateIndex);
+                            long duration = cursor.getLong(durationIndex);
 
-                    if (TextUtils.isEmpty(phoneNumber)) {
+                            if (TextUtils.isEmpty(phoneNumber)) {
+                                return null;
+                            }
+
+                            recordList.setPhoneNum(phoneNumber);
+                            recordList.setName(name);
+                            recordList.setType(type);
+                            recordList.setDuration(duration);
+                            recordList.setDate(date);
+                            return recordList;
+                        } catch (Exception e) {
+                            L.e("", e);
+                        }
                         return null;
                     }
-
-                    recordList.setPhoneNum(phoneNumber);
-                    recordList.setName(name);
-                    recordList.setType(type);
-                    recordList.setDuration(duration);
-                    recordList.setDate(date);
-                    return recordList;
-                } catch (Exception e) {
-                    L.e("", e);
-                }
-                return null;
-            }
-        })
-                .filter(new Func1<RecordList, Boolean>() {
+                })
+                .filter(new Predicate<RecordList>() {
                     @Override
-                    public Boolean call(RecordList recordList) {
+                    public boolean test(RecordList recordList) throws Exception {
                         return !DataBaseDaoHelper.get(mContext).queryRecordExists(mRecordDao, uid, recordList.getPhoneNum(), recordList.getDate());
                     }
                 })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toList()
-                .subscribe(new Subscriber<List<RecordList>>() {
+                .subscribe(new Consumer<List<RecordList>>() {
                     @Override
-                    public void onCompleted() {
-                        L.d("onCompleted");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        L.e("onError", e);
-                    }
-
-                    @Override
-                    public void onNext(List<RecordList> recordLists) {
+                    public void accept(List<RecordList> recordLists) throws Exception {
                         RecordEntity recordEntity = new RecordEntity();
                         recordEntity.setRecordList(recordLists);
                         String returnJSString = GsonMgr.get().toJSONString(recordEntity);
@@ -192,15 +184,9 @@ public class RecordMgr extends PhoneStatus {
                             dbRecordEntity.setDate(value.getDate());
                             DataBaseDaoHelper.get(mContext).createIfNotExists(mRecordDao, dbRecordEntity);
                         }
-                        //
-                        destory();
+                        //destory
+                        mCompositeDisposable.clear();
                     }
-                });
-    }
-
-    private void destory() {
-        if (null != mSubscription && !mSubscription.isUnsubscribed()) {
-            mSubscription.unsubscribe();
-        }
+                }));
     }
 }

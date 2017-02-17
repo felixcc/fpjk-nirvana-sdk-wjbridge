@@ -1,4 +1,7 @@
-<manifest package="fpjk.nirvana.sdk.wjbridge">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="fpjk.nirvana.sdk.wjbridge">
 
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
     <application/>
+
 </manifest>

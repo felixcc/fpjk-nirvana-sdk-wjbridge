@@ -29,7 +29,7 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.logger.Logger;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
-import rx.functions.Action1;
+import io.reactivex.functions.Consumer;
 
 /**
  * Summary:与H5之间交互的业务层
@@ -78,9 +78,9 @@ public class FpjkBusiness {
     }
 
     private void processCookieEvent() {
-        RxBus.get().toObserverable().subscribe(new Action1<Object>() {
+        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
-            public void call(Object o) {
+            public void accept(Object o) throws Exception {
                 if (o instanceof EventLocation) {
                     String mLocationInfo = ((EventLocation) o).getLocationInfo();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();

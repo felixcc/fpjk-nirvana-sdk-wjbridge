@@ -21,8 +21,7 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.permission.Permission;
 import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
-import rx.functions.Action0;
-import rx.functions.Action1;
+import io.reactivex.functions.Consumer;
 
 /**
  * Summary:
@@ -142,40 +141,35 @@ public class LocationMgr {
             wjCallbacks.onCallback(callBack);
             return;
         }
-        mRxPermissions.requestEach(Manifest.permission.ACCESS_FINE_LOCATION)
-                .subscribe(new Action1<Permission>() {
-                    @Override
-                    public void call(Permission permission) {
-                        L.i("Permission result " + permission);
-                        if (permission.granted) {
-                            L.i("granted");
-                            startLocation();
-                        } else if (permission.shouldShowRequestPermissionRationale) {
-                            // Denied permission without ask never again
-                            L.i("shouldShowRequestPermissionRationale");
-                            errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_LOCATION.getValue());
-                            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                            wjCallbacks.onCallback(callBack);
-                        } else {
-                            // Denied permission with ask never again
-                            // Need to go to the settings
-                            L.i("Need to go to the settings");
-                            errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
-                            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                            wjCallbacks.onCallback(callBack);
-                        }
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        stopLocation();
-                    }
-                }, new Action0() {
-                    @Override
-                    public void call() {
-                        stopLocation();
-                    }
-                });
+
+        mRxPermissions.requestEach(Manifest.permission.ACCESS_FINE_LOCATION).subscribe(new Consumer<Permission>() {
+            @Override
+            public void accept(Permission permission) throws Exception {
+                L.i("Permission result " + permission);
+                if (permission.granted) {
+                    L.i("granted");
+                    startLocation();
+                } else if (permission.shouldShowRequestPermissionRationale) {
+                    // Denied permission without ask never again
+                    L.i("shouldShowRequestPermissionRationale");
+                    errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_LOCATION.getValue());
+                    String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
+                    wjCallbacks.onCallback(callBack);
+                } else {
+                    // Denied permission with ask never again
+                    // Need to go to the settings
+                    L.i("Need to go to the settings");
+                    errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
+                    String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
+                    wjCallbacks.onCallback(callBack);
+                }
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                stopLocation();
+            }
+        });
     }
 
     /**

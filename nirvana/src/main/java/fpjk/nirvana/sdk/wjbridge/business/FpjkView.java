@@ -17,10 +17,8 @@ import fpjk.nirvana.sdk.wjbridge.data.event.EventPageFinished;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
-import rx.functions.Action1;
+import io.reactivex.functions.Consumer;
 
-import static fpjk.nirvana.sdk.wjbridge.R.id.defaultWJBridgeWebView;
-import static fpjk.nirvana.sdk.wjbridge.R.id.viewFlipper;
 
 /**
  * Summary:
@@ -59,8 +57,8 @@ public class FpjkView extends RelativeLayout implements FpjkBusiness.ITabViewSwi
     private void build(Context context) {
         View v = LayoutInflater.from(context).inflate(R.layout.view_fpjk, null);
 
-        mViewFlipper = (ViewFlipper) v.findViewById(viewFlipper);
-        mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(defaultWJBridgeWebView);
+        mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
+        mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
         mOpenUrlView = (OpenUrlView) v.findViewById(R.id.openUrlView);
 
         mOpenUrlView.onBack(new OnClickListener() {
@@ -106,9 +104,9 @@ public class FpjkView extends RelativeLayout implements FpjkBusiness.ITabViewSwi
     }
 
     private void processCookieEvent(final DataTransferEntity dataTransferEntity) {
-        RxBus.get().toObserverable().subscribe(new Action1<Object>() {
+        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
-            public void call(Object o) {
+            public void accept(Object o) throws Exception {
                 if (o instanceof EventPageFinished) {
                     String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
                     if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {

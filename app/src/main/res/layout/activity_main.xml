@@ -5,9 +5,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
+    
+    <!--android:text="http://10.10.232.242:9527/"-->
     <EditText
-            android:text="http://10.10.232.242:9527/"
+            android:text="http://10.10.191.154:9000/"
             android:hint="请填写页面地址"
             android:id="@+id/address"
             android:layout_width="match_parent"

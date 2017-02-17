@@ -1,9 +1,10 @@
 package fpjk.nirvana.sdk.wjbridge.data;
 
-import rx.Observable;
-import rx.subjects.PublishSubject;
-import rx.subjects.SerializedSubject;
-import rx.subjects.Subject;
+import com.jakewharton.rxrelay2.PublishRelay;
+import com.jakewharton.rxrelay2.Relay;
+
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 
 /**
  * Created with Android Studio.
@@ -32,20 +33,16 @@ public class RxBus {
         return defaultInstance;
     }
 
-    //    private final PublishSubject<Object> _bus = PublishSubject.create();
-
-    // If multiple threads are going to emit events to this
-    // then it must be made thread-safe like this instead
-    private final Subject<Object, Object> _bus = new SerializedSubject<>(PublishSubject.create());
+    private final Relay<Object> _bus = PublishRelay.create().toSerialized();
 
     public void send(Object o) {
         if (hasObservers()) {
-            _bus.onNext(o);
+            _bus.accept(o);
         }
     }
 
-    public Observable<Object> toObserverable() {
-        return _bus;
+    public Flowable<Object> asFlowable() {
+        return _bus.toFlowable(BackpressureStrategy.LATEST);
     }
 
     private boolean hasObservers() {

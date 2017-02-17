@@ -24,7 +24,6 @@ android {
             zipAlignEnabled true
             shrinkResources true
 
-            consumerProguardFiles 'proguard-rules.pro'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

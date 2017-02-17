@@ -123,6 +123,9 @@
 -keep class com.amap.api.fence.**{*;}
 -keep class com.autonavi.aps.amapapi.model.**{*;}
 -keep class com.loc.**{*;}
+#permision
+-dontwarn com.tbruyelle.rxpermissions.**
+-keep class com.tbruyelle.rxpermissions.**{*;}
 
 #rxjava rxandroid
 -dontwarn rx.**
@@ -183,4 +186,3 @@
 -keepclassmembers class * {
    public <init>(org.json.JSONObject);
 }
-

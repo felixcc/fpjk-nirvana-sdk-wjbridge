@@ -11,8 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
 import com.j256.ormlite.dao.Dao;
-import com.tbruyelle.rxpermissions.Permission;
-import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.util.List;
 
@@ -24,6 +22,8 @@ import fpjk.nirvana.sdk.wjbridge.db.model.DBRecordEntity;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
+import fpjk.nirvana.sdk.wjbridge.permission.Permission;
+import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;

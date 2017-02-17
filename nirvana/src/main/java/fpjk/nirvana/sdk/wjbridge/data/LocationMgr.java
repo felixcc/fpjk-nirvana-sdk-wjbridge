@@ -10,8 +10,6 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.tbruyelle.rxpermissions.Permission;
-import com.tbruyelle.rxpermissions.RxPermissions;
 
 import fpjk.nirvana.sdk.wjbridge.business.entity.AddressInfo;
 import fpjk.nirvana.sdk.wjbridge.business.entity.CoordinateInfo;
@@ -21,6 +19,8 @@ import fpjk.nirvana.sdk.wjbridge.data.event.EventLocation;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
+import fpjk.nirvana.sdk.wjbridge.permission.Permission;
+import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
 import rx.functions.Action0;
 import rx.functions.Action1;
 

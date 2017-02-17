@@ -1,7 +1,6 @@
 package fpjk.nirvana.sdk.wjbridge.business.entity;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import com.alibaba.fastjson.annotation.JSONField;
 
 import java.util.List;
 
@@ -16,12 +15,10 @@ import java.util.List;
  */
 
 public class ContactList {
-    @SerializedName("fullName")
-    @Expose
+    @JSONField(name = "fullName")
     private String fullName;
 
-    @SerializedName("phoneNumList")
-    @Expose
+    @JSONField(name = "phoneNumList")
     private List<String> phoneNumList = null;
 
     /**

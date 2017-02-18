@@ -16,6 +16,10 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 public class FpjkWJSDKMgr {
     private FpjkView mFpjkView;
 
+    private Activity mActivity;
+
+    private boolean mShownBackButton = true;
+
     private static FpjkWJSDKMgr mFpjkWJSDKMgr = new FpjkWJSDKMgr();
 
     public static FpjkWJSDKMgr get() {
@@ -25,10 +29,26 @@ public class FpjkWJSDKMgr {
     private FpjkWJSDKMgr() {
     }
 
-    public void buildConfiguration(Activity context, FpjkView fpjkView) {
-        mFpjkView = fpjkView;
-        WJBridgeUtils.checkNoNull(context, "Activity not NULL!");
-        FpjkBusiness.newInstance(context, fpjkView.getDefaultWJBridgeWebView()).registerSwitcher(fpjkView).execute();
+    public FpjkWJSDKMgr setActivity(Activity mActivity) {
+        WJBridgeUtils.checkNoNull(mActivity, "Activity not NULL!");
+        this.mActivity = mActivity;
+        return this;
+    }
+
+    public FpjkWJSDKMgr setFpjkView(FpjkView mFpjkView) {
+        WJBridgeUtils.checkNoNull(mFpjkView, "fpjkView not NULL!");
+        this.mFpjkView = mFpjkView;
+        return this;
+    }
+
+    public FpjkWJSDKMgr setShownBackButton(boolean mShownBackButton) {
+        this.mShownBackButton = mShownBackButton;
+        return this;
+    }
+
+    public void execute() {
+        mFpjkView.setShownBackButton(mShownBackButton);
+        FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView).execute();
     }
 
     public void loadUrl(String url) {
@@ -36,24 +56,14 @@ public class FpjkWJSDKMgr {
         mFpjkView.loadDefaultUrl(url);
     }
 
-    public boolean canGoBack() {
-        WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        return mFpjkView.getDefaultWJBridgeWebView().canGoBack();
-    }
-
     public void goBack() {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        mFpjkView.getDefaultWJBridgeWebView().goBack();
-    }
-
-    public boolean canGoForward() {
-        WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        return mFpjkView.getDefaultWJBridgeWebView().canGoForward();
+        mFpjkView.goBack();
     }
 
     public void goForward() {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        mFpjkView.getDefaultWJBridgeWebView().goForward();
+        mFpjkView.goForward();
     }
 
     public void reload() {

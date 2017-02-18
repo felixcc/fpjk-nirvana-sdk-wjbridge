@@ -2,7 +2,7 @@ package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.app.Activity;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import android.view.View;
 import android.webkit.CookieManager;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference;
 import fpjk.nirvana.sdk.wjbridge.business.entity.CookieEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DeviceInfoEntity;
+import fpjk.nirvana.sdk.wjbridge.business.entity.OpenUrlResponse;
 import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
 import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
 import fpjk.nirvana.sdk.wjbridge.data.DeviceMgr;
@@ -22,8 +23,8 @@ import fpjk.nirvana.sdk.wjbridge.data.RecordMgr;
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
 import fpjk.nirvana.sdk.wjbridge.data.SmsMgr;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventLocation;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageFinished;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeHandler;
-import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
@@ -46,35 +47,35 @@ public class FpjkBusiness {
     private final String cN = "fpjkBridgeCallNative";
     private final String cJ = "fpjkBridgeCallJavaScript";
 
+    private FpjkView mFpjkView;
     private Activity mContext;
     private DeviceMgr mDeviceMgr;
     private ContactMgr mContactMgr;
     private LocationMgr mLocationMgr;
     private RecordMgr mRecordMgr;
     private SmsMgr mSmsMgr;
-    private ITabViewSwitcher mITabViewSwitcher;
 
-    public interface ITabViewSwitcher {
-        void showOpenUrlTab(DataTransferEntity dataTransferEntity, WJCallbacks wjCallbacks);
+    private static FpjkBusiness mFpjkBusiness = new FpjkBusiness();
+
+    public static FpjkBusiness get() {
+        return mFpjkBusiness;
     }
 
-    public static FpjkBusiness newInstance(Activity activity, WJWebLoader webLoader) {
-        return new FpjkBusiness(activity, WJBridgeUtils.checkNoNull(webLoader, "WJWebLoader not NULL!"));
+    private FpjkBusiness() {
     }
 
-    private FpjkBusiness(@NonNull Activity activity, @NonNull WJWebLoader webLoader) {
+    public FpjkBusiness buildConfiguration(Activity activity, FpjkView fpjkView) {
+        WJWebLoader webLoader = fpjkView.getDefaultWJBridgeWebView();
         mWebLoader = new WeakReference<>(webLoader);
         mContext = activity;
-    }
-
-    public FpjkBusiness registerSwitcher(ITabViewSwitcher ITabViewSwitcher) {
-        mITabViewSwitcher = ITabViewSwitcher;
+        mFpjkView = fpjkView;
         return this;
     }
 
     public void execute() {
         processMessages();
         processCookieEvent();
+        processPageEvent();
     }
 
     private void processCookieEvent() {
@@ -123,9 +124,7 @@ public class FpjkBusiness {
                 mContactMgr.obtainContacts(uid, wjCallbacks);
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
-                if (null != mITabViewSwitcher) {
-                    mITabViewSwitcher.showOpenUrlTab(dataTransferEntity, wjCallbacks);
-                }
+                processStrokes(dataTransferEntity, wjCallbacks);
             } else if (FpjkEnum.Business.GET_COOKIE.getValue().equals(entity.getOpt())) {
                 if (StringUtils.isEmpty(entity.getData().getUrl())) {
                     return;
@@ -179,4 +178,69 @@ public class FpjkBusiness {
             });
         }
     }
+
+    private void processStrokes(final DataTransferEntity dataTransferEntity, final WJCallbacks wjCallbacks) {
+        mFpjkView.showStrokesTab();
+        mFpjkView.setTitle(dataTransferEntity.getTitle());
+        mFpjkView.loadStrokesUrl(dataTransferEntity.getUrl());
+        mFpjkView.showBackButton();
+
+        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                if (o instanceof EventPageFinished) {
+                    String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
+                    if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {
+                        processInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
+                        L.d("匹配到了指定URL，即将爆炸[%s]", o);
+                    }
+                }
+            }
+        });
+
+        mFpjkView.onBack(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mFpjkView.isDisplayDefatultView()) {
+                    processInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.USER_SHUTDOWN.getValue());
+                    processPageEvent();
+                }
+            }
+        });
+    }
+
+    /**
+     * 跳转到 openurl 处理返回的状态
+     */
+    private void processInitialState(WJCallbacks wjCallbacks, Integer value) {
+        OpenUrlResponse openUrlResponse = new OpenUrlResponse();
+        openUrlResponse.setSuccess(value);
+        String callBack = GsonMgr.get().toJSONString(openUrlResponse);
+        wjCallbacks.onCallback(callBack);
+        mFpjkView.showDefaultTab();
+    }
+
+    /**
+     * 处理 SDK 页面事件
+     */
+    private void processPageEvent() {
+        //title
+        mFpjkView.setTitle("涅槃");
+        //back btn
+        if (mFpjkView.isShownBackButton()) {
+            mFpjkView.showBackButton();
+        } else {
+            mFpjkView.hideBackButton();
+        }
+        //onclick
+        mFpjkView.onBack(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mFpjkView.canGoBack()) {
+                    mFpjkView.goBack();
+                }
+            }
+        });
+    }
+
 }

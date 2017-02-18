@@ -39,14 +39,14 @@ public class FpjkEnum {
         USER_REJECT_CALL_RECORD(10004),//用户拒绝通话记录权限
         USERS_REFUSE_SMS_PERMISSIONS(10005);//用户拒绝短信权限
 
-        private final int value;
+        private final Integer value;
 
         // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
-        ErrorCode(int value) {
+        ErrorCode(Integer value) {
             this.value = value;
         }
 
-        public int getValue() {
+        public Integer getValue() {
             return value;
         }
     }
@@ -55,32 +55,16 @@ public class FpjkEnum {
         USER_SHUTDOWN(0),//手动关闭
         AUTO_SHUTDOWN(1);//检测到指定URL关闭
 
-        private final int value;
+        private final Integer value;
 
         // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
-        OpenUrlStatus(int value) {
+        OpenUrlStatus(Integer value) {
             this.value = value;
         }
 
-        public int getValue() {
+        public Integer getValue() {
             return value;
         }
     }
 
-    public enum Record {
-        INCOMING_TYPE(0),//呼入
-        OUTGOING_TYPE(1),//呼出
-        MISSED_TYPE(2);//未接
-
-        private final int value;
-
-        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
-        Record(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 }

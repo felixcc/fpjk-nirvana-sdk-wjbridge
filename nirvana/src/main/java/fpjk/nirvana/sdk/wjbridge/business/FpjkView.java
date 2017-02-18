@@ -4,20 +4,13 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import fpjk.nirvana.sdk.wjbridge.R;
-import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
-import fpjk.nirvana.sdk.wjbridge.business.entity.OpenUrlResponse;
-import fpjk.nirvana.sdk.wjbridge.data.FpjkEnum;
-import fpjk.nirvana.sdk.wjbridge.data.GsonMgr;
-import fpjk.nirvana.sdk.wjbridge.data.RxBus;
-import fpjk.nirvana.sdk.wjbridge.data.event.EventPageFinished;
-import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
-import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
-import io.reactivex.functions.Consumer;
 
 
 /**
@@ -29,15 +22,19 @@ import io.reactivex.functions.Consumer;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class FpjkView extends RelativeLayout implements FpjkBusiness.ITabViewSwitcher {
+public class FpjkView extends RelativeLayout {
 
     private ViewFlipper mViewFlipper;
 
     private WJBridgeWebView mDefaultWJBridgeWebView;
 
-    private OpenUrlView mOpenUrlView;
+    private WJBridgeWebView mStrokesWJBridgeWebView;
 
-    private WJCallbacks mWjCallbacks;
+    private ImageView mIvTitleBarBack;
+
+    private TextView mIvTitleBarTitle;
+
+    private boolean isShownBackButton = true;
 
     public FpjkView(Context context) {
         super(context);
@@ -55,22 +52,14 @@ public class FpjkView extends RelativeLayout implements FpjkBusiness.ITabViewSwi
     }
 
     private void build(Context context) {
-        View v = LayoutInflater.from(context).inflate(R.layout.view_fpjk, null);
+        View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, null);
 
         mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
         mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
-        mOpenUrlView = (OpenUrlView) v.findViewById(R.id.openUrlView);
+        mStrokesWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.strokesWJBridgeWebView);
 
-        mOpenUrlView.onBack(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                OpenUrlResponse openUrlResponse = new OpenUrlResponse();
-                openUrlResponse.setSuccess(FpjkEnum.OpenUrlStatus.USER_SHUTDOWN.getValue());
-                String callBack = GsonMgr.get().toJSONString(openUrlResponse);
-                mWjCallbacks.onCallback(callBack);
-                showDefaultTab();
-            }
-        });
+        mIvTitleBarBack = (ImageView) v.findViewById(R.id.ivTitleBarBack);
+        mIvTitleBarTitle = (TextView) v.findViewById(R.id.ivTitleBarTitle);
 
         RelativeLayout.LayoutParams rl = new RelativeLayout.LayoutParams(-1, -1);
         addView(v, rl);
@@ -84,41 +73,60 @@ public class FpjkView extends RelativeLayout implements FpjkBusiness.ITabViewSwi
         mDefaultWJBridgeWebView.loadUrl(url);
     }
 
-    private void showDefaultTab() {
+    public boolean isDisplayDefatultView() {
+        return mViewFlipper.getDisplayedChild() == 0;
+    }
+
+    public void showDefaultTab() {
         mViewFlipper.setDisplayedChild(0);
     }
 
-    private void showNext() {
+    public void showStrokesTab() {
         mViewFlipper.setDisplayedChild(1);
     }
 
-    @Override
-    public void showOpenUrlTab(DataTransferEntity dataTransferEntity, WJCallbacks wjCallbacks) {
-        mWjCallbacks = wjCallbacks;
-        showNext();
-        mOpenUrlView.recycle();
-        mOpenUrlView.loadUrl(dataTransferEntity.getUrl());
-        mOpenUrlView.setTitle(dataTransferEntity.getTitle());
-
-        processCookieEvent(dataTransferEntity);
+    public void loadStrokesUrl(String url) {
+        mStrokesWJBridgeWebView.loadUrl(url);
     }
 
-    private void processCookieEvent(final DataTransferEntity dataTransferEntity) {
-        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Exception {
-                if (o instanceof EventPageFinished) {
-                    String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
-                    if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {
-                        OpenUrlResponse openUrlResponse = new OpenUrlResponse();
-                        openUrlResponse.setSuccess(FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
-                        String callBack = GsonMgr.get().toJSONString(openUrlResponse);
-                        mWjCallbacks.onCallback(callBack);
-                        showDefaultTab();
-                        L.d("匹配到了指定URL，即将爆炸[%s]", o);
-                    }
-                }
-            }
-        });
+    public void onBack(View.OnClickListener o) {
+        mIvTitleBarBack.setOnClickListener(o);
+    }
+
+    public void setTitle(String title) {
+        mIvTitleBarTitle.setText(title);
+    }
+
+    public boolean isShownBackButton() {
+        return isShownBackButton;
+    }
+
+    public FpjkView setShownBackButton(boolean shownBackButton) {
+        isShownBackButton = shownBackButton;
+        return this;
+    }
+
+    public void showBackButton() {
+        mIvTitleBarBack.setVisibility(View.VISIBLE);
+    }
+
+    public void hideBackButton() {
+        mIvTitleBarBack.setVisibility(View.GONE);
+    }
+
+    public boolean canGoBack() {
+        return getDefaultWJBridgeWebView().canGoBack();
+    }
+
+    public void goBack() {
+        getDefaultWJBridgeWebView().goBack();
+    }
+
+    public boolean canGoForward() {
+        return getDefaultWJBridgeWebView().canGoForward();
+    }
+
+    public void goForward() {
+        getDefaultWJBridgeWebView().goForward();
     }
 }

@@ -20,7 +20,7 @@ android {
             // 不显示Log
             buildConfigField "boolean", "LOG_DEBUG", "false"
 
-            minifyEnabled true
+            minifyEnabled false
             zipAlignEnabled true
             shrinkResources true
 
@@ -30,6 +30,15 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'             //fastJson
+        exclude 'META-INF/NOTICE.txt'              //fastJson
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
     }
 }
 
@@ -132,20 +141,12 @@ artifacts {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+
     compile 'com.android.support:appcompat-v7:25.1.1'
-    testCompile 'junit:junit:4.12'
-    //gson
+    //fastjson
     compile 'com.alibaba:fastjson:1.2.21'
     //rxjava
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex.rxjava2:rxjava:2.0.1'
     compile 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
-    //add jar
-    compile files('libs/commons-lang-2.6.jar')
-    compile files('libs/ormlite-android-4.48.jar')
-    compile files('libs/ormlite-core-4.48.jar')
-    compile files('libs/AMap_Location_V3.3.0_20170118.jar')
 }

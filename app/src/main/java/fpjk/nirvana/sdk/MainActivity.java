@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         FpjkWJSDKMgr.get()
                 .setActivity(this)
                 .setFpjkView(mFpjkView)
-                .setShownBackButton(true)
+                .setShownBackButton(false)
                 .execute();
 
         final String url = mEditText.getText().toString();

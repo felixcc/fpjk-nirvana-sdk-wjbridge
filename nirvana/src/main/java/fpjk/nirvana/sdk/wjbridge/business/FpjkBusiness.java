@@ -180,10 +180,10 @@ public class FpjkBusiness {
     }
 
     private void processStrokes(final DataTransferEntity dataTransferEntity, final WJCallbacks wjCallbacks) {
+        mFpjkView.showBackButton();
         mFpjkView.showStrokesTab();
         mFpjkView.setTitle(dataTransferEntity.getTitle());
         mFpjkView.loadStrokesUrl(dataTransferEntity.getUrl());
-        mFpjkView.showBackButton();
 
         RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
@@ -192,6 +192,7 @@ public class FpjkBusiness {
                     String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
                     if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {
                         processInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
+                        processPageEvent();
                         L.d("匹配到了指定URL，即将爆炸[%s]", o);
                     }
                 }

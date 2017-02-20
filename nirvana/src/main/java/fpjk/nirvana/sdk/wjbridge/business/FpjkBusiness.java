@@ -14,6 +14,7 @@ import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DeviceInfoEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.OpenUrlResponse;
 import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
+import fpjk.nirvana.sdk.wjbridge.business.vo.OpenUrlVo;
 import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
 import fpjk.nirvana.sdk.wjbridge.data.DeviceMgr;
 import fpjk.nirvana.sdk.wjbridge.data.FpjkEnum;
@@ -47,6 +48,7 @@ public class FpjkBusiness {
     private final String cN = "fpjkBridgeCallNative";
     private final String cJ = "fpjkBridgeCallJavaScript";
 
+    private OpenUrlVo mOpenUrlVo;
     private FpjkView mFpjkView;
     private Activity mContext;
     private DeviceMgr mDeviceMgr;
@@ -74,22 +76,8 @@ public class FpjkBusiness {
 
     public void execute() {
         processMessages();
-        processCookieEvent();
+        processRxBusEvent();
         processPageEvent();
-    }
-
-    private void processCookieEvent() {
-        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Exception {
-                if (o instanceof EventLocation) {
-                    String mLocationInfo = ((EventLocation) o).getLocationInfo();
-                    WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
-                    wjCallbacks.onCallback(mLocationInfo);
-                }
-                L.d("toObserverable[%s]", o);
-            }
-        });
     }
 
     private void processMessages() {
@@ -103,6 +91,7 @@ public class FpjkBusiness {
             });
         }
 
+        mOpenUrlVo = new OpenUrlVo();
         mSmsMgr = SmsMgr.newInstance(mContext);
         mDeviceMgr = DeviceMgr.newInstance(mContext);
         mRecordMgr = RecordMgr.newInstance(mContext);
@@ -111,6 +100,23 @@ public class FpjkBusiness {
         Logger.init("Fpjk");
     }
 
+    private void processRxBusEvent() {
+        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                if (o instanceof EventLocation) {
+                    String mLocationInfo = ((EventLocation) o).getLocationInfo();
+                    WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
+                    wjCallbacks.onCallback(mLocationInfo);
+                }
+                L.d("toObserverable[%s]", o);
+            }
+        });
+    }
+
+    /**
+     * 处理和 JS 交互的逻辑
+     */
     private void dispatchMessages(String jsonData, final WJCallbacks wjCallbacks) {
         if (StringUtils.isEmpty(jsonData)) {
             return;
@@ -161,6 +167,12 @@ public class FpjkBusiness {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
                 mRecordMgr.obtainRecords(uid, wjCallbacks);
+            } else if (FpjkEnum.Business.REFRESH_NAVIGATION.getValue().equals(entity.getOpt())) {
+                OpenUrlResponse openUrlResponse = new OpenUrlResponse();
+                openUrlResponse.setSuccess(1);
+                String callBack = GsonMgr.get().toJSONString(openUrlResponse);
+                wjCallbacks.onCallback(callBack);
+                processCanGoBack();
             }
         } catch (Exception e) {
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);
@@ -180,6 +192,10 @@ public class FpjkBusiness {
     }
 
     private void processStrokes(final DataTransferEntity dataTransferEntity, final WJCallbacks wjCallbacks) {
+        //如果进入到 OpenUrl 界面则自动记录 Title 以及是否展示状态
+        mOpenUrlVo.setTitle(mFpjkView.getTitle());
+        mOpenUrlVo.setShownBackButton(mFpjkView.isShownBackButton());
+
         mFpjkView.showBackButton();
         mFpjkView.showStrokesTab();
         mFpjkView.setTitle(dataTransferEntity.getTitle());
@@ -190,9 +206,9 @@ public class FpjkBusiness {
             public void accept(Object o) throws Exception {
                 if (o instanceof EventPageFinished) {
                     String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
+                    //如果淘宝登录成功会关闭当前页面，返回上一个页面状态。
                     if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {
-                        processInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
-                        processPageEvent();
+                        processWhenStrokesGoBackInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
                         L.d("匹配到了指定URL，即将爆炸[%s]", o);
                     }
                 }
@@ -203,8 +219,7 @@ public class FpjkBusiness {
             @Override
             public void onClick(View v) {
                 if (!mFpjkView.isDisplayDefatultView()) {
-                    processInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.USER_SHUTDOWN.getValue());
-                    processPageEvent();
+                    processWhenStrokesGoBackInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.USER_SHUTDOWN.getValue());
                 }
             }
         });
@@ -213,12 +228,16 @@ public class FpjkBusiness {
     /**
      * 跳转到 openurl 处理返回的状态
      */
-    private void processInitialState(WJCallbacks wjCallbacks, Integer value) {
+    private void processWhenStrokesGoBackInitialState(WJCallbacks wjCallbacks, Integer value) {
+        //call JS
         OpenUrlResponse openUrlResponse = new OpenUrlResponse();
         openUrlResponse.setSuccess(value);
         String callBack = GsonMgr.get().toJSONString(openUrlResponse);
         wjCallbacks.onCallback(callBack);
+        //review page
         mFpjkView.showDefaultTab();
+        mFpjkView.setTitle(mOpenUrlVo.getTitle());
+        processCanGoBack();
     }
 
     /**
@@ -227,21 +246,29 @@ public class FpjkBusiness {
     private void processPageEvent() {
         //title
         mFpjkView.setTitle("涅槃");
-        //back btn
-        if (mFpjkView.isShownBackButton()) {
-            mFpjkView.showBackButton();
-        } else {
-            mFpjkView.hideBackButton();
-        }
-        //onclick
+        processCanGoBack();
+
         mFpjkView.onBack(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFpjkView.canGoBack()) {
-                    mFpjkView.goBack();
-                }
+                processCanGoBack();
             }
         });
+    }
+
+    private void processCanGoBack() {
+        if (mFpjkView.isDisplayDefatultView()) {
+            if (mFpjkView.canGoBack()) {
+                mFpjkView.goBack();
+            } else {
+                //default btn
+                if (mFpjkView.isShownBackButton()) {
+                    mFpjkView.showBackButton();
+                } else {
+                    mFpjkView.hideBackButton();
+                }
+            }
+        }
     }
 
 }

@@ -18,6 +18,7 @@ public class FpjkEnum {
         GET_LOCATION("getLocation"),
         GET_CALL_RECORDS("getCallRecords"),
         GET_SMS_RECORDS("getSMSRecords"),
+        REFRESH_NAVIGATION("refreshNavigation"),
         GET_CONTACTS("getContacts");
 
         private final String value;

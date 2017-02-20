@@ -97,6 +97,10 @@ public class FpjkView extends RelativeLayout {
         mIvTitleBarTitle.setText(title);
     }
 
+    public String getTitle() {
+        return mIvTitleBarTitle.getText().toString();
+    }
+
     public boolean isShownBackButton() {
         return isShownBackButton;
     }

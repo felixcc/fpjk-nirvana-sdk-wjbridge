@@ -3,17 +3,16 @@ package fpjk.nirvana.sdk;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import fpjk.nirvana.sdk.wjbridge.business.FpjkWJSDKMgr;
 import fpjk.nirvana.sdk.wjbridge.business.FpjkView;
+import fpjk.nirvana.sdk.wjbridge.business.FpjkWJSDKMgr;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
     FpjkView mFpjkView;
 
-    EditText mEditText;
+    final String url = "http://10.10.232.242:9527/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +23,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         findViewById(R.id.forward).setOnClickListener(this);
         findViewById(R.id.reload).setOnClickListener(this);
 
-        mEditText = (EditText) findViewById(R.id.address);
         mFpjkView = (FpjkView) findViewById(R.id.fpjkView);
 
         FpjkWJSDKMgr.get()
@@ -33,7 +31,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 .setShownBackButton(false)
                 .execute();
 
-        final String url = mEditText.getText().toString();
         FpjkWJSDKMgr.get().loadUrl(url);
     }
 
@@ -48,7 +45,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 FpjkWJSDKMgr.get().goForward();
                 break;
             case R.id.reload:
-                final String url = mEditText.getText().toString();
                 Toast.makeText(this, url, Toast.LENGTH_SHORT).show();
                 FpjkWJSDKMgr.get().loadUrl(url);
                 break;

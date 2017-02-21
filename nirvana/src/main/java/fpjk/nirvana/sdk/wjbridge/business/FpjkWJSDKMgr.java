@@ -1,6 +1,7 @@
 package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.app.Activity;
+import android.view.View;
 
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 
@@ -69,6 +70,10 @@ public class FpjkWJSDKMgr {
     public void reload() {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
         mFpjkView.getDefaultWJBridgeWebView().reload();
+    }
+
+    public void debugEnabled(View.OnLongClickListener o) {
+        mFpjkView.setOnLongClickListener(o);
     }
 
     public void sendMessages(String msg) {

@@ -65,6 +65,10 @@ public class FpjkView extends RelativeLayout {
         addView(v, rl);
     }
 
+    public void debugEnabled(View.OnLongClickListener o) {
+        mIvTitleBarTitle.setOnLongClickListener(o);
+    }
+
     public WJBridgeWebView getDefaultWJBridgeWebView() {
         return mDefaultWJBridgeWebView;
     }

@@ -20,7 +20,7 @@
         <!-- **************************高德地图********************** -->
         <meta-data
                 android:name="com.amap.api.v2.apikey"
-                android:value="c1656a521f51063f9f9b8294cfc95dcb"/>
+                android:value="709148033408b41a9604e7d2cbc5bb54"/>
         <!-- 定位需要的服务 -->
     </application>
 

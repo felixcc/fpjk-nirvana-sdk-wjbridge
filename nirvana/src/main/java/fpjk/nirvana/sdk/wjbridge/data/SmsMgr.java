@@ -45,7 +45,7 @@ import io.reactivex.schedulers.Schedulers;
  * EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class SmsMgr extends PhoneStatus {
+public class SmsMgr extends IReturnJSJson {
     private Activity mContext;
 
     private Subscription mSubscription;
@@ -56,48 +56,51 @@ public class SmsMgr extends PhoneStatus {
 
     private CompositeDisposable mCompositeDisposable;
 
-    public static SmsMgr newInstance(@NonNull Activity context) {
-        return new SmsMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
+    private String mImei;
+
+    public static SmsMgr newInstance(@NonNull Activity context, DeviceMgr deviceMgr) {
+        return new SmsMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"), deviceMgr);
     }
 
-    private SmsMgr(Activity context) {
+    private SmsMgr(Activity context, DeviceMgr deviceMgr) {
         mContext = context;
         mSmsDao = new SmsDao(context).create();
         //permissions
         mRxPermissions = new RxPermissions(context);
         mRxPermissions.setLogging(true);
         mCompositeDisposable = new CompositeDisposable();
+        mImei = deviceMgr.getIMEI();
     }
 
-    public void obtainSms(final long uid, final WJCallbacks wjCallbacks) {
+    public void obtainSms(final String imei, final long uid, final WJCallbacks wjCallbacks) {
         mRxPermissions.requestEach(Manifest.permission.READ_SMS).subscribe(new Consumer<Permission>() {
             @Override
             public void accept(Permission permission) throws Exception {
                 L.i("Permission result " + permission);
                 if (permission.granted) {
                     L.i("granted");
-                    submitSms(uid, wjCallbacks);
+                    submitSms(imei, uid, wjCallbacks);
                 } else if (permission.shouldShowRequestPermissionRationale) {
                     // Denied permission without ask never again
                     L.i("shouldShowRequestPermissionRationale");
-                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
                 } else {
                     // Denied permission with ask never again
                     // Need to go to the settings
                     L.i("Need to go to the settings");
-                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 L.e("call", throwable);
-                buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
             }
         });
     }
 
-    private void submitSms(final Long uid, final WJCallbacks wjCallbacks) {
+    private void submitSms(final String imei, final Long uid, final WJCallbacks wjCallbacks) {
         mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
             public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
@@ -171,7 +174,7 @@ public class SmsMgr extends PhoneStatus {
                     public void accept(List<RecordList> recordLists) throws Exception {
                         RecordEntity recordEntity = new RecordEntity();
                         recordEntity.setRecordList(recordLists);
-                        String returnJSString = GsonMgr.get().toJSONString(recordEntity);
+                        String returnJSString = buildReturnCorrectJSJson(recordEntity);
                         wjCallbacks.onCallback(returnJSString);
                         //insert DB
                         for (RecordList value : recordLists) {
@@ -190,4 +193,8 @@ public class SmsMgr extends PhoneStatus {
                 }));
     }
 
+    @Override
+    public String imei() {
+        return mImei;
+    }
 }

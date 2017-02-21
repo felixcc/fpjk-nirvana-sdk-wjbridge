@@ -40,7 +40,7 @@ import io.reactivex.schedulers.Schedulers;
  * Mail:lovejiuwei@gmail.com
  * QQ:74104
  */
-public class RecordMgr extends PhoneStatus {
+public class RecordMgr extends IReturnJSJson {
     private Activity mContext;
 
     private Dao mRecordDao;
@@ -49,48 +49,51 @@ public class RecordMgr extends PhoneStatus {
 
     private CompositeDisposable mCompositeDisposable;
 
-    public static RecordMgr newInstance(@NonNull Activity context) {
-        return new RecordMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
+    private String mImei;
+
+    public static RecordMgr newInstance(@NonNull Activity context, DeviceMgr deviceMgr) {
+        return new RecordMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"), deviceMgr);
     }
 
-    private RecordMgr(Activity context) {
+    private RecordMgr(Activity context, DeviceMgr deviceMgr) {
         mContext = context;
         mRecordDao = new RecordDao(context).create();
         //permissions
         mRxPermissions = new RxPermissions(context);
         mRxPermissions.setLogging(true);
         mCompositeDisposable = new CompositeDisposable();
+        mImei = deviceMgr.getIMEI();
     }
 
-    public void obtainRecords(final long uid, final WJCallbacks wjCallbacks) {
+    public void obtainRecords(final String imei, final long uid, final WJCallbacks wjCallbacks) {
         mRxPermissions.requestEach(Manifest.permission.READ_CALL_LOG).subscribe(new Consumer<Permission>() {
             @Override
             public void accept(Permission permission) throws Exception {
                 L.i("Permission result " + permission);
                 if (permission.granted) {
                     L.i("granted");
-                    submitRecords(uid, wjCallbacks);
+                    submitRecords(imei, uid, wjCallbacks);
                 } else if (permission.shouldShowRequestPermissionRationale) {
                     // Denied permission without ask never again
                     L.i("shouldShowRequestPermissionRationale");
-                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
                 } else {
                     // Denied permission with ask never again
                     // Need to go to the settings
                     L.i("Need to go to the settings");
-                    buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 L.e("call", throwable);
-                buildReturnMsg(wjCallbacks, FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue());
+                buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
             }
         });
     }
 
-    private void submitRecords(final Long uid, final WJCallbacks wjCallbacks) {
+    private void submitRecords(final String imei, final Long uid, final WJCallbacks wjCallbacks) {
         mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
             public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
@@ -171,7 +174,7 @@ public class RecordMgr extends PhoneStatus {
                     public void accept(List<RecordList> recordLists) throws Exception {
                         RecordEntity recordEntity = new RecordEntity();
                         recordEntity.setRecordList(recordLists);
-                        String returnJSString = GsonMgr.get().toJSONString(recordEntity);
+                        String returnJSString = buildReturnCorrectJSJson(recordEntity);
                         wjCallbacks.onCallback(returnJSString);
                         //insert DB
                         for (RecordList value : recordLists) {
@@ -188,5 +191,10 @@ public class RecordMgr extends PhoneStatus {
                         mCompositeDisposable.clear();
                     }
                 }));
+    }
+
+    @Override
+    public String imei() {
+        return mImei;
     }
 }

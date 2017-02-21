@@ -13,7 +13,6 @@ import com.amap.api.location.AMapLocationListener;
 
 import fpjk.nirvana.sdk.wjbridge.business.entity.AddressInfo;
 import fpjk.nirvana.sdk.wjbridge.business.entity.CoordinateInfo;
-import fpjk.nirvana.sdk.wjbridge.business.entity.ErrorCodeEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.LocationEntity;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventLocation;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
@@ -33,18 +32,19 @@ import io.reactivex.functions.Consumer;
  * Version 1.0
  */
 
-public class LocationMgr {
+public class LocationMgr extends IReturnJSJson {
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = new AMapLocationClientOption();
     private WJCallbacks wjCallbacks;
     private RxPermissions mRxPermissions = null;
     private Activity mActivity;
+    private String mImei;
 
-    public static LocationMgr newInstance(@NonNull Activity context) {
-        return new LocationMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"));
+    public static LocationMgr newInstance(@NonNull Activity context, DeviceMgr deviceMgr) {
+        return new LocationMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"), deviceMgr);
     }
 
-    private LocationMgr(Activity context) {
+    private LocationMgr(Activity context, DeviceMgr deviceMgr) {
         //初始化client
         locationClient = new AMapLocationClient(context.getApplicationContext());
         locationOption = getDefaultOption();
@@ -56,6 +56,7 @@ public class LocationMgr {
         mRxPermissions = new RxPermissions(context);
         mRxPermissions.setLogging(true);
         mActivity = context;
+        mImei = deviceMgr.getIMEI();
     }
 
     private void startLocation() {
@@ -88,31 +89,28 @@ public class LocationMgr {
      */
     private AMapLocationListener locationListener = new AMapLocationListener() {
         @Override
-        public void onLocationChanged(AMapLocation loc) {
-            String result = "";
-            if (null != loc) {
+        public void onLocationChanged(AMapLocation aMapLocation) {
+            if (null != aMapLocation) {
                 //解析定位结果
-                result = getLocationStr(loc);
-            } else {
-                result = "定位失败";
+                LocationEntity locationEntity = processLocationCallBack(aMapLocation);
+                RxBus.get().send(new EventLocation().setWjCallbacks(wjCallbacks).setLocationEntity(locationEntity));
             }
-            L.i("onLocationChanged: " + result);
-            RxBus.get().send(new EventLocation().setWjCallbacks(wjCallbacks).setLocationInfo(result));
+            L.i("onLocationChanged: " + aMapLocation);
         }
     };
 
     /**
      * 根据定位结果返回定位信息的字符串
      */
-    private synchronized String getLocationStr(AMapLocation location) {
+    private synchronized LocationEntity processLocationCallBack(AMapLocation location) {
+        LocationEntity locationEntity = new LocationEntity();
+        locationEntity.setMapType("amap");
         if (null == location) {
-            return null;
+            locationEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
+            return locationEntity;
         }
         //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
         if (location.getErrorCode() == 0) {
-            LocationEntity locationEntity = new LocationEntity();
-            locationEntity.setMapType("amap");
-
             CoordinateInfo coordinateInfo = new CoordinateInfo();
             coordinateInfo.setLatitude(location.getLatitude());
             coordinateInfo.setLongitude(location.getLongitude());
@@ -125,20 +123,17 @@ public class LocationMgr {
             addressInfo.setCity(location.getCity());
             addressInfo.setAddress(location.getAddress());
             locationEntity.setAddressInfo(addressInfo);
-
-            return GsonMgr.get().toJSONString(locationEntity);
+        } else {
+            locationEntity.setErrorCode(location.getErrorCode());
         }
-        return location.getErrorInfo();
+        return locationEntity;
     }
 
     public void start(final WJCallbacks wjCallbacks) {
         this.wjCallbacks = wjCallbacks;
-        final ErrorCodeEntity errorCodeEntity = new ErrorCodeEntity();
         if (!isLocationOpen(mActivity)) {
             L.i("定位未打开[%s]", false);
-            errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
-            String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-            wjCallbacks.onCallback(callBack);
+            buildErrorJSJson(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue(), wjCallbacks);
             return;
         }
 
@@ -152,21 +147,18 @@ public class LocationMgr {
                 } else if (permission.shouldShowRequestPermissionRationale) {
                     // Denied permission without ask never again
                     L.i("shouldShowRequestPermissionRationale");
-                    errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_DENIED_LOCATION.getValue());
-                    String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                    wjCallbacks.onCallback(callBack);
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_DENIED_LOCATION.getValue(), wjCallbacks);
                 } else {
                     // Denied permission with ask never again
                     // Need to go to the settings
                     L.i("Need to go to the settings");
-                    errorCodeEntity.setErrorCode(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue());
-                    String callBack = GsonMgr.get().toJSONString(errorCodeEntity);
-                    wjCallbacks.onCallback(callBack);
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue(), wjCallbacks);
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
+                buildErrorJSJson(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue(), wjCallbacks);
                 stopLocation();
             }
         });
@@ -187,5 +179,10 @@ public class LocationMgr {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String imei() {
+        return mImei;
     }
 }

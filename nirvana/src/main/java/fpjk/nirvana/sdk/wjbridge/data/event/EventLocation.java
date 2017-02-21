@@ -1,5 +1,6 @@
 package fpjk.nirvana.sdk.wjbridge.data.event;
 
+import fpjk.nirvana.sdk.wjbridge.business.entity.LocationEntity;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 
 /**
@@ -13,18 +14,18 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
  */
 
 public class EventLocation {
-    private String locationInfo = "";
+    private LocationEntity locationEntity;
     private WJCallbacks wjCallbacks;
 
     public EventLocation() {
     }
 
-    public String getLocationInfo() {
-        return locationInfo;
+    public LocationEntity getLocationEntity() {
+        return locationEntity;
     }
 
-    public EventLocation setLocationInfo(String locationInfo) {
-        this.locationInfo = locationInfo;
+    public EventLocation setLocationEntity(LocationEntity locationEntity) {
+        this.locationEntity = locationEntity;
         return this;
     }
 
@@ -40,7 +41,7 @@ public class EventLocation {
     @Override
     public String toString() {
         return "EventLocation{" +
-                "locationInfo='" + locationInfo + '\'' +
+                "locationEntity=" + locationEntity +
                 ", wjCallbacks=" + wjCallbacks +
                 '}';
     }

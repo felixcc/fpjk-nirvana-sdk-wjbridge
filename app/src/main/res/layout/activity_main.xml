@@ -13,40 +13,4 @@
             android:layout_height="match_parent">
     </fpjk.nirvana.sdk.wjbridge.business.FpjkView>
 
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        <TextView
-                android:id="@+id/reload"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:text="reload"
-                android:background="#FF3BCA"
-                android:layout_weight="1"
-                android:layout_margin="5dp"
-                android:gravity="center"/>
-
-        <TextView
-                android:id="@+id/forward"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:text="forward"
-                android:background="#AF3BCA"
-                android:layout_weight="1"
-                android:layout_margin="5dp"
-                android:gravity="center"/>
-
-        <TextView
-                android:id="@+id/goBack"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:text="goBack"
-                android:background="#AF3BCA"
-                android:layout_weight="1"
-                android:layout_margin="5dp"
-                android:gravity="center"/>
-    </LinearLayout>
-
 </LinearLayout>

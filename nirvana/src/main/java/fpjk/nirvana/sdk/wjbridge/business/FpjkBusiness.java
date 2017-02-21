@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference;
 import fpjk.nirvana.sdk.wjbridge.business.entity.CookieEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DeviceInfoEntity;
+import fpjk.nirvana.sdk.wjbridge.business.entity.LocationEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.OpenUrlResponse;
 import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
 import fpjk.nirvana.sdk.wjbridge.business.vo.OpenUrlVo;
@@ -19,6 +20,7 @@ import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
 import fpjk.nirvana.sdk.wjbridge.data.DeviceMgr;
 import fpjk.nirvana.sdk.wjbridge.data.FpjkEnum;
 import fpjk.nirvana.sdk.wjbridge.data.GsonMgr;
+import fpjk.nirvana.sdk.wjbridge.data.IReturnJSJson;
 import fpjk.nirvana.sdk.wjbridge.data.LocationMgr;
 import fpjk.nirvana.sdk.wjbridge.data.RecordMgr;
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
@@ -43,7 +45,7 @@ import io.reactivex.functions.Consumer;
  * Version 1.0
  */
 
-public class FpjkBusiness {
+public class FpjkBusiness extends IReturnJSJson {
     private WeakReference<WJWebLoader> mWebLoader;
     private final String cN = "fpjkBridgeCallNative";
     private final String cJ = "fpjkBridgeCallJavaScript";
@@ -92,11 +94,13 @@ public class FpjkBusiness {
         }
 
         mOpenUrlVo = new OpenUrlVo();
-        mSmsMgr = SmsMgr.newInstance(mContext);
         mDeviceMgr = DeviceMgr.newInstance(mContext);
-        mRecordMgr = RecordMgr.newInstance(mContext);
-        mContactMgr = ContactMgr.newInstance(mContext);
-        mLocationMgr = LocationMgr.newInstance(mContext);
+
+        mSmsMgr = SmsMgr.newInstance(mContext, mDeviceMgr);
+        mRecordMgr = RecordMgr.newInstance(mContext, mDeviceMgr);
+        mContactMgr = ContactMgr.newInstance(mContext, mDeviceMgr);
+        mLocationMgr = LocationMgr.newInstance(mContext, mDeviceMgr);
+
         Logger.init("Fpjk");
     }
 
@@ -105,9 +109,10 @@ public class FpjkBusiness {
             @Override
             public void accept(Object o) throws Exception {
                 if (o instanceof EventLocation) {
-                    String mLocationInfo = ((EventLocation) o).getLocationInfo();
+                    LocationEntity locationEntity = ((EventLocation) o).getLocationEntity();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
-                    wjCallbacks.onCallback(mLocationInfo);
+                    String callBackJson = buildReturnCorrectJSJson(locationEntity);
+                    wjCallbacks.onCallback(callBackJson);
                 }
                 L.d("toObserverable[%s]", o);
             }
@@ -127,7 +132,7 @@ public class FpjkBusiness {
             if (FpjkEnum.Business.GET_CONTACTS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
-                mContactMgr.obtainContacts(uid, wjCallbacks);
+                mContactMgr.obtainContacts(mDeviceMgr.getIMEI(), uid, wjCallbacks);
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 processStrokes(dataTransferEntity, wjCallbacks);
@@ -141,7 +146,7 @@ public class FpjkBusiness {
                 String cookie = manager.getCookie(dataTransferEntity.getUrl());
 
                 CookieEntity cookieEntity = mDeviceMgr.formatCookie(cookie);
-                String callBackJson = GsonMgr.get().toJSONString(cookieEntity);
+                String callBackJson = buildReturnCorrectJSJson(cookieEntity);
                 wjCallbacks.onCallback(callBackJson);
             } else if (FpjkEnum.Business.GET_DEVICE_INFO.getValue().equals(entity.getOpt())) {
                 DeviceInfoEntity deviceInfoEntity = new DeviceInfoEntity();
@@ -155,23 +160,23 @@ public class FpjkBusiness {
                         .setDeviceModel(Build.MODEL)
                         .setPid(mDeviceMgr.getIMEI()));
                 deviceInfoEntity.setAppList(mDeviceMgr.getIntalledAppList());
-                String json = GsonMgr.get().toJSONString(deviceInfoEntity);
-                wjCallbacks.onCallback(json);
+                String callBackJson = buildReturnCorrectJSJson(deviceInfoEntity);
+                wjCallbacks.onCallback(callBackJson);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
                 mLocationMgr.start(wjCallbacks);
             } else if (FpjkEnum.Business.GET_SMS_RECORDS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
-                mSmsMgr.obtainSms(uid, wjCallbacks);
+                mSmsMgr.obtainSms(mDeviceMgr.getIMEI(), uid, wjCallbacks);
             } else if (FpjkEnum.Business.GET_CALL_RECORDS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
-                mRecordMgr.obtainRecords(uid, wjCallbacks);
+                mRecordMgr.obtainRecords(mDeviceMgr.getIMEI(), uid, wjCallbacks);
             } else if (FpjkEnum.Business.REFRESH_NAVIGATION.getValue().equals(entity.getOpt())) {
                 OpenUrlResponse openUrlResponse = new OpenUrlResponse();
                 openUrlResponse.setSuccess(1);
-                String callBack = GsonMgr.get().toJSONString(openUrlResponse);
-                wjCallbacks.onCallback(callBack);
+                String callBackJson = buildReturnCorrectJSJson(openUrlResponse);
+                wjCallbacks.onCallback(callBackJson);
                 processCanGoBack();
             }
         } catch (Exception e) {
@@ -232,7 +237,7 @@ public class FpjkBusiness {
         //call JS
         OpenUrlResponse openUrlResponse = new OpenUrlResponse();
         openUrlResponse.setSuccess(value);
-        String callBack = GsonMgr.get().toJSONString(openUrlResponse);
+        String callBack = buildReturnCorrectJSJson(openUrlResponse);
         wjCallbacks.onCallback(callBack);
         //review page
         mFpjkView.showDefaultTab();
@@ -271,4 +276,8 @@ public class FpjkBusiness {
         }
     }
 
+    @Override
+    public String imei() {
+        return mDeviceMgr.getIMEI();
+    }
 }

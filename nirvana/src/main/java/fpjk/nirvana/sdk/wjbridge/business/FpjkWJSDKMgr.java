@@ -6,13 +6,8 @@ import android.view.View;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 
 /**
- * Summary:暴露给第三方的管理者
- * Created by Felix
- * Date: 13/12/2016
- * Time: 16:03
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
- * Version 1.0
+ * Summary:暴露给第三方的管理者 Created by Felix Date: 13/12/2016 Time: 16:03 QQ:74104
+ * EMAIL:lovejiuwei@gmail.com Version 1.0
  */
 public class FpjkWJSDKMgr {
     private FpjkView mFpjkView;
@@ -55,6 +50,14 @@ public class FpjkWJSDKMgr {
     public void loadUrl(String url) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
         mFpjkView.loadDefaultUrl(url);
+    }
+
+    /**
+     * 格式session = xxxxx
+     */
+    public void synchronizedCookie(String url, String cookie) {
+        WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
+        mFpjkView.synchronizedCookie(url, cookie);
     }
 
     public void goBack() {

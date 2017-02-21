@@ -19,12 +19,6 @@ android {
         release {
             // 不显示Log
             buildConfigField "boolean", "LOG_DEBUG", "false"
-
-            minifyEnabled false
-            zipAlignEnabled true
-            shrinkResources true
-
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -48,7 +42,7 @@ def gitUrl = 'https://github.com/felixcc/fpjk-nirvana-sdk-wjbridge.git'   // Git
 
 //配置android-maven-gradle-plugin插件
 group = 'fpjk.nirvana.sdk.wjbridge'   // groupId,一般由host+artifactId组成
-version = '0.0.5'  //版本号,以后更新library时,它也要跟着增加
+version = '0.0.6'  //版本号,以后更新library时,它也要跟着增加
 
 //配置android-maven-gradle-plugin插件
 install {
@@ -137,6 +131,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives javadocJar
     archives sourcesJar
+}
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
 }
 
 dependencies {

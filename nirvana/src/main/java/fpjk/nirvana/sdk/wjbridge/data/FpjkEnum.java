@@ -1,12 +1,7 @@
 package fpjk.nirvana.sdk.wjbridge.data;
 
 /**
- * Summary:
- * Created by Felix
- * Date: 01/12/2016
- * Time: 16:42
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
+ * Summary: Created by Felix Date: 01/12/2016 Time: 16:42 QQ:74104 EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
 
@@ -19,6 +14,7 @@ public class FpjkEnum {
         GET_CALL_RECORDS("getCallRecords"),
         GET_SMS_RECORDS("getSMSRecords"),
         REFRESH_NAVIGATION("refreshNavigation"),
+        LOGOUT("logout"),
         GET_CONTACTS("getContacts");
 
         private final String value;

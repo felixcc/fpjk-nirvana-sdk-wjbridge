@@ -16,12 +16,19 @@
  */
 package fpjk.nirvana.sdk.wjbridge.presenter;
 
+import android.graphics.Bitmap;
+import android.net.http.SslError;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
-import fpjk.nirvana.sdk.wjbridge.data.event.EventPageFinished;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedFinished;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeProvider;
+import fpjk.nirvana.sdk.wjbridge.logger.L;
 
 public class WJBridgeWebViewClient extends WebViewClient {
 
@@ -29,6 +36,12 @@ public class WJBridgeWebViewClient extends WebViewClient {
 
     public WJBridgeWebViewClient(WJBridgeProvider provider) {
         this.mProvider = provider;
+    }
+
+    @Override
+    public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        super.onPageStarted(view, url, favicon);
+        L.d("onPageStarted");
     }
 
     @Override
@@ -41,6 +54,30 @@ public class WJBridgeWebViewClient extends WebViewClient {
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
         this.mProvider.onPageFinished();
-        RxBus.get().send(new EventPageFinished().setCurrentUrl(url));
+        RxBus.get().send(new EventPageReceivedFinished().setCurrentUrl(url));
+    }
+
+    @Override
+    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+        super.onReceivedError(view, request, error);
+        L.d("onReceivedError");
+    }
+
+    @Override
+    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        super.onReceivedError(view, errorCode, description, failingUrl);
+        L.d("onReceivedError-deprecated");
+    }
+
+    @Override
+    public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+        super.onReceivedHttpError(view, request, errorResponse);
+        L.d("onReceivedHttpError");
+    }
+
+    @Override
+    public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+        super.onReceivedSslError(view, handler, error);
+        L.d("onReceivedSslError");
     }
 }

@@ -41,11 +41,11 @@ dependencies {
     //    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
     //    compile 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
     //jcenter
-    compile 'fpjk.nirvana.sdk.wjbridge:nirvana:0.0.6@aar'
+//    compile 'fpjk.nirvana.sdk.wjbridge:nirvana:0.0.6@aar'
     //add libs
     //    compile(name: 'nirvana-release', ext: 'aar')
     //ad module
-//    compile project(':nirvana')
+    compile project(':nirvana')
 }
 
 repositories {

@@ -8,21 +8,21 @@ package fpjk.nirvana.sdk.wjbridge.data.event;
  * QQ:74104
  */
 
-public class EventPageFinished {
+public class EventPageReceivedFinished {
     private String currentUrl = "";
 
     public String getCurrentUrl() {
         return currentUrl;
     }
 
-    public EventPageFinished setCurrentUrl(String currentUrl) {
+    public EventPageReceivedFinished setCurrentUrl(String currentUrl) {
         this.currentUrl = currentUrl;
         return this;
     }
 
     @Override
     public String toString() {
-        return "EventPageFinished{" +
+        return "EventPageReceivedFinished{" +
                 "currentUrl='" + currentUrl + '\'' +
                 '}';
     }

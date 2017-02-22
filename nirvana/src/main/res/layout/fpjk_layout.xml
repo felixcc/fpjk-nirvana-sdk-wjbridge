@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <include layout="@layout/fpjk_titlebar"/>
-
-    <ViewFlipper
-            android:id="@+id/viewFlipper"
+    <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView
-                android:id="@+id/defaultWJBridgeWebView"
+        <include layout="@layout/fpjk_titlebar"/>
+
+        <ViewFlipper
+                android:id="@+id/viewFlipper"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-        </fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView>
 
-        <fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView
-                android:visibility="gone"
-                android:id="@+id/strokesWJBridgeWebView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-        </fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView>
+            <fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView
+                    android:id="@+id/defaultWJBridgeWebView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+            </fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView>
 
-    </ViewFlipper>
+            <fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView
+                    android:visibility="gone"
+                    android:id="@+id/strokesWJBridgeWebView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+            </fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView>
+        </ViewFlipper>
+    </LinearLayout>
 
-</LinearLayout>
+    <include
+            android:visibility="gone"
+            android:id="@+id/includeLackOfLayout"
+            layout="@layout/fpjk_layout_lack_of"/>
+</RelativeLayout>

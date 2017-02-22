@@ -13,10 +13,11 @@ import fpjk.nirvana.sdk.wjbridge.business.entity.CookieEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DeviceInfoEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.LocationEntity;
-import fpjk.nirvana.sdk.wjbridge.business.entity.OpenUrlResponse;
+import fpjk.nirvana.sdk.wjbridge.business.entity.SuccessResponse;
 import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
 import fpjk.nirvana.sdk.wjbridge.business.vo.OpenUrlVo;
 import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
+import fpjk.nirvana.sdk.wjbridge.data.CookieMgr;
 import fpjk.nirvana.sdk.wjbridge.data.DeviceMgr;
 import fpjk.nirvana.sdk.wjbridge.data.FpjkEnum;
 import fpjk.nirvana.sdk.wjbridge.data.GsonMgr;
@@ -26,7 +27,7 @@ import fpjk.nirvana.sdk.wjbridge.data.RecordMgr;
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
 import fpjk.nirvana.sdk.wjbridge.data.SmsMgr;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventLocation;
-import fpjk.nirvana.sdk.wjbridge.data.event.EventPageFinished;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedFinished;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
@@ -37,11 +38,15 @@ import io.reactivex.functions.Consumer;
 
 /**
  * Summary:与H5之间交互的业务层
+ *
  * Created by Felix
+ *
  * Date: 01/12/2016
- * Time: 15:32
- * QQ:74104
+ *
+ * Time: 15:32 QQ:74104
+ *
  * EMAIL:lovejiuwei@gmail.com
+ *
  * Version 1.0
  */
 
@@ -58,6 +63,9 @@ public class FpjkBusiness extends IReturnJSJson {
     private LocationMgr mLocationMgr;
     private RecordMgr mRecordMgr;
     private SmsMgr mSmsMgr;
+    private CookieMgr mCookieMgr;
+
+    private ILogOut mILogOut;
 
     private static FpjkBusiness mFpjkBusiness = new FpjkBusiness();
 
@@ -73,6 +81,11 @@ public class FpjkBusiness extends IReturnJSJson {
         mWebLoader = new WeakReference<>(webLoader);
         mContext = activity;
         mFpjkView = fpjkView;
+        return this;
+    }
+
+    public FpjkBusiness registerLogoutAction(ILogOut mILogOut) {
+        this.mILogOut = mILogOut;
         return this;
     }
 
@@ -95,6 +108,7 @@ public class FpjkBusiness extends IReturnJSJson {
 
         mOpenUrlVo = new OpenUrlVo();
         mDeviceMgr = DeviceMgr.newInstance(mContext);
+        mCookieMgr = CookieMgr.get();
 
         mSmsMgr = SmsMgr.newInstance(mContext, mDeviceMgr);
         mRecordMgr = RecordMgr.newInstance(mContext, mDeviceMgr);
@@ -173,11 +187,19 @@ public class FpjkBusiness extends IReturnJSJson {
                 long uid = dataTransferEntity.getUid();
                 mRecordMgr.obtainRecords(mDeviceMgr.getIMEI(), uid, wjCallbacks);
             } else if (FpjkEnum.Business.REFRESH_NAVIGATION.getValue().equals(entity.getOpt())) {
-                OpenUrlResponse openUrlResponse = new OpenUrlResponse();
-                openUrlResponse.setSuccess(1);
-                String callBackJson = buildReturnCorrectJSJson(openUrlResponse);
+                SuccessResponse successResponse = new SuccessResponse();
+                successResponse.setSuccess(1);
+                String callBackJson = buildReturnCorrectJSJson(successResponse);
                 wjCallbacks.onCallback(callBackJson);
                 processCanGoBack();
+            } else if (FpjkEnum.Business.LOGOUT.getValue().equals(entity.getOpt())) {
+                SuccessResponse successResponse = new SuccessResponse();
+                successResponse.setSuccess(1);
+                String callBackJson = buildReturnCorrectJSJson(successResponse);
+                wjCallbacks.onCallback(callBackJson);
+                if (null != mILogOut) {
+                    mILogOut.onReceiveLogoutAction();
+                }
             }
         } catch (Exception e) {
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);
@@ -209,8 +231,8 @@ public class FpjkBusiness extends IReturnJSJson {
         RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
-                if (o instanceof EventPageFinished) {
-                    String matchingUrl = ((EventPageFinished) o).getCurrentUrl();
+                if (o instanceof EventPageReceivedFinished) {
+                    String matchingUrl = ((EventPageReceivedFinished) o).getCurrentUrl();
                     //如果淘宝登录成功会关闭当前页面，返回上一个页面状态。
                     if (matchingUrl.startsWith(dataTransferEntity.getFinishUrl())) {
                         processWhenStrokesGoBackInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.AUTO_SHUTDOWN.getValue());
@@ -235,9 +257,9 @@ public class FpjkBusiness extends IReturnJSJson {
      */
     private void processWhenStrokesGoBackInitialState(WJCallbacks wjCallbacks, Integer value) {
         //call JS
-        OpenUrlResponse openUrlResponse = new OpenUrlResponse();
-        openUrlResponse.setSuccess(value);
-        String callBack = buildReturnCorrectJSJson(openUrlResponse);
+        SuccessResponse successResponse = new SuccessResponse();
+        successResponse.setSuccess(value);
+        String callBack = buildReturnCorrectJSJson(successResponse);
         wjCallbacks.onCallback(callBack);
         //review page
         mFpjkView.showDefaultTab();

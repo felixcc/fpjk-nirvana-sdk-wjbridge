@@ -1,12 +1,9 @@
 package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.CookieManager;
-import android.webkit.ValueCallback;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,9 +29,9 @@ public class FpjkView extends RelativeLayout {
 
     private TextView mIvTitleBarTitle;
 
-    private boolean isShownBackButton = true;
+    private View mIncludeLackOfLayout;
 
-    private Context mContext;
+    private boolean isShownBackButton = true;
 
     public FpjkView(Context context) {
         super(context);
@@ -53,7 +50,8 @@ public class FpjkView extends RelativeLayout {
 
     private void build(Context context) {
         View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, null);
-        mContext = context;
+
+        mIncludeLackOfLayout = v.findViewById(R.id.includeLackOfLayout);
 
         mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
         mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
@@ -66,6 +64,18 @@ public class FpjkView extends RelativeLayout {
         addView(v, rl);
     }
 
+    public void displayLackOfMask() {
+        mIncludeLackOfLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void hideLackOfMask() {
+        mIncludeLackOfLayout.setVisibility(View.GONE);
+    }
+
+    public void lackOfOnClick(View.OnClickListener o) {
+        mIncludeLackOfLayout.setOnClickListener(o);
+    }
+
     public void debugEnabled(View.OnLongClickListener o) {
         mIvTitleBarTitle.setOnLongClickListener(o);
     }
@@ -76,31 +86,6 @@ public class FpjkView extends RelativeLayout {
 
     public void loadDefaultUrl(String url) {
         mDefaultWJBridgeWebView.loadUrl(url);
-    }
-
-    /**
-     * 将cookie同步到WebView
-     *
-     * @param url    WebView要加载的url
-     * @param cookie 要同步的cookie
-     * @return true 同步cookie成功，false同步cookie失败
-     */
-    public void synchronizedCookie(String url, String cookie) {
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-                @Override
-                public void onReceiveValue(Boolean value) {
-
-                }
-            });
-        } else {
-            cookieManager.removeAllCookie();
-        }
-
-        cookieManager.setCookie(url, cookie);
     }
 
     public boolean isDisplayDefatultView() {

@@ -3,15 +3,10 @@ package fpjk.nirvana.sdk.wjbridge.business.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
- * Summary:
- * Created by Felix
- * Date: 07/12/2016
- * Time: 11:30
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
+ * Summary: Created by Felix Date: 07/12/2016 Time: 11:30 QQ:74104 EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
-public class OpenUrlResponse {
+public class SuccessResponse {
 
     @JSONField(name = "success")
     private Integer success;
@@ -32,7 +27,7 @@ public class OpenUrlResponse {
 
     @Override
     public String toString() {
-        return "OpenUrlResponse{" +
+        return "SuccessResponse{" +
                 "success=" + success +
                 '}';
     }

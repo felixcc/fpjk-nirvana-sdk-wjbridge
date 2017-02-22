@@ -40,6 +40,7 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
         mProvider = WJBridgeProvider.newInstance(this);
         setVerticalScrollBarEnabled(false);
         setHorizontalScrollBarEnabled(false);
+        getSettings().setAllowFileAccess(true);
         getSettings().setJavaScriptEnabled(true);
         getSettings().setDomStorageEnabled(true);
         getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);

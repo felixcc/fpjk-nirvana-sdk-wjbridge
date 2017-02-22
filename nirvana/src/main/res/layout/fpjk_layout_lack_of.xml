@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ImageView
+            android:layout_centerInParent="true"
+            android:id="@+id/ivLackOfLogoF"
+            android:src="@drawable/fpjk_icon_lack_of"
+            android:layout_width="150dp"
+            android:layout_height="150dp"/>
+
+    <TextView
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:layout_below="@id/ivLackOfLogoF"
+            android:text="网络加载失败，点击刷新"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+</RelativeLayout>

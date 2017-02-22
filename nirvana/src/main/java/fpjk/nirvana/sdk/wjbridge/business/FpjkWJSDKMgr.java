@@ -3,6 +3,7 @@ package fpjk.nirvana.sdk.wjbridge.business;
 import android.app.Activity;
 import android.view.View;
 
+import fpjk.nirvana.sdk.wjbridge.data.CookieMgr;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 
 /**
@@ -47,6 +48,10 @@ public class FpjkWJSDKMgr {
         FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView).execute();
     }
 
+    public void logout(ILogOut iLogOut) {
+        FpjkBusiness.get().registerLogoutAction(iLogOut);
+    }
+
     public void loadUrl(String url) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
         mFpjkView.loadDefaultUrl(url);
@@ -57,7 +62,7 @@ public class FpjkWJSDKMgr {
      */
     public void synchronizedCookie(String url, String cookie) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        mFpjkView.synchronizedCookie(url, cookie);
+        CookieMgr.get().synchronizedCookie(url, cookie);
     }
 
     public void goBack() {

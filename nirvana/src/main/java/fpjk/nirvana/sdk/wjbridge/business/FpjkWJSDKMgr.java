@@ -59,9 +59,9 @@ public class FpjkWJSDKMgr {
     /**
      * 格式session = xxxxx
      */
-    public void synchronizedCookie(String url, String cookie) {
+    public void insertCookie(String url, String cookie) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        CookieMgr.get().synchronizedCookie(url, cookie);
+        CookieMgr.get().insertCookie(mFpjkView.getDefaultWJBridgeWebView(), url, cookie);
     }
 
     public void goBack() {

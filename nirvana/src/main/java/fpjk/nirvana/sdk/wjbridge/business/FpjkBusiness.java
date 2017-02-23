@@ -17,6 +17,7 @@ import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.SuccessResponse;
 import fpjk.nirvana.sdk.wjbridge.business.vo.OpenUrlVo;
 import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
+import fpjk.nirvana.sdk.wjbridge.data.CookieMgr;
 import fpjk.nirvana.sdk.wjbridge.data.DeviceMgr;
 import fpjk.nirvana.sdk.wjbridge.data.FpjkEnum;
 import fpjk.nirvana.sdk.wjbridge.data.GsonMgr;
@@ -126,7 +127,8 @@ public class FpjkBusiness extends IReturnJSJson {
                     L.d("EventPageReceivedStarted");
                 }
                 if (o instanceof EventPageReceivedFinished) {
-                    L.d("EventPageReceivedFinished");
+                    String cookie = CookieMgr.get().getCookie(((EventPageReceivedFinished) o).getCurrentUrl());
+                    L.d("EventPageReceivedFinished", cookie);
                 }
                 if (o instanceof EventPageReceivedError) {
                     L.d("EventPageReceivedError");

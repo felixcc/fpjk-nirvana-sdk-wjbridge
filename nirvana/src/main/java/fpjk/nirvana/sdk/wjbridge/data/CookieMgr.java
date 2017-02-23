@@ -4,6 +4,8 @@ import android.os.Build;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 
+import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
+
 /**
  * Summary: Created by FelixChen
  *
@@ -24,6 +26,12 @@ public class CookieMgr {
 
     }
 
+    public String getCookie(String url) {
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        return cookieManager.getCookie(url);
+    }
+
     /**
      * 将cookie同步到WebView
      *
@@ -31,24 +39,11 @@ public class CookieMgr {
      * @param cookie 要同步的cookie
      * @return true 同步cookie成功，false同步cookie失败
      */
-    public void synchronizedCookie(String url, String cookie) {
+    public void insertCookie(WJBridgeWebView wjBridgeWebView, String url, String cookie) {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            cookieManager.removeAllCookies(new ValueCallback<Boolean>() {
-                @Override
-                public void onReceiveValue(Boolean value) {
-
-                }
-            });
-        } else {
-            cookieManager.removeAllCookie();
-        }
-
         cookieManager.setCookie(url, cookie);
-        String resultCookie = cookieManager.getCookie(url);
-        System.out.println(resultCookie);
+        wjBridgeWebView.loadUrl(url);
     }
 
     public void remoeAllCookies() {

@@ -61,7 +61,7 @@ public class FpjkWJSDKMgr {
      */
     public void insertCookie(String url, String cookie) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
-        CookieMgr.get().insertCookie(mFpjkView.getDefaultWJBridgeWebView(), url, cookie);
+        CookieMgr.get().insertCookieAndLoaded(mFpjkView.getDefaultWJBridgeWebView(), url, cookie);
     }
 
     public void goBack() {

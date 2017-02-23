@@ -39,7 +39,7 @@ public class CookieMgr {
      * @param cookie 要同步的cookie
      * @return true 同步cookie成功，false同步cookie失败
      */
-    public void insertCookie(WJBridgeWebView wjBridgeWebView, String url, String cookie) {
+    public void insertCookieAndLoaded(WJBridgeWebView wjBridgeWebView, String url, String cookie) {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setCookie(url, cookie);

@@ -4,9 +4,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <include
+    <fpjk.nirvana.sdk.wjbridge.Titlebar
             android:id="@+id/titleBar"
-            layout="@layout/fpjk_titlebar"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     <fpjk.nirvana.sdk.wjbridge.WebViewScaleProgressBar
             android:layout_below="@+id/titleBar"

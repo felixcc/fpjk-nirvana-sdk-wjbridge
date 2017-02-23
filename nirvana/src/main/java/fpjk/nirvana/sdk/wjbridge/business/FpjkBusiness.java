@@ -130,7 +130,7 @@ public class FpjkBusiness extends IReturnJSJson {
                 }
                 if (o instanceof EventPageReceivedError) {
                     L.d("EventPageReceivedError");
-                    EventPageReceivedError error = ((EventPageReceivedError) o);
+                    EventPageReceivedError error = (EventPageReceivedError) o;
                     boolean mPageReceivedError = error.isPageReceivedError();
                     mFailingUrl = error.getFailingUrl();
                     try {
@@ -240,7 +240,7 @@ public class FpjkBusiness extends IReturnJSJson {
     private void processStrokes(final DataTransferEntity dataTransferEntity, final WJCallbacks wjCallbacks) {
         //如果进入到 OpenUrl 界面则自动记录 Title 以及是否展示状态
         mOpenUrlVo.setTitle(mFpjkView.getTitle());
-        mOpenUrlVo.setShownBackButton(mFpjkView.isShownBackButton());
+        mOpenUrlVo.setShownBackButton(mFpjkView.isPrePageBackButtonDisplayState());
 
         mFpjkView.showBackButton();
         mFpjkView.showStrokesTab();
@@ -288,7 +288,6 @@ public class FpjkBusiness extends IReturnJSJson {
         } else {
             mFpjkView.hideBackButton();
         }
-        processRefreshNavigation();
     }
 
     /**
@@ -299,12 +298,15 @@ public class FpjkBusiness extends IReturnJSJson {
         mFpjkView.setTitle("涅槃");
         processRefreshNavigation();
 
+        //titlebar backbtn onclick
         mFpjkView.onBack(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 processCanGoBack();
+                processRefreshNavigation();
             }
         });
+
         //empty
         mFpjkView.getWebViewEmptyLayout().setOnRefreshClick(new View.OnClickListener() {
             @Override
@@ -323,7 +325,7 @@ public class FpjkBusiness extends IReturnJSJson {
             mFpjkView.showBackButton();
         } else {
             //default btn
-            if (mFpjkView.isShownBackButton()) {
+            if (mFpjkView.isLoadedSDKShownBackButton()) {
                 mFpjkView.showBackButton();
             } else {
                 mFpjkView.hideBackButton();

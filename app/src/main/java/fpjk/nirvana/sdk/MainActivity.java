@@ -19,7 +19,6 @@ public class MainActivity extends Activity {
     FpjkView mFpjkView;
 
     String url = "http://10.10.232.242:9527/";//首页
-//    String url = "http://www.baidu.com/";//首页
 //    String url = "http://10.10.191.154:9000/";//测试
 
     //    String cookie = "session=Fe26.2**30128625db38b64850d327c8fb4a0698de7b8339f3fef1d2030da27e351a2c12*OcrnK0Hf-BRD_AciZmtZHw*gQHVGTzCQyyl-SBUPiwYLvunJDnPYvwOChlwTu3l1YQ**5abb2d4ac4199f7a2e38c4f55d2522c7ebee6085bb16987215c61e87b56489e0*8bOexZ6tS9wbByCLBYil30AcYyscv4FjfNPLpyxjYhQ; SameSite=Lax; Path=/";
@@ -39,14 +38,6 @@ public class MainActivity extends Activity {
                 .execute();
 
         FpjkWJSDKMgr.get().loadUrl(url);
-
-        FpjkWJSDKMgr.get().debugEnabled(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                debugEnabled();
-                return true;
-            }
-        });
 
         FpjkWJSDKMgr.get().logout(new IReceiveLogoutAction() {
             @Override

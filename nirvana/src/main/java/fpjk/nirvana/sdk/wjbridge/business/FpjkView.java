@@ -4,12 +4,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import fpjk.nirvana.sdk.wjbridge.R;
+import fpjk.nirvana.sdk.wjbridge.Titlebar;
 import fpjk.nirvana.sdk.wjbridge.WebViewEmptyLayout;
 import fpjk.nirvana.sdk.wjbridge.WebViewScaleProgressBar;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
@@ -27,44 +26,42 @@ public class FpjkView extends RelativeLayout {
 
     private WJBridgeWebView mStrokesWJBridgeWebView;
 
-    private ImageView mIvTitleBarBack;
-
-    private TextView mIvTitleBarTitle;
-
     private WebViewScaleProgressBar mWebViewScaleProgressBar;
 
     private WebViewEmptyLayout mWebViewEmptyLayout;
 
-    private boolean isShownBackButton = true;
+    private Titlebar mTitlebar;
+
+    //只针对第一次加载 SDK 是否显示回退按钮。
+    private boolean isLoadedSDKShownBackButton = true;
+
+    //如果打开新页面，则记录当前回退按钮展示状态。
+    private boolean misPrePageBackButtonDisplayState = false;
 
     public FpjkView(Context context) {
-        super(context);
-        build(context);
+        this(context, null);
     }
 
     public FpjkView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        build(context);
+        this(context, attrs, 0);
     }
 
     public FpjkView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        build(context);
+        buildConfigs(context);
     }
 
-    private void build(Context context) {
+    private void buildConfigs(Context context) {
         View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, this);
 
         mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
         mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
         mStrokesWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.strokesWJBridgeWebView);
 
-        mIvTitleBarBack = (ImageView) v.findViewById(R.id.ivTitleBarBack);
-        mIvTitleBarTitle = (TextView) v.findViewById(R.id.ivTitleBarTitle);
-
         mWebViewEmptyLayout = (WebViewEmptyLayout) v.findViewById(R.id.webViewEmptyLayout);
-
         mWebViewScaleProgressBar = (WebViewScaleProgressBar) v.findViewById(R.id.webViewScaleProgressBar);
+
+        mTitlebar = (Titlebar) v.findViewById(R.id.titleBar);
     }
 
     /*******************
@@ -86,17 +83,6 @@ public class FpjkView extends RelativeLayout {
     }
     /*******************
      * WebViewEmptyLayout end *
-     *******************/
-
-
-    /*******************
-     * debugEnabled start *
-     *******************/
-    public void debugEnabled(View.OnLongClickListener o) {
-        mIvTitleBarTitle.setOnLongClickListener(o);
-    }
-    /*******************
-     * debugEnabled end *
      *******************/
 
 
@@ -152,34 +138,47 @@ public class FpjkView extends RelativeLayout {
      * titlebar start *
      *******************/
     public void onBack(View.OnClickListener o) {
-        mIvTitleBarBack.setOnClickListener(o);
+        mTitlebar.onBack(o);
     }
 
     public void setTitle(String title) {
-        mIvTitleBarTitle.setText(title);
+        mTitlebar.setTitle(title);
     }
 
     public String getTitle() {
-        return mIvTitleBarTitle.getText().toString();
-    }
-
-    public boolean isShownBackButton() {
-        return isShownBackButton;
-    }
-
-    public FpjkView setShownBackButton(boolean shownBackButton) {
-        isShownBackButton = shownBackButton;
-        return this;
+        return mTitlebar.getTitle();
     }
 
     public void showBackButton() {
-        mIvTitleBarBack.setVisibility(View.VISIBLE);
+        mTitlebar.showBackButton();
+        misPrePageBackButtonDisplayState = true;
     }
 
     public void hideBackButton() {
-        mIvTitleBarBack.setVisibility(View.GONE);
+        mTitlebar.hideBackButton();
+        misPrePageBackButtonDisplayState = false;
+    }
+
+    public boolean isPrePageBackButtonDisplayState() {
+        return misPrePageBackButtonDisplayState;
     }
     /*******************
      * titlebar end *
+     *******************/
+
+
+    /*******************
+     * isLoadedSDKShownBackButton start *
+     *******************/
+    public boolean isLoadedSDKShownBackButton() {
+        return isLoadedSDKShownBackButton;
+    }
+
+    public FpjkView setLoadedSDKShownBackButton(boolean loadedSDKShownBackButton) {
+        isLoadedSDKShownBackButton = loadedSDKShownBackButton;
+        return this;
+    }
+    /*******************
+     * isLoadedSDKShownBackButton end *
      *******************/
 }

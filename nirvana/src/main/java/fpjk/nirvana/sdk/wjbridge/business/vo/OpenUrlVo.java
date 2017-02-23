@@ -33,7 +33,7 @@ public class OpenUrlVo {
     public String toString() {
         return "OpenUrlVo{" +
                 ", title='" + title + '\'' +
-                ", isShownBackButton=" + isShownBackButton +
+                ", isLoadedSDKShownBackButton=" + isShownBackButton +
                 '}';
     }
 }

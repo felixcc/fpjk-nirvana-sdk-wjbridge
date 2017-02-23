@@ -56,10 +56,7 @@ public class FpjkWJSDKMgr {
         mFpjkView.loadDefaultUrl(url);
     }
 
-    /**
-     * 格式session = xxxxx
-     */
-    public void insertCookie(String url, String cookie) {
+    public void insertCookieAndLoaded(String url, String cookie) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
         CookieMgr.get().insertCookieAndLoaded(mFpjkView.getDefaultWJBridgeWebView(), url, cookie);
     }

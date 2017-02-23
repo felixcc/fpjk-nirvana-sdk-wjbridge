@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
                 .execute();
 
 //        FpjkWJSDKMgr.get().loadUrl(url);
-        FpjkWJSDKMgr.get().insertCookie(url, cookie);
+        FpjkWJSDKMgr.get().insertCookieAndLoaded(url, cookie);
 
         FpjkWJSDKMgr.get().logout(new IReceiveLogoutAction() {
             @Override

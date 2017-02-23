@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -27,12 +28,7 @@ import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.logger.Logger;
 
 /**
- * Summary:
- * Created by Felix
- * Date: 26/11/2016
- * Time: 15:11
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
+ * Summary: Created by Felix Date: 26/11/2016 Time: 15:11 QQ:74104 EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
 public class DeviceMgr {
@@ -47,15 +43,9 @@ public class DeviceMgr {
         mContext = context;
     }
 
-    private String channelName = "";//渠道名称
-
-    public String getChannelName() {
-        return channelName;
-    }
-
-    public DeviceMgr setChannelName(String channelName) {
-        this.channelName = channelName;
-        return this;
+    public boolean hasInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return (connectivityManager.getActiveNetworkInfo() != null);
     }
 
     /**

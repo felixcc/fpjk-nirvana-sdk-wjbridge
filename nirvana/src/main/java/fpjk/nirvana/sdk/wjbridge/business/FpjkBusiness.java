@@ -13,11 +13,10 @@ import fpjk.nirvana.sdk.wjbridge.business.entity.CookieEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DeviceInfoEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.LocationEntity;
-import fpjk.nirvana.sdk.wjbridge.business.entity.SuccessResponse;
 import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
+import fpjk.nirvana.sdk.wjbridge.business.entity.SuccessResponse;
 import fpjk.nirvana.sdk.wjbridge.business.vo.OpenUrlVo;
 import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
-import fpjk.nirvana.sdk.wjbridge.data.CookieMgr;
 import fpjk.nirvana.sdk.wjbridge.data.DeviceMgr;
 import fpjk.nirvana.sdk.wjbridge.data.FpjkEnum;
 import fpjk.nirvana.sdk.wjbridge.data.GsonMgr;
@@ -27,7 +26,10 @@ import fpjk.nirvana.sdk.wjbridge.data.RecordMgr;
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
 import fpjk.nirvana.sdk.wjbridge.data.SmsMgr;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventLocation;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventOnProgressChanged;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedError;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedFinished;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedStarted;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
@@ -37,19 +39,9 @@ import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
 import io.reactivex.functions.Consumer;
 
 /**
- * Summary:与H5之间交互的业务层
- *
- * Created by Felix
- *
- * Date: 01/12/2016
- *
- * Time: 15:32 QQ:74104
- *
- * EMAIL:lovejiuwei@gmail.com
- *
- * Version 1.0
+ * Summary:与H5之间交互的业务层 Created by Felix Date: 01/12/2016 Time: 15:32 QQ:74104
+ * EMAIL:lovejiuwei@gmail.com Version 1.0
  */
-
 public class FpjkBusiness extends IReturnJSJson {
     private WeakReference<WJWebLoader> mWebLoader;
     private final String cN = "fpjkBridgeCallNative";
@@ -63,9 +55,10 @@ public class FpjkBusiness extends IReturnJSJson {
     private LocationMgr mLocationMgr;
     private RecordMgr mRecordMgr;
     private SmsMgr mSmsMgr;
-    private CookieMgr mCookieMgr;
 
-    private ILogOut mILogOut;
+    private String mFailingUrl;
+
+    private IReceiveLogoutAction mIReceiveLogoutAction;
 
     private static FpjkBusiness mFpjkBusiness = new FpjkBusiness();
 
@@ -84,18 +77,18 @@ public class FpjkBusiness extends IReturnJSJson {
         return this;
     }
 
-    public FpjkBusiness registerLogoutAction(ILogOut mILogOut) {
-        this.mILogOut = mILogOut;
+    public FpjkBusiness registerLogoutAction(IReceiveLogoutAction mIReceiveLogoutAction) {
+        this.mIReceiveLogoutAction = mIReceiveLogoutAction;
         return this;
     }
 
     public void execute() {
-        processMessages();
+        processConfiguration();
         processRxBusEvent();
         processPageEvent();
     }
 
-    private void processMessages() {
+    private void processConfiguration() {
         if (mWebLoader.get() != null && mWebLoader.get() instanceof WJBridgeWebView) {
             final WJBridgeWebView wjBridgeWebView = (WJBridgeWebView) mWebLoader.get();
             wjBridgeWebView.registerHandler(cN, new WJBridgeHandler() {
@@ -108,7 +101,6 @@ public class FpjkBusiness extends IReturnJSJson {
 
         mOpenUrlVo = new OpenUrlVo();
         mDeviceMgr = DeviceMgr.newInstance(mContext);
-        mCookieMgr = CookieMgr.get();
 
         mSmsMgr = SmsMgr.newInstance(mContext, mDeviceMgr);
         mRecordMgr = RecordMgr.newInstance(mContext, mDeviceMgr);
@@ -122,11 +114,49 @@ public class FpjkBusiness extends IReturnJSJson {
         RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
+                //location
                 if (o instanceof EventLocation) {
                     LocationEntity locationEntity = ((EventLocation) o).getLocationEntity();
                     WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
                     String callBackJson = buildReturnCorrectJSJson(locationEntity);
                     wjCallbacks.onCallback(callBackJson);
+                }
+                //webview
+                if (o instanceof EventPageReceivedStarted) {
+                    L.d("EventPageReceivedStarted");
+                }
+                if (o instanceof EventPageReceivedFinished) {
+                    L.d("EventPageReceivedFinished");
+                }
+                if (o instanceof EventPageReceivedError) {
+                    L.d("EventPageReceivedError");
+                    EventPageReceivedError error = ((EventPageReceivedError) o);
+                    boolean mPageReceivedError = error.isPageReceivedError();
+                    mFailingUrl = error.getFailingUrl();
+                    try {
+                        if (!mPageReceivedError) {
+                            mFpjkView.getWebViewEmptyLayout().dismiss();
+                        } else {
+                            mFpjkView.getWebViewEmptyLayout().display();
+                        }
+                    } catch (Throwable e) {
+                        L.e("", e);
+                    }
+                }
+                if (o instanceof EventOnProgressChanged) {
+                    int newProgress = ((EventOnProgressChanged) o).getNewProgress();
+                    L.d("EventOnProgressChanged[%s]", newProgress);
+                    if (newProgress == 100) {
+                        mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
+                        mFpjkView.getWebViewScaleProgressBar().playFinishAnim();
+                    } else {
+                        if (View.INVISIBLE == mFpjkView.getWebViewScaleProgressBar().getVisibility()) {
+                            mFpjkView.getWebViewScaleProgressBar().setVisibility(View.VISIBLE);
+                            mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
+                        } else {
+                            mFpjkView.getWebViewScaleProgressBar().setProgressSmooth(newProgress, true);
+                        }
+                    }
                 }
                 L.d("toObserverable[%s]", o);
             }
@@ -191,30 +221,19 @@ public class FpjkBusiness extends IReturnJSJson {
                 successResponse.setSuccess(1);
                 String callBackJson = buildReturnCorrectJSJson(successResponse);
                 wjCallbacks.onCallback(callBackJson);
-                processCanGoBack();
+                processRefreshNavigation();
             } else if (FpjkEnum.Business.LOGOUT.getValue().equals(entity.getOpt())) {
                 SuccessResponse successResponse = new SuccessResponse();
                 successResponse.setSuccess(1);
                 String callBackJson = buildReturnCorrectJSJson(successResponse);
                 wjCallbacks.onCallback(callBackJson);
-                if (null != mILogOut) {
-                    mILogOut.onReceiveLogoutAction();
+                if (null != mIReceiveLogoutAction) {
+                    mIReceiveLogoutAction.onReceive();
                 }
             }
         } catch (Exception e) {
+            buildJSCallNativeParseError(wjCallbacks);
             L.e("JavaScript invoke Native is Error ^ JSON->[%S] Error->[%s]", jsonData, e);
-        }
-    }
-
-    public void sendMessages(String sendData) {
-        if (mWebLoader.get() != null && mWebLoader.get() instanceof WJBridgeWebView) {
-            WJBridgeWebView wjBridgeWebView = (WJBridgeWebView) mWebLoader.get();
-            wjBridgeWebView.callHandler(cJ, sendData, new WJCallbacks() {
-                @Override
-                public void onCallback(String data) {
-                    L.d(data);
-                }
-            });
         }
     }
 
@@ -264,7 +283,12 @@ public class FpjkBusiness extends IReturnJSJson {
         //review page
         mFpjkView.showDefaultTab();
         mFpjkView.setTitle(mOpenUrlVo.getTitle());
-        processCanGoBack();
+        if (mOpenUrlVo.isShownBackButton()) {
+            mFpjkView.showBackButton();
+        } else {
+            mFpjkView.hideBackButton();
+        }
+        processRefreshNavigation();
     }
 
     /**
@@ -273,7 +297,7 @@ public class FpjkBusiness extends IReturnJSJson {
     private void processPageEvent() {
         //title
         mFpjkView.setTitle("涅槃");
-        processCanGoBack();
+        processRefreshNavigation();
 
         mFpjkView.onBack(new View.OnClickListener() {
             @Override
@@ -281,20 +305,47 @@ public class FpjkBusiness extends IReturnJSJson {
                 processCanGoBack();
             }
         });
+        //empty
+        mFpjkView.getWebViewEmptyLayout().setOnRefreshClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFpjkView.getWebViewEmptyLayout().dismiss();
+                if (StringUtils.isNotEmpty(mFailingUrl)) {
+                    mFpjkView.getDefaultWJBridgeWebView().loadUrl(mFailingUrl);
+                    mFpjkView.getWebViewScaleProgressBar().setProgress(0);
+                }
+            }
+        });
+    }
+
+    private void processRefreshNavigation() {
+        if (mFpjkView.canGoBack()) {
+            mFpjkView.showBackButton();
+        } else {
+            //default btn
+            if (mFpjkView.isShownBackButton()) {
+                mFpjkView.showBackButton();
+            } else {
+                mFpjkView.hideBackButton();
+            }
+        }
     }
 
     private void processCanGoBack() {
-        if (mFpjkView.isDisplayDefatultView()) {
-            if (mFpjkView.canGoBack()) {
-                mFpjkView.goBack();
-            } else {
-                //default btn
-                if (mFpjkView.isShownBackButton()) {
-                    mFpjkView.showBackButton();
-                } else {
-                    mFpjkView.hideBackButton();
+        if (mFpjkView.canGoBack()) {
+            mFpjkView.goBack();
+        }
+    }
+
+    public void sendMessages(String sendData) {
+        if (mWebLoader.get() != null && mWebLoader.get() instanceof WJBridgeWebView) {
+            WJBridgeWebView wjBridgeWebView = (WJBridgeWebView) mWebLoader.get();
+            wjBridgeWebView.callHandler(cJ, sendData, new WJCallbacks() {
+                @Override
+                public void onCallback(String data) {
+                    L.d(data);
                 }
-            }
+            });
         }
     }
 

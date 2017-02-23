@@ -46,7 +46,6 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
         getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         getSettings().setDefaultTextEncodingName("UTF-8");
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }

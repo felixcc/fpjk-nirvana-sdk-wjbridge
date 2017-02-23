@@ -48,8 +48,8 @@ public class FpjkWJSDKMgr {
         FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView).execute();
     }
 
-    public void logout(ILogOut iLogOut) {
-        FpjkBusiness.get().registerLogoutAction(iLogOut);
+    public void logout(IReceiveLogoutAction iReceiveLogoutAction) {
+        FpjkBusiness.get().registerLogoutAction(iReceiveLogoutAction);
     }
 
     public void loadUrl(String url) {

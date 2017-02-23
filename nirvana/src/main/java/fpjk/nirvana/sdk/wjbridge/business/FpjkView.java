@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import fpjk.nirvana.sdk.wjbridge.R;
+import fpjk.nirvana.sdk.wjbridge.WebViewEmptyLayout;
+import fpjk.nirvana.sdk.wjbridge.WebViewScaleProgressBar;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
 
 
@@ -29,7 +31,9 @@ public class FpjkView extends RelativeLayout {
 
     private TextView mIvTitleBarTitle;
 
-    private View mIncludeLackOfLayout;
+    private WebViewScaleProgressBar mWebViewScaleProgressBar;
+
+    private WebViewEmptyLayout mWebViewEmptyLayout;
 
     private boolean isShownBackButton = true;
 
@@ -49,9 +53,7 @@ public class FpjkView extends RelativeLayout {
     }
 
     private void build(Context context) {
-        View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, null);
-
-        mIncludeLackOfLayout = v.findViewById(R.id.includeLackOfLayout);
+        View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, this);
 
         mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
         mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
@@ -60,26 +62,47 @@ public class FpjkView extends RelativeLayout {
         mIvTitleBarBack = (ImageView) v.findViewById(R.id.ivTitleBarBack);
         mIvTitleBarTitle = (TextView) v.findViewById(R.id.ivTitleBarTitle);
 
-        RelativeLayout.LayoutParams rl = new RelativeLayout.LayoutParams(-1, -1);
-        addView(v, rl);
+        mWebViewEmptyLayout = (WebViewEmptyLayout) v.findViewById(R.id.webViewEmptyLayout);
+
+        mWebViewScaleProgressBar = (WebViewScaleProgressBar) v.findViewById(R.id.webViewScaleProgressBar);
     }
 
-    public void displayLackOfMask() {
-        mIncludeLackOfLayout.setVisibility(View.VISIBLE);
+    /*******************
+     * WebViewScaleProgressBar start *
+     *******************/
+    public WebViewScaleProgressBar getWebViewScaleProgressBar() {
+        return mWebViewScaleProgressBar;
     }
+    /*******************
+     * WebViewScaleProgressBar end *
+     *******************/
 
-    public void hideLackOfMask() {
-        mIncludeLackOfLayout.setVisibility(View.GONE);
+
+    /*******************
+     * WebViewEmptyLayout start *
+     *******************/
+    public WebViewEmptyLayout getWebViewEmptyLayout() {
+        return mWebViewEmptyLayout;
     }
+    /*******************
+     * WebViewEmptyLayout end *
+     *******************/
 
-    public void lackOfOnClick(View.OnClickListener o) {
-        mIncludeLackOfLayout.setOnClickListener(o);
-    }
 
+    /*******************
+     * debugEnabled start *
+     *******************/
     public void debugEnabled(View.OnLongClickListener o) {
         mIvTitleBarTitle.setOnLongClickListener(o);
     }
+    /*******************
+     * debugEnabled end *
+     *******************/
 
+
+    /*******************
+     * WJBridgeWebView start *
+     *******************/
     public WJBridgeWebView getDefaultWJBridgeWebView() {
         return mDefaultWJBridgeWebView;
     }
@@ -104,6 +127,30 @@ public class FpjkView extends RelativeLayout {
         mStrokesWJBridgeWebView.loadUrl(url);
     }
 
+    public boolean canGoBack() {
+        return getDefaultWJBridgeWebView().canGoBack();
+    }
+
+    public void goBack() {
+        getDefaultWJBridgeWebView().goBack();
+    }
+
+    public boolean canGoForward() {
+        return getDefaultWJBridgeWebView().canGoForward();
+    }
+
+    public void goForward() {
+        getDefaultWJBridgeWebView().goForward();
+    }
+
+    /*******************
+     * WJBridgeWebView end *
+     *******************/
+
+
+    /*******************
+     * titlebar start *
+     *******************/
     public void onBack(View.OnClickListener o) {
         mIvTitleBarBack.setOnClickListener(o);
     }
@@ -132,20 +179,7 @@ public class FpjkView extends RelativeLayout {
     public void hideBackButton() {
         mIvTitleBarBack.setVisibility(View.GONE);
     }
-
-    public boolean canGoBack() {
-        return getDefaultWJBridgeWebView().canGoBack();
-    }
-
-    public void goBack() {
-        getDefaultWJBridgeWebView().goBack();
-    }
-
-    public boolean canGoForward() {
-        return getDefaultWJBridgeWebView().canGoForward();
-    }
-
-    public void goForward() {
-        getDefaultWJBridgeWebView().goForward();
-    }
+    /*******************
+     * titlebar end *
+     *******************/
 }

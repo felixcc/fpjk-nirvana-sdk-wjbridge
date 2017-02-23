@@ -18,15 +18,17 @@ package fpjk.nirvana.sdk.wjbridge.presenter;
 
 import android.graphics.Bitmap;
 import android.net.http.SslError;
+import android.os.Build;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedError;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedFinished;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedStarted;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeProvider;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 
@@ -41,7 +43,7 @@ public class WJBridgeWebViewClient extends WebViewClient {
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         super.onPageStarted(view, url, favicon);
-        L.d("onPageStarted");
+        RxBus.get().send(new EventPageReceivedStarted());
     }
 
     @Override
@@ -60,24 +62,21 @@ public class WJBridgeWebViewClient extends WebViewClient {
     @Override
     public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
         super.onReceivedError(view, request, error);
-        L.d("onReceivedError");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            L.d("onReceivedError");
+            RxBus.get().send(new EventPageReceivedError().setPageReceivedError(true).setFailingUrl(request.getUrl().toString()));
+        }
     }
 
     @Override
     public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
         super.onReceivedError(view, errorCode, description, failingUrl);
         L.d("onReceivedError-deprecated");
-    }
-
-    @Override
-    public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-        super.onReceivedHttpError(view, request, errorResponse);
-        L.d("onReceivedHttpError");
+        RxBus.get().send(new EventPageReceivedError().setPageReceivedError(true).setFailingUrl(failingUrl));
     }
 
     @Override
     public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-        super.onReceivedSslError(view, handler, error);
-        L.d("onReceivedSslError");
+        handler.proceed();
     }
 }

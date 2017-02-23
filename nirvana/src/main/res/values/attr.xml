@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="webViewScaleProgressBar">
+        <attr name="barNormalColor" format="color"/>
+        <attr name="barProgressColor" format="color"/>
+        <attr name="barHeight" format="dimension"/>
+        <attr name="barMin" format="integer"/>
+        <attr name="barMax" format="integer"/>
+    </declare-styleable>
+</resources>

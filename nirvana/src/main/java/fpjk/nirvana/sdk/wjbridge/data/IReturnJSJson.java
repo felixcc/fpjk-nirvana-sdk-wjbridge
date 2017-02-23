@@ -8,11 +8,7 @@ import fpjk.nirvana.sdk.wjbridge.business.entity.OuterPackageEntity;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 
 /**
- * Summary:
- * Created by FelixChen
- * Created 2017-02-21 15:36
- * Mail:lovejiuwei@gmail.com
- * QQ:74104
+ * Summary: Created by FelixChen Created 2017-02-21 15:36 Mail:lovejiuwei@gmail.com QQ:74104
  */
 
 public abstract class IReturnJSJson {
@@ -47,6 +43,19 @@ public abstract class IReturnJSJson {
 
         outerPackageEntity.setCommon(commonEntity);
         outerPackageEntity.setBody(errorCodeEntity);
+
+        String callBackJson = GsonMgr.get().toJSONString(outerPackageEntity);
+        wjCallbacks.onCallback(callBackJson);
+    }
+
+    protected void buildJSCallNativeParseError(WJCallbacks wjCallbacks) {
+        OuterPackageEntity outerPackageEntity = new OuterPackageEntity();
+        CommonEntity commonEntity = new CommonEntity();
+        commonEntity.setPid(imei());
+        commonEntity.setVersion(BuildPackageConfigs.VERSION_NAME);
+
+        outerPackageEntity.setCommon(commonEntity);
+        outerPackageEntity.setBody(new Object());
 
         String callBackJson = GsonMgr.get().toJSONString(outerPackageEntity);
         wjCallbacks.onCallback(callBackJson);

@@ -42,7 +42,7 @@ def gitUrl = 'https://github.com/felixcc/fpjk-nirvana-sdk-wjbridge.git'   // Git
 
 //配置android-maven-gradle-plugin插件
 group = 'fpjk.nirvana.sdk.wjbridge'   // groupId,一般由host+artifactId组成
-version = '0.0.6'  //版本号,以后更新library时,它也要跟着增加
+version = '0.0.9'  //版本号,以后更新library时,它也要跟着增加
 
 //配置android-maven-gradle-plugin插件
 install {

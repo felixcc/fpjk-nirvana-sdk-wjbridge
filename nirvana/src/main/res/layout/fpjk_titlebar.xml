@@ -6,17 +6,7 @@
         android:background="#FFFCFCFC"
         android:orientation="horizontal">
 
-    <ImageView
-            android:layout_marginLeft="10dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:src="@drawable/fpjk_icon_back"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:id="@+id/ivTitleBarBack"/>
-
     <TextView
-            android:layout_centerInParent="true"
             android:textColor="#222222"
             android:layout_marginLeft="10dp"
             android:padding="10dp"
@@ -24,7 +14,16 @@
             android:gravity="center"
             android:id="@+id/ivTitleBarTitle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"/>
+
+    <ImageView
+            android:padding="15dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/fpjk_icon_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ivTitleBarBack"/>
 
     <View
             android:layout_below="@id/ivTitleBarTitle"

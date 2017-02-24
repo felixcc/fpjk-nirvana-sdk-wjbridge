@@ -133,7 +133,15 @@ public class FpjkBusiness extends IReturnJSJson {
                 }
                 if (o instanceof EventPageReceivedTitle) {
                     String title = ((EventPageReceivedTitle) o).getTitle();
-                    mFpjkView.setTitle(title);
+                    if (title.contains("找不到") ||
+                            title.contains("不到") ||
+                            title.contains("找") ||
+                            title.contains("error") ||
+                            title.contains("denied")) {
+                        mFpjkView.setTitle("钱站");
+                    } else {
+                        mFpjkView.setTitle(title);
+                    }
                     L.d("EventPageReceivedTitle", title);
                 }
                 if (o instanceof EventPageReceivedError) {
@@ -150,7 +158,6 @@ public class FpjkBusiness extends IReturnJSJson {
                     } catch (Throwable e) {
                         L.e("", e);
                     }
-                    mFpjkView.setTitle("钱站");
                 }
                 if (o instanceof EventOnProgressChanged) {
                     int newProgress = ((EventOnProgressChanged) o).getNewProgress();

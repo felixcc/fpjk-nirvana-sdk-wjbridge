@@ -31,6 +31,7 @@ import fpjk.nirvana.sdk.wjbridge.data.event.EventOnProgressChanged;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedError;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedFinished;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedStarted;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedTitle;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeHandler;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
@@ -130,6 +131,11 @@ public class FpjkBusiness extends IReturnJSJson {
                     String cookie = CookieMgr.get().getCookie(((EventPageReceivedFinished) o).getCurrentUrl());
                     L.d("EventPageReceivedFinished", cookie);
                 }
+                if (o instanceof EventPageReceivedTitle) {
+                    String title = ((EventPageReceivedTitle) o).getTitle();
+                    mFpjkView.setTitle(title);
+                    L.d("EventPageReceivedTitle", title);
+                }
                 if (o instanceof EventPageReceivedError) {
                     L.d("EventPageReceivedError");
                     EventPageReceivedError error = (EventPageReceivedError) o;
@@ -144,6 +150,7 @@ public class FpjkBusiness extends IReturnJSJson {
                     } catch (Throwable e) {
                         L.e("", e);
                     }
+                    mFpjkView.setTitle("钱站");
                 }
                 if (o instanceof EventOnProgressChanged) {
                     int newProgress = ((EventOnProgressChanged) o).getNewProgress();
@@ -297,7 +304,6 @@ public class FpjkBusiness extends IReturnJSJson {
      */
     private void processPageEvent() {
         //title
-        mFpjkView.setTitle("涅槃");
         processRefreshNavigation();
 
         //titlebar backbtn onclick

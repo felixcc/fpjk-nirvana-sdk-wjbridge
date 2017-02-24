@@ -7,6 +7,7 @@ import android.webkit.WebView;
 
 import fpjk.nirvana.sdk.wjbridge.data.RxBus;
 import fpjk.nirvana.sdk.wjbridge.data.event.EventOnProgressChanged;
+import fpjk.nirvana.sdk.wjbridge.data.event.EventPageReceivedTitle;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeProvider;
 
 /**
@@ -36,4 +37,9 @@ public class WJBridgeChromeClient extends WebChromeClient {
         return super.onJsAlert(view, url, message, result);
     }
 
+    @Override
+    public void onReceivedTitle(WebView view, String title) {
+        super.onReceivedTitle(view, title);
+        RxBus.get().send(new EventPageReceivedTitle().setTitle(title));
+    }
 }

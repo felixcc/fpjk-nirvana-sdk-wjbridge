@@ -76,6 +76,10 @@ public class FpjkWJSDKMgr {
         mFpjkView.getDefaultWJBridgeWebView().reload();
     }
 
+    public void remoeAllCookies() {
+        CookieMgr.get().remoeAllCookies();
+    }
+
     public void sendMessages(String msg) {
         WJBridgeUtils.checkNoNull(mFpjkView, "FpjkView not NULL!");
 //        FpjkBusiness.newInstance(context, mFpjkView.getDefaultWJBridgeWebView()).sendMessages(msg);

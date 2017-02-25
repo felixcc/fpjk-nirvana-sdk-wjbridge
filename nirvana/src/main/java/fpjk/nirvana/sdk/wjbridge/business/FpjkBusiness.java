@@ -59,6 +59,7 @@ public class FpjkBusiness extends IReturnJSJson {
     private SmsMgr mSmsMgr;
 
     private String mFailingUrl;
+    private boolean mSwitchTheFlightMode = false;
 
     private IReceiveLogoutAction mIReceiveLogoutAction;
 
@@ -132,12 +133,18 @@ public class FpjkBusiness extends IReturnJSJson {
                     L.d("EventPageReceivedFinished", cookie);
                 }
                 if (o instanceof EventPageReceivedTitle) {
+                    //get document title 晚于与JS交互
+                     if (mSwitchTheFlightMode) {
+                        mSwitchTheFlightMode = false;
+                        return;
+                    }
                     String title = ((EventPageReceivedTitle) o).getTitle();
                     if (title.contains("找不到") ||
                             title.contains("不到") ||
                             title.contains("找") ||
                             title.contains("error") ||
-                            title.contains("denied")) {
+                            title.contains("denied") ||
+                            title.contains("webview")) {
                         mFpjkView.setTitle("钱站");
                     } else {
                         mFpjkView.setTitle(title);
@@ -254,6 +261,8 @@ public class FpjkBusiness extends IReturnJSJson {
     }
 
     private void processStrokes(final DataTransferEntity dataTransferEntity, final WJCallbacks wjCallbacks) {
+        //切换到OpenUrl模式
+        mSwitchTheFlightMode = true;
         //如果进入到 OpenUrl 界面则自动记录 Title 以及是否展示状态
         mOpenUrlVo.setTitle(mFpjkView.getTitle());
         mOpenUrlVo.setShownBackButton(mFpjkView.isPrePageBackButtonDisplayState());

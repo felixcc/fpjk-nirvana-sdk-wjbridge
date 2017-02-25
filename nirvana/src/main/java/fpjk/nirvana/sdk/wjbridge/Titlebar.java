@@ -1,6 +1,7 @@
 package fpjk.nirvana.sdk.wjbridge;
 
 import android.content.Context;
+import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,5 +57,9 @@ public class Titlebar extends RelativeLayout {
 
     public void hideBackButton() {
         mIvTitleBarBack.setVisibility(View.GONE);
+    }
+
+    public void setBackBtnResId(@DrawableRes int resId) {
+        mIvTitleBarBack.setImageResource(resId);
     }
 }

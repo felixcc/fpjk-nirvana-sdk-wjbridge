@@ -1,6 +1,9 @@
 package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,7 @@ import fpjk.nirvana.sdk.wjbridge.R;
 import fpjk.nirvana.sdk.wjbridge.Titlebar;
 import fpjk.nirvana.sdk.wjbridge.WebViewEmptyLayout;
 import fpjk.nirvana.sdk.wjbridge.WebViewScaleProgressBar;
+import fpjk.nirvana.sdk.wjbridge.business.vo.FpjkTheme;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
 
 
@@ -30,7 +34,12 @@ public class FpjkView extends RelativeLayout {
 
     private WebViewEmptyLayout mWebViewEmptyLayout;
 
+    private View mTitlebarContent;
+
     private Titlebar mTitlebar;
+
+    //theme
+    private FpjkTheme mFpjkTheme;
 
     //只针对第一次加载 SDK 是否显示回退按钮。
     private boolean isLoadedSDKShownBackButton = true;
@@ -53,6 +62,8 @@ public class FpjkView extends RelativeLayout {
 
     private void buildConfigs(Context context) {
         View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, this);
+
+        mTitlebarContent = v.findViewById(R.id.titlebarContent);
 
         mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
         mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
@@ -157,6 +168,18 @@ public class FpjkView extends RelativeLayout {
     public void hideBackButton() {
         mTitlebar.hideBackButton();
         misPrePageBackButtonDisplayState = false;
+    }
+
+    public void setTitlebarBackgroupdColor(@ColorRes int resId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mTitlebarContent.setBackgroundColor(getResources().getColor(resId, null));
+        } else {
+            mTitlebarContent.setBackgroundColor(getResources().getColor(resId));
+        }
+    }
+
+    public void setBackBtnResId(@DrawableRes int resId) {
+        mTitlebar.setBackBtnResId(resId);
     }
 
     public boolean isPrePageBackButtonDisplayState() {

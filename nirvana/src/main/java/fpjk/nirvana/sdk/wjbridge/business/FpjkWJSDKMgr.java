@@ -2,6 +2,7 @@ package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.app.Activity;
 
+import fpjk.nirvana.sdk.wjbridge.business.vo.FpjkTheme;
 import fpjk.nirvana.sdk.wjbridge.data.CookieMgr;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 
@@ -15,6 +16,8 @@ public class FpjkWJSDKMgr {
     private Activity mActivity;
 
     private boolean mShownBackButton = true;
+
+    private FpjkTheme mFpjkTheme;
 
     private static FpjkWJSDKMgr mFpjkWJSDKMgr = new FpjkWJSDKMgr();
 
@@ -42,9 +45,14 @@ public class FpjkWJSDKMgr {
         return this;
     }
 
+    public FpjkWJSDKMgr setFpjkTheme(FpjkTheme fpjkTheme) {
+        mFpjkTheme = fpjkTheme;
+        return this;
+    }
+
     public void execute() {
         mFpjkView.setLoadedSDKShownBackButton(mShownBackButton);
-        FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView).execute();
+        FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView, mFpjkTheme).execute();
     }
 
     public void logout(IReceiveLogoutAction iReceiveLogoutAction) {
@@ -76,8 +84,8 @@ public class FpjkWJSDKMgr {
         mFpjkView.getDefaultWJBridgeWebView().reload();
     }
 
-    public void remoeAllCookies() {
-        CookieMgr.get().remoeAllCookies();
+    public void clear() {
+        FpjkBusiness.get().clear();
     }
 
     public void sendMessages(String msg) {

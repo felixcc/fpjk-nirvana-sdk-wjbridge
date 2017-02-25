@@ -9,12 +9,14 @@ import org.apache.commons.lang.StringUtils;
 
 import java.lang.ref.WeakReference;
 
+import fpjk.nirvana.sdk.wjbridge.R;
 import fpjk.nirvana.sdk.wjbridge.business.entity.CookieEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DataTransferEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.DeviceInfoEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.LocationEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.ProcessBusinessEntity;
 import fpjk.nirvana.sdk.wjbridge.business.entity.SuccessResponse;
+import fpjk.nirvana.sdk.wjbridge.business.vo.FpjkTheme;
 import fpjk.nirvana.sdk.wjbridge.business.vo.OpenUrlVo;
 import fpjk.nirvana.sdk.wjbridge.data.ContactMgr;
 import fpjk.nirvana.sdk.wjbridge.data.CookieMgr;
@@ -67,6 +69,9 @@ public class FpjkBusiness extends IReturnJSJson {
     //strokes end
     private IReceiveLogoutAction mIReceiveLogoutAction;
 
+    //theme
+    private FpjkTheme mFpjkTheme;
+
     //rxjava
     private CompositeDisposable mStrokesCompositeDisposable;//openurl 注册了一个，单独清理
     private CompositeDisposable mCompositeDisposable;//全局
@@ -80,11 +85,12 @@ public class FpjkBusiness extends IReturnJSJson {
     private FpjkBusiness() {
     }
 
-    public FpjkBusiness buildConfiguration(Activity activity, FpjkView fpjkView) {
+    public FpjkBusiness buildConfiguration(Activity activity, FpjkView fpjkView, FpjkTheme fpjkTheme) {
         WJWebLoader webLoader = fpjkView.getDefaultWJBridgeWebView();
         mWebLoader = new WeakReference<>(webLoader);
         mContext = activity;
         mFpjkView = fpjkView;
+        mFpjkTheme = fpjkTheme;
         return this;
     }
 
@@ -326,6 +332,9 @@ public class FpjkBusiness extends IReturnJSJson {
      * 处理 SDK 页面事件
      */
     private void processPageEvent() {
+        //theme
+        processTheme();
+
         //title
         processRefreshNavigation();
 
@@ -349,6 +358,26 @@ public class FpjkBusiness extends IReturnJSJson {
                 }
             }
         });
+    }
+
+    private void processTheme() {
+        if (null != mFpjkTheme) {
+            int titleBarBackgroundColorResId = mFpjkTheme.getTitleBarBackgroundColorResId();//标题栏背景
+            if (titleBarBackgroundColorResId > 0) {
+                mFpjkView.setTitlebarBackgroupdColor(titleBarBackgroundColorResId);
+            } else {
+                mFpjkView.setTitlebarBackgroupdColor(R.color.titlebar_background);
+            }
+
+            int titleBarBackBtnResId = mFpjkTheme.getTitleBarBackBtnResId();//标题栏返回按钮
+            if (titleBarBackBtnResId > 0) {
+                mFpjkView.setBackBtnResId(titleBarBackBtnResId);
+            } else {
+                mFpjkView.setBackBtnResId(R.drawable.fpjk_icon_back);
+            }
+        } else {
+            mFpjkView.setTitlebarBackgroupdColor(R.color.titlebar_background);
+        }
     }
 
     private void processRefreshNavigation() {

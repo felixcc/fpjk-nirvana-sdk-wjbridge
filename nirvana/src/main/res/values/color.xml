@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="titlebar_background">#FFFCFCFC</color>
     <color name="transparent_background">#00000000</color>
     <color name="webview_scale_progress_bg">#A5D4E8</color>
     <color name="webview_scale_progress_bar">#1EBDFF</color>

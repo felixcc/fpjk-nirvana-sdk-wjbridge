@@ -6,6 +6,7 @@ import android.os.Bundle;
 import fpjk.nirvana.sdk.wjbridge.business.FpjkView;
 import fpjk.nirvana.sdk.wjbridge.business.FpjkWJSDKMgr;
 import fpjk.nirvana.sdk.wjbridge.business.IReceiveLogoutAction;
+import fpjk.nirvana.sdk.wjbridge.business.vo.FpjkTheme;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 
 public class MainActivity extends Activity {
@@ -26,6 +27,10 @@ public class MainActivity extends Activity {
         FpjkWJSDKMgr.get()
                 .setActivity(this)
                 .setFpjkView(mFpjkView)
+                .setFpjkTheme(new FpjkTheme()
+//                        .setTitleBarBackBtnResId(R.mipmap.ic_launcher)
+//                        .setTitleBarBackgroundColorResId(R.color.colorAccent)
+                )
                 .setShownBackButton(true)
                 .execute();
 

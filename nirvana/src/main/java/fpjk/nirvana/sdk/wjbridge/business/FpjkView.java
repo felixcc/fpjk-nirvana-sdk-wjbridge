@@ -181,4 +181,16 @@ public class FpjkView extends RelativeLayout {
     /*******************
      * isLoadedSDKShownBackButton end *
      *******************/
+
+
+    /*******************
+     * finish start *
+     *******************/
+    public void clear() {
+        mDefaultWJBridgeWebView.removeAllViews();
+        mStrokesWJBridgeWebView.removeAllViews();
+    }
+    /*******************
+     * finish end *
+     *******************/
 }

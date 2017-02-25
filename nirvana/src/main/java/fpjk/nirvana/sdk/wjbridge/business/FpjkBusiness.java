@@ -38,6 +38,7 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.logger.Logger;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -59,9 +60,16 @@ public class FpjkBusiness extends IReturnJSJson {
     private SmsMgr mSmsMgr;
 
     private String mFailingUrl;
-    private boolean mSwitchTheFlightMode = false;
 
+    //strokes start
+    private boolean mSwitchTheStrokesShownTitle = false;
+    private WJCallbacks mStrokesWjCallbacks;
+    //strokes end
     private IReceiveLogoutAction mIReceiveLogoutAction;
+
+    //rxjava
+    private CompositeDisposable mStrokesCompositeDisposable;//openurl 注册了一个，单独清理
+    private CompositeDisposable mCompositeDisposable;//全局
 
     private static FpjkBusiness mFpjkBusiness = new FpjkBusiness();
 
@@ -102,6 +110,9 @@ public class FpjkBusiness extends IReturnJSJson {
             });
         }
 
+        mStrokesCompositeDisposable = new CompositeDisposable();
+        mCompositeDisposable = new CompositeDisposable();
+
         mOpenUrlVo = new OpenUrlVo();
         mDeviceMgr = DeviceMgr.newInstance(mContext);
 
@@ -114,7 +125,7 @@ public class FpjkBusiness extends IReturnJSJson {
     }
 
     private void processRxBusEvent() {
-        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
+        mCompositeDisposable.add(RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
                 //location
@@ -129,13 +140,12 @@ public class FpjkBusiness extends IReturnJSJson {
                     L.d("EventPageReceivedStarted");
                 }
                 if (o instanceof EventPageReceivedFinished) {
-                    String cookie = CookieMgr.get().getCookie(((EventPageReceivedFinished) o).getCurrentUrl());
-                    L.d("EventPageReceivedFinished", cookie);
+                    L.d("EventPageReceivedFinished");
                 }
                 if (o instanceof EventPageReceivedTitle) {
                     //get document title 晚于与JS交互
-                     if (mSwitchTheFlightMode) {
-                        mSwitchTheFlightMode = false;
+                    if (mSwitchTheStrokesShownTitle) {
+                        mSwitchTheStrokesShownTitle = false;
                         return;
                     }
                     String title = ((EventPageReceivedTitle) o).getTitle();
@@ -183,7 +193,7 @@ public class FpjkBusiness extends IReturnJSJson {
                 }
                 L.d("toObserverable[%s]", o);
             }
-        });
+        }));
     }
 
     /**
@@ -262,17 +272,19 @@ public class FpjkBusiness extends IReturnJSJson {
 
     private void processStrokes(final DataTransferEntity dataTransferEntity, final WJCallbacks wjCallbacks) {
         //切换到OpenUrl模式
-        mSwitchTheFlightMode = true;
+        mSwitchTheStrokesShownTitle = true;
+        //切换到OpenUrl 模式的点击判定
+        mStrokesWjCallbacks = wjCallbacks;
         //如果进入到 OpenUrl 界面则自动记录 Title 以及是否展示状态
         mOpenUrlVo.setTitle(mFpjkView.getTitle());
         mOpenUrlVo.setShownBackButton(mFpjkView.isPrePageBackButtonDisplayState());
-
+        //titlebar
         mFpjkView.showBackButton();
         mFpjkView.showStrokesTab();
         mFpjkView.setTitle(dataTransferEntity.getTitle());
         mFpjkView.loadStrokesUrl(dataTransferEntity.getUrl());
 
-        RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
+        mStrokesCompositeDisposable.add(RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
                 if (o instanceof EventPageReceivedFinished) {
@@ -284,16 +296,7 @@ public class FpjkBusiness extends IReturnJSJson {
                     }
                 }
             }
-        });
-
-        mFpjkView.onBack(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mFpjkView.isDisplayDefatultView()) {
-                    processWhenStrokesGoBackInitialState(wjCallbacks, FpjkEnum.OpenUrlStatus.USER_SHUTDOWN.getValue());
-                }
-            }
-        });
+        }));
     }
 
     /**
@@ -308,6 +311,10 @@ public class FpjkBusiness extends IReturnJSJson {
         //review page
         mFpjkView.showDefaultTab();
         mFpjkView.setTitle(mOpenUrlVo.getTitle());
+        //clear rxjava heap
+        mStrokesCompositeDisposable.clear();
+        //clear obj
+        mStrokesWjCallbacks = null;
         if (mOpenUrlVo.isShownBackButton()) {
             mFpjkView.showBackButton();
         } else {
@@ -358,6 +365,12 @@ public class FpjkBusiness extends IReturnJSJson {
     }
 
     private void processCanGoBack() {
+        //如果切换到了 openurl 模式，则只关闭当前页面，反之正常逻辑。
+        if (null != mStrokesWjCallbacks && !mFpjkView.isDisplayDefatultView()) {
+            processWhenStrokesGoBackInitialState(mStrokesWjCallbacks, FpjkEnum.OpenUrlStatus.USER_SHUTDOWN.getValue());
+            return;
+        }
+        //正常逻辑
         if (mFpjkView.canGoBack()) {
             mFpjkView.goBack();
         }
@@ -373,6 +386,12 @@ public class FpjkBusiness extends IReturnJSJson {
                 }
             });
         }
+    }
+
+    public void clear() {
+        mCompositeDisposable.clear();
+        mFpjkView.clear();
+        CookieMgr.get().remoeAllCookies();
     }
 
     @Override

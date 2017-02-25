@@ -64,4 +64,18 @@ public class FpjkEnum {
         }
     }
 
+    public enum PageReceivedFinished {
+        OPEN_URL(0);//打开一个新界面
+
+        private final Integer value;
+
+        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
+        PageReceivedFinished(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
 }

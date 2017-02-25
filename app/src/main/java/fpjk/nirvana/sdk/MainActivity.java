@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
         FpjkWJSDKMgr.get()
                 .setActivity(this)
                 .setFpjkView(mFpjkView)
-                .setShownBackButton(false)
+                .setShownBackButton(true)
                 .execute();
 
         FpjkWJSDKMgr.get().loadUrl(url);

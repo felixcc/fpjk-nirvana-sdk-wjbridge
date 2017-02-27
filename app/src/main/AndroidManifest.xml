@@ -18,6 +18,8 @@
         </activity>
 
         <!-- **************************高德地图********************** -->
+        <service android:name="com.amap.api.location.APSService"/>
+
         <meta-data
                 android:name="com.amap.api.v2.apikey"
                 android:value="709148033408b41a9604e7d2cbc5bb54"/>

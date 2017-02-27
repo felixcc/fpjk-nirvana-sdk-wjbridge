@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
                 .setFpjkTheme(new FpjkTheme()
                         .setTitleBarBackBtnResId(R.mipmap.ic_launcher)
                         .setTitleBarBackgroundColorResId(R.color.colorPrimary)
+                        .setTitleBarContentColor(R.color.white)
                 )
                 .setShownBackButton(false)
                 .execute();

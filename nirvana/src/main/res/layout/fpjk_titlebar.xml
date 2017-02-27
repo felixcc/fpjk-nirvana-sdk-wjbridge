@@ -11,7 +11,7 @@
             android:layout_height="49dp">
 
         <TextView
-                android:textColor="#222222"
+                android:textColor="@color/titlebar_content_color"
                 android:padding="10dp"
                 android:textSize="18sp"
                 android:gravity="center"

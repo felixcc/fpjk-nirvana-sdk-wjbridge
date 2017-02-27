@@ -376,6 +376,13 @@ public class FpjkBusiness extends IReturnJSJson {
             } else {
                 mFpjkView.setBackBtnResId(R.drawable.fpjk_icon_back);
             }
+
+            int titleBarContentColor = mFpjkTheme.getTitleBarContentColor();//标题颜色
+            if (titleBarContentColor > 0) {
+                mFpjkView.setTitleTextColor(titleBarContentColor);
+            } else {
+                mFpjkView.setTitleTextColor(R.color.titlebar_content_color);
+            }
         } else {
             mFpjkView.setTitlebarBackgroupdColor(R.color.titlebar_background);
         }

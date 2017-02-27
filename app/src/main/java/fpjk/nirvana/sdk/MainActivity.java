@@ -41,12 +41,12 @@ public class MainActivity extends Activity {
         FpjkWJSDKMgr.get().registerReceivedStrategy(new IReceivedStrategy() {
             @Override
             public void onReceivedLogout() {
-                L.i("Logout=====================================");
+                L.i("==================onReceivedLogout=====================");
             }
 
             @Override
             public void onReceivedOnPageError() {
-
+                L.i("==================onReceivedOnPageError===================");
             }
         });
     }

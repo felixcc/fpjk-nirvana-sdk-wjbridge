@@ -40,6 +40,7 @@ import fpjk.nirvana.sdk.wjbridge.jsbridge.WJWebLoader;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 import fpjk.nirvana.sdk.wjbridge.logger.Logger;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 
@@ -52,6 +53,7 @@ public class FpjkBusiness extends IReturnJSJson {
     private final String cN = "fpjkBridgeCallNative";
     private final String cJ = "fpjkBridgeCallJavaScript";
 
+    //mgr
     private OpenUrlVo mOpenUrlVo;
     private FpjkView mFpjkView;
     private Activity mContext;
@@ -61,12 +63,15 @@ public class FpjkBusiness extends IReturnJSJson {
     private RecordMgr mRecordMgr;
     private SmsMgr mSmsMgr;
 
+    //failing url reload
     private String mFailingUrl;
 
     //strokes start
     private boolean mSwitchTheStrokesShownTitle = false;
     private WJCallbacks mStrokesWjCallbacks;
     //strokes end
+
+    //callback
     private IReceivedStrategy mIReceivedStrategy;
 
     //theme
@@ -131,75 +136,83 @@ public class FpjkBusiness extends IReturnJSJson {
     }
 
     private void processRxBusEvent() {
-        mCompositeDisposable.add(RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Exception {
-                //location
-                if (o instanceof EventLocation) {
-                    LocationEntity locationEntity = ((EventLocation) o).getLocationEntity();
-                    WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
-                    String callBackJson = buildReturnCorrectJSJson(locationEntity);
-                    wjCallbacks.onCallback(callBackJson);
-                }
-                //webview
-                if (o instanceof EventPageReceivedStarted) {
-                    L.d("EventPageReceivedStarted");
-                }
-                if (o instanceof EventPageReceivedFinished) {
-                    L.d("EventPageReceivedFinished");
-                }
-                if (o instanceof EventPageReceivedTitle) {
-                    //get document title 晚于与JS交互
-                    if (mSwitchTheStrokesShownTitle) {
-                        mSwitchTheStrokesShownTitle = false;
-                        return;
-                    }
-                    String title = ((EventPageReceivedTitle) o).getTitle();
-                    if (title.contains("找不到") ||
-                            title.contains("不到") ||
-                            title.contains("找") ||
-                            title.contains("error") ||
-                            title.contains("denied") ||
-                            title.contains("webview")) {
-                        mFpjkView.setTitle("钱站");
-                    } else {
-                        mFpjkView.setTitle(title);
-                    }
-                    L.d("EventPageReceivedTitle", title);
-                }
-                if (o instanceof EventPageReceivedError) {
-                    L.d("EventPageReceivedError");
-                    EventPageReceivedError error = (EventPageReceivedError) o;
-                    boolean mPageReceivedError = error.isPageReceivedError();
-                    mFailingUrl = error.getFailingUrl();
-                    try {
-                        if (!mPageReceivedError) {
-                            mFpjkView.getWebViewEmptyLayout().dismiss();
-                        } else {
-                            mFpjkView.getWebViewEmptyLayout().display();
+        mCompositeDisposable.add(RxBus.get()
+                .asDebouncedFlowable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) throws Exception {
+                        try {
+                            //location
+                            if (o instanceof EventLocation) {
+                                LocationEntity locationEntity = ((EventLocation) o).getLocationEntity();
+                                WJCallbacks wjCallbacks = ((EventLocation) o).getWjCallbacks();
+                                String callBackJson = buildReturnCorrectJSJson(locationEntity);
+                                wjCallbacks.onCallback(callBackJson);
+                                mLocationMgr.stopLocation();
+                            }
+                            //webview
+                            if (o instanceof EventPageReceivedStarted) {
+                                L.d("EventPageReceivedStarted");
+                            }
+                            if (o instanceof EventPageReceivedFinished) {
+                                L.d("EventPageReceivedFinished");
+                            }
+                            if (o instanceof EventPageReceivedTitle) {
+                                //get document title 晚于与JS交互
+                                if (mSwitchTheStrokesShownTitle) {
+                                    mSwitchTheStrokesShownTitle = false;
+                                    return;
+                                }
+                                String title = ((EventPageReceivedTitle) o).getTitle();
+                                if (title.contains("找不到") ||
+                                        title.contains("不到") ||
+                                        title.contains("找") ||
+                                        title.contains("error") ||
+                                        title.contains("denied") ||
+                                        title.contains("webview")) {
+                                    mFpjkView.setTitle("钱站");
+                                } else {
+                                    mFpjkView.setTitle(title);
+                                }
+                                L.d("EventPageReceivedTitle", title);
+                            }
+                            if (o instanceof EventPageReceivedError) {
+                                L.d("EventPageReceivedError");
+                                EventPageReceivedError error = (EventPageReceivedError) o;
+                                boolean mPageReceivedError = error.isPageReceivedError();
+                                mFailingUrl = error.getFailingUrl();
+                                if (!mPageReceivedError) {
+                                    mFpjkView.getWebViewEmptyLayout().dismiss();
+                                } else {
+                                    mFpjkView.getWebViewEmptyLayout().display();
+                                }
+                                //call back
+                                if (null != mIReceivedStrategy) {
+                                    mIReceivedStrategy.onReceivedOnPageError();
+                                }
+                            }
+                            if (o instanceof EventOnProgressChanged) {
+                                int newProgress = ((EventOnProgressChanged) o).getNewProgress();
+                                L.d("EventOnProgressChanged[%s]", newProgress);
+                                if (newProgress == 100) {
+                                    mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
+                                    mFpjkView.getWebViewScaleProgressBar().playFinishAnim();
+                                } else {
+                                    if (View.INVISIBLE == mFpjkView.getWebViewScaleProgressBar().getVisibility()) {
+                                        mFpjkView.getWebViewScaleProgressBar().setVisibility(View.VISIBLE);
+                                        mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
+                                    } else {
+                                        mFpjkView.getWebViewScaleProgressBar().setProgressSmooth(newProgress, true);
+                                    }
+                                }
+                            }
+                            L.d("toObserverable[%s]", o);
+                        } catch (Exception e) {
+                            L.e("processRxBusEvent", e);
                         }
-                    } catch (Throwable e) {
-                        L.e("", e);
                     }
-                }
-                if (o instanceof EventOnProgressChanged) {
-                    int newProgress = ((EventOnProgressChanged) o).getNewProgress();
-                    L.d("EventOnProgressChanged[%s]", newProgress);
-                    if (newProgress == 100) {
-                        mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
-                        mFpjkView.getWebViewScaleProgressBar().playFinishAnim();
-                    } else {
-                        if (View.INVISIBLE == mFpjkView.getWebViewScaleProgressBar().getVisibility()) {
-                            mFpjkView.getWebViewScaleProgressBar().setVisibility(View.VISIBLE);
-                            mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
-                        } else {
-                            mFpjkView.getWebViewScaleProgressBar().setProgressSmooth(newProgress, true);
-                        }
-                    }
-                }
-                L.d("toObserverable[%s]", o);
-            }
-        }));
+                }));
     }
 
     /**
@@ -335,6 +348,8 @@ public class FpjkBusiness extends IReturnJSJson {
     private void processPageEvent() {
         //theme
         processTheme();
+
+        mFpjkView.setTitle("钱站");
 
         //title
         processRefreshNavigation();

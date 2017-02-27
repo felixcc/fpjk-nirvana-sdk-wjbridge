@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
         FpjkWJSDKMgr.get().loadUrl(url);
 //        FpjkWJSDKMgr.get().insertCookieAndLoaded(url, cookie);
 
-        FpjkWJSDKMgr.get().registerReceivedStrategy(new IReceivedStrategy() {
+        FpjkWJSDKMgr.get().onReceivedStrategy(new IReceivedStrategy() {
             @Override
             public void onReceivedLogout() {
                 L.i("==================onReceivedLogout=====================");

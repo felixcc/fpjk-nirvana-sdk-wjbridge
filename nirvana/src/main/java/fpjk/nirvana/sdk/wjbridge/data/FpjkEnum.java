@@ -14,7 +14,7 @@ public class FpjkEnum {
         GET_CALL_RECORDS("getCallRecords"),
         GET_SMS_RECORDS("getSMSRecords"),
         REFRESH_NAVIGATION("refreshNavigation"),
-        LOGOUT("registerReceivedStrategy"),
+        LOGOUT("onReceivedStrategy"),
         GET_CONTACTS("getContacts");
 
         private final String value;

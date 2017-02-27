@@ -2,6 +2,7 @@ package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.app.Activity;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 
@@ -99,7 +100,7 @@ public class FpjkBusiness extends IReturnJSJson {
         return this;
     }
 
-    public FpjkBusiness registerReceivedStrategy(IReceivedStrategy receivedStrategy) {
+    public FpjkBusiness onReceivedStrategy(IReceivedStrategy receivedStrategy) {
         this.mIReceivedStrategy = receivedStrategy;
         return this;
     }
@@ -151,13 +152,16 @@ public class FpjkBusiness extends IReturnJSJson {
                                 wjCallbacks.onCallback(callBackJson);
                                 mLocationMgr.stopLocation();
                             }
+
                             //webview
                             if (o instanceof EventPageReceivedStarted) {
                                 L.d("EventPageReceivedStarted");
                             }
+
                             if (o instanceof EventPageReceivedFinished) {
                                 L.d("EventPageReceivedFinished");
                             }
+
                             if (o instanceof EventPageReceivedTitle) {
                                 //get document title 晚于与JS交互
                                 if (mSwitchTheStrokesShownTitle) {
@@ -177,6 +181,7 @@ public class FpjkBusiness extends IReturnJSJson {
                                 }
                                 L.d("EventPageReceivedTitle", title);
                             }
+
                             if (o instanceof EventPageReceivedError) {
                                 L.d("EventPageReceivedError");
                                 EventPageReceivedError error = (EventPageReceivedError) o;
@@ -192,27 +197,34 @@ public class FpjkBusiness extends IReturnJSJson {
                                     mIReceivedStrategy.onReceivedOnPageError();
                                 }
                             }
-                            if (o instanceof EventOnProgressChanged) {
-                                int newProgress = ((EventOnProgressChanged) o).getNewProgress();
-                                L.d("EventOnProgressChanged[%s]", newProgress);
-                                if (newProgress == 100) {
-                                    mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
-                                    mFpjkView.getWebViewScaleProgressBar().playFinishAnim();
-                                } else {
-                                    if (View.INVISIBLE == mFpjkView.getWebViewScaleProgressBar().getVisibility()) {
-                                        mFpjkView.getWebViewScaleProgressBar().setVisibility(View.VISIBLE);
-                                        mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
-                                    } else {
-                                        mFpjkView.getWebViewScaleProgressBar().setProgressSmooth(newProgress, true);
-                                    }
-                                }
-                            }
-                            L.d("toObserverable[%s]", o);
+                            L.d("processRxBusEvent[%s]", o);
                         } catch (Exception e) {
                             L.e("processRxBusEvent", e);
                         }
                     }
                 }));
+
+        mCompositeDisposable.add(RxBus.get().asFlowable().subscribe(new Consumer<Object>() {
+            @Override
+            public void accept(Object o) throws Exception {
+                if (o instanceof EventOnProgressChanged) {
+                    int newProgress = ((EventOnProgressChanged) o).getNewProgress();
+//                    L.d("EventOnProgressChanged[%s]", newProgress);
+                    Log.d("FpjkBusiness.newProgress", "newProgress=" + newProgress);
+                    if (newProgress == 100) {
+                        mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
+                        mFpjkView.getWebViewScaleProgressBar().playFinishAnim();
+                    } else {
+                        if (View.INVISIBLE == mFpjkView.getWebViewScaleProgressBar().getVisibility()) {
+                            mFpjkView.getWebViewScaleProgressBar().setVisibility(View.VISIBLE);
+                            mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
+                        } else {
+                            mFpjkView.getWebViewScaleProgressBar().setProgressSmooth(newProgress, true);
+                        }
+                    }
+                }
+            }
+        }));
     }
 
     /**

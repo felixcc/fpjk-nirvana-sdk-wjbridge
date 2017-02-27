@@ -55,8 +55,8 @@ public class FpjkWJSDKMgr {
         FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView, mFpjkTheme).execute();
     }
 
-    public void logout(IReceiveLogoutAction iReceiveLogoutAction) {
-        FpjkBusiness.get().registerLogoutAction(iReceiveLogoutAction);
+    public void registerReceivedStrategy(IReceivedStrategy iReceivedStrategy) {
+        FpjkBusiness.get().registerReceivedStrategy(iReceivedStrategy);
     }
 
     public void loadUrl(String url) {

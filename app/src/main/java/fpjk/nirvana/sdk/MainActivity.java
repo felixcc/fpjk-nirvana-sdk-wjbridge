@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import fpjk.nirvana.sdk.wjbridge.business.FpjkView;
 import fpjk.nirvana.sdk.wjbridge.business.FpjkWJSDKMgr;
-import fpjk.nirvana.sdk.wjbridge.business.IReceiveLogoutAction;
+import fpjk.nirvana.sdk.wjbridge.business.IReceivedStrategy;
 import fpjk.nirvana.sdk.wjbridge.business.vo.FpjkTheme;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
 
@@ -14,8 +14,8 @@ public class MainActivity extends Activity {
     FpjkView mFpjkView;
 
     String url = "http://10.10.232.242:9527/";//首页
-    //    String url = "http://10.10.191.154:9000/";//测试
-    String cookie = "session=Fe26.2**1f37371601fa6b359b162bac2a33c9716c3687b76813182d68c1f26ee6fd17bd*nIrCqGQf02fWc8CPOefnpw*Z7JJ1og7tGX32tHBMjV1WpVsvbkpNnFMDe8NSVqECqw**bab0966f76d0a6d653f0aa90ab13306c4b81845f6b49b671bc617ddf2d1e9140*COwRICQcZL93DHcoqpcxAco32t6qXz-Mw17vhAq85e4";
+//    String url = "http://10.10.232.242:9527?userToken=aeca9150-fcb5-11e6-aca4-c12eb512c5f9";//测试
+//    String cookie = "session=Fe26.2**8b3ede3f4d100381543a7f5205e9db8c7ac9347369f04e8be54c33cddf882780*YSN3oh4-uzS6rqn42gDHbw*Jm9OjuWleUSryozYcjTRxtNuy5D7PLcgVyi69P7wndI**453eb1d434271b404ef8ccb21927081cb3f073c66dbdb126cbc058d000e36ed0*MzvViEoimNq6nsXoBLQ3lSPtGF3OWpzb-2BWpLeCUgE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,19 +28,24 @@ public class MainActivity extends Activity {
                 .setActivity(this)
                 .setFpjkView(mFpjkView)
                 .setFpjkTheme(new FpjkTheme()
-//                        .setTitleBarBackBtnResId(R.mipmap.ic_launcher)
-//                        .setTitleBarBackgroundColorResId(R.color.colorAccent)
+                        .setTitleBarBackBtnResId(R.mipmap.ic_launcher)
+                        .setTitleBarBackgroundColorResId(R.color.colorPrimary)
                 )
-                .setShownBackButton(true)
+                .setShownBackButton(false)
                 .execute();
 
         FpjkWJSDKMgr.get().loadUrl(url);
 //        FpjkWJSDKMgr.get().insertCookieAndLoaded(url, cookie);
 
-        FpjkWJSDKMgr.get().logout(new IReceiveLogoutAction() {
+        FpjkWJSDKMgr.get().registerReceivedStrategy(new IReceivedStrategy() {
             @Override
-            public void onReceive() {
+            public void onReceivedLogout() {
                 L.i("Logout=====================================");
+            }
+
+            @Override
+            public void onReceivedOnPageError() {
+
             }
         });
     }

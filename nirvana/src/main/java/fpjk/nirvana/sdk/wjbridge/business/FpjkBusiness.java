@@ -67,7 +67,7 @@ public class FpjkBusiness extends IReturnJSJson {
     private boolean mSwitchTheStrokesShownTitle = false;
     private WJCallbacks mStrokesWjCallbacks;
     //strokes end
-    private IReceiveLogoutAction mIReceiveLogoutAction;
+    private IReceivedStrategy mIReceivedStrategy;
 
     //theme
     private FpjkTheme mFpjkTheme;
@@ -94,8 +94,8 @@ public class FpjkBusiness extends IReturnJSJson {
         return this;
     }
 
-    public FpjkBusiness registerLogoutAction(IReceiveLogoutAction mIReceiveLogoutAction) {
-        this.mIReceiveLogoutAction = mIReceiveLogoutAction;
+    public FpjkBusiness registerReceivedStrategy(IReceivedStrategy receivedStrategy) {
+        this.mIReceivedStrategy = receivedStrategy;
         return this;
     }
 
@@ -266,8 +266,8 @@ public class FpjkBusiness extends IReturnJSJson {
                 successResponse.setSuccess(1);
                 String callBackJson = buildReturnCorrectJSJson(successResponse);
                 wjCallbacks.onCallback(callBackJson);
-                if (null != mIReceiveLogoutAction) {
-                    mIReceiveLogoutAction.onReceive();
+                if (null != mIReceivedStrategy) {
+                    mIReceivedStrategy.onReceivedLogout();
                 }
             }
         } catch (Exception e) {

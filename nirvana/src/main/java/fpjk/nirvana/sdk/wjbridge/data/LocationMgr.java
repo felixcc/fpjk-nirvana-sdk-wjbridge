@@ -23,12 +23,7 @@ import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
 import io.reactivex.functions.Consumer;
 
 /**
- * Summary:
- * Created by Felix
- * Date: 26/11/2016
- * Time: 14:48
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
+ * Summary: Created by Felix Date: 26/11/2016 Time: 14:48 QQ:74104 EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
 

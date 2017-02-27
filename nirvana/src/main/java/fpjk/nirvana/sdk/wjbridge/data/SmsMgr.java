@@ -37,12 +37,7 @@ import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Summary:
- * Created by Felix
- * Date: 14/12/2016
- * Time: 16:55
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
+ * Summary: Created by Felix Date: 14/12/2016 Time: 16:55 QQ:74104 EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
 public class SmsMgr extends IReturnJSJson {
@@ -83,19 +78,19 @@ public class SmsMgr extends IReturnJSJson {
                 } else if (permission.shouldShowRequestPermissionRationale) {
                     // Denied permission without ask never again
                     L.i("shouldShowRequestPermissionRationale");
-                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USERS_REFUSE_SMS_PERMISSIONS.getValue(), wjCallbacks);
                 } else {
                     // Denied permission with ask never again
                     // Need to go to the settings
                     L.i("Need to go to the settings");
-                    buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
+                    buildErrorJSJson(FpjkEnum.ErrorCode.USERS_REFUSE_SMS_PERMISSIONS.getValue(), wjCallbacks);
                 }
             }
         }, new Consumer<Throwable>() {
             @Override
             public void accept(Throwable throwable) throws Exception {
                 L.e("call", throwable);
-                buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
+                buildErrorJSJson(FpjkEnum.ErrorCode.USERS_REFUSE_SMS_PERMISSIONS.getValue(), wjCallbacks);
             }
         });
     }

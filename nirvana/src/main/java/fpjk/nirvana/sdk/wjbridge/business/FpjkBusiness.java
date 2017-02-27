@@ -316,6 +316,7 @@ public class FpjkBusiness extends IReturnJSJson {
         wjCallbacks.onCallback(callBack);
         //review page
         mFpjkView.showDefaultTab();
+        mFpjkView.strokesClear();
         mFpjkView.setTitle(mOpenUrlVo.getTitle());
         //clear rxjava heap
         mStrokesCompositeDisposable.clear();

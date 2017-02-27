@@ -43,6 +43,7 @@ public class WJBridgeWebView extends WebView implements WebViewJavascriptBridge,
         getSettings().setAllowFileAccess(true);
         getSettings().setJavaScriptEnabled(true);
         getSettings().setDomStorageEnabled(true);
+        getSettings().setAppCacheEnabled(false);
         getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         getSettings().setDefaultTextEncodingName("UTF-8");
 

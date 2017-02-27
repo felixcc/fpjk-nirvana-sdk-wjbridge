@@ -124,6 +124,13 @@ public class FpjkView extends RelativeLayout {
         mStrokesWJBridgeWebView.loadUrl(url);
     }
 
+    public void strokesClear() {
+        mStrokesWJBridgeWebView.loadUrl("about:blank");
+        mStrokesWJBridgeWebView.clearHistory();
+        mStrokesWJBridgeWebView.clearFormData();
+        mStrokesWJBridgeWebView.clearCache(true);
+    }
+
     public boolean canGoBack() {
         return getDefaultWJBridgeWebView().canGoBack();
     }

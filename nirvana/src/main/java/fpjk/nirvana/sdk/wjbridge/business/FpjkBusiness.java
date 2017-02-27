@@ -2,7 +2,6 @@ package fpjk.nirvana.sdk.wjbridge.business;
 
 import android.app.Activity;
 import android.os.Build;
-import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
 
@@ -209,8 +208,7 @@ public class FpjkBusiness extends IReturnJSJson {
             public void accept(Object o) throws Exception {
                 if (o instanceof EventOnProgressChanged) {
                     int newProgress = ((EventOnProgressChanged) o).getNewProgress();
-//                    L.d("EventOnProgressChanged[%s]", newProgress);
-                    Log.d("FpjkBusiness.newProgress", "newProgress=" + newProgress);
+                    L.d("EventOnProgressChanged[%s]", newProgress);
                     if (newProgress == 100) {
                         mFpjkView.getWebViewScaleProgressBar().setProgress(newProgress);
                         mFpjkView.getWebViewScaleProgressBar().playFinishAnim();

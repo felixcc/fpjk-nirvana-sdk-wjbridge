@@ -66,6 +66,9 @@ public class FpjkBusiness extends IReturnJSJson {
     //failing url reload
     private String mFailingUrl;
 
+    //us
+    private String mUs = "";
+
     //strokes start
     private boolean mSwitchTheStrokesShownTitle = false;
     private WJCallbacks mStrokesWjCallbacks;
@@ -90,9 +93,13 @@ public class FpjkBusiness extends IReturnJSJson {
     private FpjkBusiness() {
     }
 
-    public FpjkBusiness buildConfiguration(Activity activity, FpjkView fpjkView, FpjkTheme fpjkTheme) {
+    public FpjkBusiness buildConfiguration(Activity activity
+            , FpjkView fpjkView
+            , FpjkTheme fpjkTheme
+            , String us) {
         WJWebLoader webLoader = fpjkView.getDefaultWJBridgeWebView();
         mWebLoader = new WeakReference<>(webLoader);
+        mUs = us;
         mContext = activity;
         mFpjkView = fpjkView;
         mFpjkTheme = fpjkTheme;
@@ -259,8 +266,8 @@ public class FpjkBusiness extends IReturnJSJson {
                 deviceInfoEntity.setDeviceInfo(new DeviceInfoEntity.DeviceInfo()
                         .setOs("android")
                         .setSysVersion(mDeviceMgr.getSyVersion())
-                        .setUs("us")
-                        .setDeviceState(mDeviceMgr.isEmulator() + "")
+                        .setUs(mUs)
+                        .setDeviceState(mDeviceMgr.getDeviceStatus())
                         .setVersion(mDeviceMgr.getVersionName())
                         .setVersionCode(mDeviceMgr.getVersionCode() + "")
                         .setDeviceModel(Build.MODEL)

@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
         mFpjkView = (FpjkView) findViewById(R.id.fpjkView);
 
         FpjkWJSDKMgr.get()
+                .setUs("iqianzhan")
                 .setActivity(this)
                 .setFpjkView(mFpjkView)
                 .setFpjkTheme(new FpjkTheme()

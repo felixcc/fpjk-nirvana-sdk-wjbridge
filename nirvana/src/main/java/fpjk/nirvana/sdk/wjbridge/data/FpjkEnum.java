@@ -94,4 +94,21 @@ public class FpjkEnum {
             return value;
         }
     }
+
+    public enum DeviceStatus {
+        NORMAL("Normal"),//NO
+        EIMULATOR("Eimulator-Android"),//NO
+        ROOT("Root-Android");//YES
+
+        private final String value;
+
+        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
+        DeviceStatus(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 }

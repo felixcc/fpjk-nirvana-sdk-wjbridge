@@ -13,6 +13,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.DataOutputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -225,44 +226,70 @@ public class DeviceMgr {
             cookieMap.get("_w_tb_nick").setDomain(".m.taobao.com");
     }
 
-    public final int isEmulator() {
+    /**
+     * 判断是否是模拟器
+     *
+     * @return 模拟器
+     */
+    private boolean isEmulator() {
+        Log.e("DEBUG-WCL", "Build.FINGERPRINT: " + Build.FINGERPRINT
+                + ", Build.MODEL: " + Build.MODEL
+                + ", Build.MANUFACTURER: " + Build.MANUFACTURER
+                + ", Build.BRAND: " + Build.BRAND
+                + ", Build.DEVICE: " + Build.DEVICE
+                + ", Build.PRODUCT: " + Build.PRODUCT);
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.toLowerCase().contains("vbox")
+                || Build.FINGERPRINT.toLowerCase().contains("test-keys")
+//                || Build.FINGERPRINT.startsWith("unknown") // 魅族MX4: unknown
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk".equals(Build.PRODUCT);
+    }
+
+    public String getDeviceStatus() {
+        if (isEmulator()) {
+            return FpjkEnum.DeviceStatus.EIMULATOR.getValue();
+        } else if (isRoot()) {
+            return FpjkEnum.DeviceStatus.ROOT.getValue();
+        } else
+            return FpjkEnum.DeviceStatus.NORMAL.getValue();
+    }
+
+    private boolean isRoot() {
+        Process process = null;
+        DataOutputStream os = null;
         try {
-            TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-            String imei = tm.getDeviceId();
-            if (imei != null && imei.equals("000000000000000")) {
-                return 1;
+            //在软件同样的环境下执行获取super user的权限
+            process = Runtime.getRuntime().exec("su");
+            //然后向控制台写入一条命令
+            os = new DataOutputStream(process.getOutputStream());
+            os.writeBytes("exit\n");
+            os.flush();
+            //让调取控制台的线程阻塞，等待控制台的命令执行完成，最后返回控制台推出的返回码
+            int exitValue = process.waitFor();
+            if (exitValue == 0) {  //控制台正常退出，证明控制台已经用super user权限执行完命令
+                return true;
+            } else {  //否则可能返回其他的值
+                return false;
             }
         } catch (Exception e) {
-            Logger.e(e);
+            Log.d("*** DEBUG ***", "Unexpected error - Here is what I know: " + e.getMessage());
+            return false;
+        } finally {
+            try {
+                //最后关闭流和控制台进程
+                if (os != null) {
+                    os.close();
+                }
+                process.destroy();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
-        if ((Build.PRODUCT.equals("sdk")) || (Build.PRODUCT.equals("google_sdk"))
-                || (Build.PRODUCT.equals("sdk_x86")) || (Build.PRODUCT.equals("vbox86p"))) {
-            return 1;
-        }
-        if ((Build.MANUFACTURER.equals("unknown")) || (Build.MANUFACTURER.equals("Genymotion"))) {
-            return 1;
-        }
-        if ((Build.BRAND.equals("generic")) || (Build.BRAND.equals("generic_x86"))) {
-            return 1;
-        }
-        if ((Build.DEVICE.equals("generic")) || (Build.DEVICE.equals("generic_x86")) || (Build.DEVICE.equals("vbox86p"))) {
-            return 1;
-        }
-        if ((Build.MODEL.equals("sdk")) || (Build.MODEL.equals("google_sdk"))
-                || (Build.MODEL.equals("Android SDK built for x86"))) {
-            return 1;
-        }
-        if ((Build.HARDWARE.equals("goldfish")) || (Build.HARDWARE.equals("vbox86"))) {
-            return 1;
-        }
-        if ((Build.FINGERPRINT.contains("generic/sdk/generic"))
-                || (Build.FINGERPRINT.contains("generic_x86/sdk_x86/generic_x86"))
-                || (Build.FINGERPRINT.contains("generic/google_sdk/generic"))
-                || (Build.FINGERPRINT.contains("generic/vbox86p/vbox86p"))) {
-            return 1;
-        }
-        return 0;
     }
 
     /**

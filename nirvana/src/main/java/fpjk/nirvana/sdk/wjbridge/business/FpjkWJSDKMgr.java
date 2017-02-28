@@ -19,6 +19,8 @@ public class FpjkWJSDKMgr {
 
     private FpjkTheme mFpjkTheme;
 
+    private String mUs = "";
+
     private static FpjkWJSDKMgr mFpjkWJSDKMgr = new FpjkWJSDKMgr();
 
     public static FpjkWJSDKMgr get() {
@@ -50,9 +52,14 @@ public class FpjkWJSDKMgr {
         return this;
     }
 
+    public FpjkWJSDKMgr setUs(String us) {
+        this.mUs = us;
+        return this;
+    }
+
     public void execute() {
         mFpjkView.setLoadedSDKShownBackButton(mShownBackButton);
-        FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView, mFpjkTheme).execute();
+        FpjkBusiness.get().buildConfiguration(mActivity, mFpjkView, mFpjkTheme, mUs).execute();
     }
 
     public void onReceivedStrategy(IReceivedStrategy iReceivedStrategy) {

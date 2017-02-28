@@ -119,14 +119,7 @@ public class FpjkView extends RelativeLayout {
     }
 
     public void strokesClear() {
-        mStrokesWJBridgeWebView.clearHistory();
-        mStrokesWJBridgeWebView.clearFormData();
-        mStrokesWJBridgeWebView.clearCache(true);
-        mStrokesWJBridgeWebView.removeAllViews();
-        mStrokesWJBridgeWebView.goBack();
-//        removeView(mStrokesWJBridgeWebView);
-//        mStrokesWJBridgeWebView.destroy();
-//        mStrokesWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.strokesWJBridgeWebView);
+        mStrokesWJBridgeWebView.loadUrl("");
     }
 
     public boolean canGoBack() {

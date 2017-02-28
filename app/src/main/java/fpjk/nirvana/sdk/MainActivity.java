@@ -13,11 +13,11 @@ public class MainActivity extends Activity {
 
     FpjkView mFpjkView;
 
-    //    String url = "http://10.10.232.242:9527/";//首页
-    String url = "http://10.10.191.154:9000/";//测试
+//    String url = "http://10.10.232.242:9527/";//首页
+//    String url = "http://10.10.191.154:9000/";//测试
 
-//    String url = "http://10.10.232.242:9527?userToken=aeca9150-fcb5-11e6-aca4-c12eb512c5f9";//测试
-//    String cookie = "session=Fe26.2**8b3ede3f4d100381543a7f5205e9db8c7ac9347369f04e8be54c33cddf882780*YSN3oh4-uzS6rqn42gDHbw*Jm9OjuWleUSryozYcjTRxtNuy5D7PLcgVyi69P7wndI**453eb1d434271b404ef8ccb21927081cb3f073c66dbdb126cbc058d000e36ed0*MzvViEoimNq6nsXoBLQ3lSPtGF3OWpzb-2BWpLeCUgE";
+    String url = "http://10.10.232.242:9527?userToken=be4bb890-fd85-11e6-ad66-193321d112c8";//测试
+    String cookie = "session=Fe26.2**01941b107c9d556dd64120e0870b5e235b009b18901d0504e4c782931cda9ad9*sqtoYs7O3Q7NIY3XHkhDrg*boDPQHOSEY66Qg1-XbR5HqBI4P2YHNns11-cV2y6IME**bf7ded618bd682a7b941291355248033f844af9eb55fe6e6a720148d6366efc6*b_GBbEaeMuRKWU6r3tQQ-Vza4eXZ6eW5RgG_1fQE_zU";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +37,8 @@ public class MainActivity extends Activity {
                 .setShownBackButton(false)
                 .execute();
 
-        FpjkWJSDKMgr.get().loadUrl(url);
-//        FpjkWJSDKMgr.get().insertCookieAndLoaded(url, cookie);
+//        FpjkWJSDKMgr.get().loadUrl(url);
+        FpjkWJSDKMgr.get().insertCookieAndLoaded(url, cookie);
 
         FpjkWJSDKMgr.get().onReceivedStrategy(new IReceivedStrategy() {
             @Override

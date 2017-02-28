@@ -13,7 +13,6 @@ import fpjk.nirvana.sdk.wjbridge.R;
 import fpjk.nirvana.sdk.wjbridge.Titlebar;
 import fpjk.nirvana.sdk.wjbridge.WebViewEmptyLayout;
 import fpjk.nirvana.sdk.wjbridge.WebViewScaleProgressBar;
-import fpjk.nirvana.sdk.wjbridge.business.vo.FpjkTheme;
 import fpjk.nirvana.sdk.wjbridge.presenter.WJBridgeWebView;
 
 
@@ -36,9 +35,6 @@ public class FpjkView extends RelativeLayout {
 
     private Titlebar mTitlebar;
 
-    //theme
-    private FpjkTheme mFpjkTheme;
-
     //只针对第一次加载 SDK 是否显示回退按钮。
     private boolean isLoadedSDKShownBackButton = true;
 
@@ -58,8 +54,10 @@ public class FpjkView extends RelativeLayout {
         buildConfigs(context);
     }
 
+    private View v;
+
     private void buildConfigs(Context context) {
-        View v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, this);
+        v = LayoutInflater.from(context).inflate(R.layout.fpjk_layout, this);
 
         mViewFlipper = (ViewFlipper) v.findViewById(R.id.viewFlipper);
         mDefaultWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.defaultWJBridgeWebView);
@@ -124,6 +122,11 @@ public class FpjkView extends RelativeLayout {
         mStrokesWJBridgeWebView.clearHistory();
         mStrokesWJBridgeWebView.clearFormData();
         mStrokesWJBridgeWebView.clearCache(true);
+        mStrokesWJBridgeWebView.removeAllViews();
+        mStrokesWJBridgeWebView.goBack();
+//        removeView(mStrokesWJBridgeWebView);
+//        mStrokesWJBridgeWebView.destroy();
+//        mStrokesWJBridgeWebView = (WJBridgeWebView) v.findViewById(R.id.strokesWJBridgeWebView);
     }
 
     public boolean canGoBack() {

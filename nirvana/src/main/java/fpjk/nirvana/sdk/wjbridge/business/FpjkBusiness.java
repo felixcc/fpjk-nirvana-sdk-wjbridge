@@ -340,7 +340,6 @@ public class FpjkBusiness extends IReturnJSJson {
         String callBack = buildReturnCorrectJSJson(successResponse);
         wjCallbacks.onCallback(callBack);
         //review page
-        mFpjkView.showDefaultTab();
         mFpjkView.strokesClear();
         mFpjkView.setTitle(mOpenUrlVo.getTitle());
         //clear rxjava heap
@@ -352,6 +351,7 @@ public class FpjkBusiness extends IReturnJSJson {
         } else {
             mFpjkView.hideBackButton();
         }
+        mFpjkView.showDefaultTab();
     }
 
     /**

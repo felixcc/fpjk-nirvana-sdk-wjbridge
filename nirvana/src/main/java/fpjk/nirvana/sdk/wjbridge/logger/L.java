@@ -1,15 +1,11 @@
 package fpjk.nirvana.sdk.wjbridge.logger;
 
 /**
- * Created with Android Studio.
- * User: Felix
- * Date: 10/19/15
- * Time: 2:17 PM
- * QQ:74104
+ * Created with Android Studio. User: Felix Date: 10/19/15 Time: 2:17 PM QQ:74104
  * Email:lovejiuwei@gmail.com
  */
 public class L {
-    private static boolean isDebug = true;
+    private static boolean isDebug = false;
 
     private L() {
 

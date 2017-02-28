@@ -32,7 +32,6 @@ public class FpjkView extends RelativeLayout {
 
     private WebViewEmptyLayout mWebViewEmptyLayout;
 
-
     private Titlebar mTitlebar;
 
     //只针对第一次加载 SDK 是否显示回退按钮。

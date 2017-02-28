@@ -187,22 +187,6 @@ public class FpjkBusiness extends IReturnJSJson {
                                 }
                                 L.d("EventPageReceivedTitle", title);
                             }
-
-                            if (o instanceof EventPageReceivedError) {
-                                L.d("EventPageReceivedError");
-                                EventPageReceivedError error = (EventPageReceivedError) o;
-                                boolean mPageReceivedError = error.isPageReceivedError();
-                                mFailingUrl = error.getFailingUrl();
-                                if (!mPageReceivedError) {
-                                    mFpjkView.getWebViewEmptyLayout().dismiss();
-                                } else {
-                                    mFpjkView.getWebViewEmptyLayout().display();
-                                }
-                                //call back
-                                if (null != mIReceivedStrategy) {
-                                    mIReceivedStrategy.onReceivedOnPageError();
-                                }
-                            }
                             L.d("processRxBusEvent[%s]", o);
                         } catch (Exception e) {
                             L.e("processRxBusEvent", e);
@@ -226,6 +210,22 @@ public class FpjkBusiness extends IReturnJSJson {
                         } else {
                             mFpjkView.getWebViewScaleProgressBar().setProgressSmooth(newProgress, true);
                         }
+                    }
+                }
+
+                if (o instanceof EventPageReceivedError) {
+                    L.d("EventPageReceivedError");
+                    EventPageReceivedError error = (EventPageReceivedError) o;
+                    boolean mPageReceivedError = error.isPageReceivedError();
+                    mFailingUrl = error.getFailingUrl();
+                    if (!mPageReceivedError) {
+                        mFpjkView.getWebViewEmptyLayout().dismiss();
+                    } else {
+                        mFpjkView.getWebViewEmptyLayout().display();
+                    }
+                    //call back
+                    if (null != mIReceivedStrategy) {
+                        mIReceivedStrategy.onReceivedOnPageError();
                     }
                 }
             }
@@ -386,11 +386,12 @@ public class FpjkBusiness extends IReturnJSJson {
         mFpjkView.getWebViewEmptyLayout().setOnRefreshClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFpjkView.getWebViewEmptyLayout().dismiss();
+                mFpjkView.getDefaultWJBridgeWebView().loadUrl("");
                 if (StringUtils.isNotEmpty(mFailingUrl)) {
                     mFpjkView.getDefaultWJBridgeWebView().loadUrl(mFailingUrl);
                     mFpjkView.getWebViewScaleProgressBar().setProgress(0);
                 }
+                mFpjkView.getWebViewEmptyLayout().dismiss();
             }
         });
     }

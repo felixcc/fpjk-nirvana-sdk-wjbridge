@@ -13,6 +13,8 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
+import com.tbruyelle.rxpermissions2.Permission;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,8 +28,6 @@ import fpjk.nirvana.sdk.wjbridge.db.model.DBContactsEntity;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJCallbacks;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
-import fpjk.nirvana.sdk.wjbridge.permission.Permission;
-import fpjk.nirvana.sdk.wjbridge.permission.RxPermissions;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;

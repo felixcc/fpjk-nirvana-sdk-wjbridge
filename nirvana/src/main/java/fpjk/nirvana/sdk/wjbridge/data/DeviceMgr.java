@@ -252,7 +252,7 @@ public class DeviceMgr {
 
     public String getDeviceStatus() {
         if (isEmulator()) {
-            return FpjkEnum.DeviceStatus.EIMULATOR.getValue();
+            return FpjkEnum.DeviceStatus.EMULATOR.getValue();
         } else if (isRoot()) {
             return FpjkEnum.DeviceStatus.ROOT.getValue();
         } else

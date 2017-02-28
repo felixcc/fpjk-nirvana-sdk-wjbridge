@@ -97,8 +97,8 @@ public class FpjkEnum {
 
     public enum DeviceStatus {
         NORMAL("Normal"),//NO
-        EIMULATOR("Eimulator-Android"),//NO
-        ROOT("Root-Android");//YES
+        EMULATOR("Emulator"),//NO
+        ROOT("Root");//YES
 
         private final String value;
 

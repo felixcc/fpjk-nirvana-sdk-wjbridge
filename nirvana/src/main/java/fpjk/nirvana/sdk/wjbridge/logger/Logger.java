@@ -8,17 +8,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * LoggerInterceptor is a wrapper of {@link Log}
- * But more pretty, simple and powerful
+ * LoggerInterceptor is a wrapper of {@link Log} But more pretty, simple and powerful
  *
  * @author Orhan Obut
  */
 public final class Logger {
 
     /**
-     * Android's max limit for a log entry is ~4076 bytes,
-     * so 4000 bytes is used as chunk size since default charset
-     * is UTF-8
+     * Android's max limit for a log entry is ~4076 bytes, so 4000 bytes is used as chunk size since
+     * default charset is UTF-8
      */
     private static final int CHUNK_SIZE = 4000;
 
@@ -56,11 +54,11 @@ public final class Logger {
     private static final String MIDDLE_BORDER = MIDDLE_CORNER + SINGLE_DIVIDER + SINGLE_DIVIDER;
 
     /**
-     * TAG is used for the Log, the name is a little different
-     * in order to differentiate the logs easily with the filter
+     * TAG is used for the Log, the name is a little different in order to differentiate the logs
+     * easily with the filter
      */
     //    private static String TAG = "PRETTYLOGGER";
-    private static String TAG = "LoggerInterceptor";
+    private static String TAG = "FELIX";
 
     //no instance
     private Logger() {

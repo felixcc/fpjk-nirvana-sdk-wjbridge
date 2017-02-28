@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">fpjk-nirvana-sdk</string>
+    <string name="message_denied">Permission \"%1$s\" has been denied.</string>
 </resources>

@@ -78,4 +78,20 @@ public class FpjkEnum {
             return value;
         }
     }
+
+    public enum NeedGeo {
+        NO(0),//NO
+        OK(1);//YES
+
+        private final Integer value;
+
+        // 构造器默认也只能是private, 从而保证构造函数只能在内部使用
+        NeedGeo(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+    }
 }

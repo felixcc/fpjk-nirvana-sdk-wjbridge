@@ -29,11 +29,11 @@ import io.reactivex.functions.Consumer;
 
 public class LocationMgr extends IReturnJSJson {
     private AMapLocationClient locationClient = null;
-    private AMapLocationClientOption locationOption = new AMapLocationClientOption();
     private WJCallbacks wjCallbacks;
     private RxPermissions mRxPermissions = null;
     private Activity mActivity;
     private String mImei;
+    private boolean mIsNeedGeo;
 
     public static LocationMgr newInstance(@NonNull Activity context, DeviceMgr deviceMgr) {
         return new LocationMgr(WJBridgeUtils.checkNoNull(context, "Context not NULL!"), deviceMgr);
@@ -42,9 +42,6 @@ public class LocationMgr extends IReturnJSJson {
     private LocationMgr(Activity context, DeviceMgr deviceMgr) {
         //初始化client
         locationClient = new AMapLocationClient(context.getApplicationContext());
-        locationOption = getDefaultOption();
-        //设置定位参数
-        locationClient.setLocationOption(locationOption);
         //设置定位监听
         locationClient.setLocationListener(locationListener);
         //permissions
@@ -55,7 +52,8 @@ public class LocationMgr extends IReturnJSJson {
     }
 
     private void startLocation() {
-        // 设置定位参数
+        AMapLocationClientOption locationOption = getDefaultOption();
+        //设置定位参数
         locationClient.setLocationOption(locationOption);
         // 启动定位
         locationClient.startLocation();
@@ -71,7 +69,7 @@ public class LocationMgr extends IReturnJSJson {
         mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
         mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
         mOption.setInterval(1000);//可选，设置定位间隔。默认为2秒
-        mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
+        mOption.setNeedAddress(mIsNeedGeo);//可选，设置是否返回逆地理地址信息。默认是true
         mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
         mOption.setOnceLocationLatest(false);//可选，设置是否等待wifi刷新，默认为false.如果设置为true,会自动变为单次定位，持续定位时不要使用
         AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);//可选， 设置网络请求的协议。可选HTTP或者HTTPS。默认为HTTP
@@ -124,8 +122,9 @@ public class LocationMgr extends IReturnJSJson {
         return locationEntity;
     }
 
-    public void start(final WJCallbacks wjCallbacks) {
+    public void start(final WJCallbacks wjCallbacks, boolean isNeedGeo) {
         this.wjCallbacks = wjCallbacks;
+        this.mIsNeedGeo = isNeedGeo;
         if (!isLocationOpen(mActivity)) {
             L.i("定位未打开[%s]", false);
             buildErrorJSJson(FpjkEnum.ErrorCode.USER_MOBILE_LOCATION_SERVICES_OFF.getValue(), wjCallbacks);

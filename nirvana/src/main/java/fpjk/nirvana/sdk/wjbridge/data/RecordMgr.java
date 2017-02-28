@@ -34,11 +34,7 @@ import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Summary:
- * Created by FelixChen
- * Created 2016-12-13 22:08
- * Mail:lovejiuwei@gmail.com
- * QQ:74104
+ * Summary: Created by FelixChen Created 2016-12-13 22:08 Mail:lovejiuwei@gmail.com QQ:74104
  */
 public class RecordMgr extends IReturnJSJson {
     private Activity mContext;
@@ -65,14 +61,14 @@ public class RecordMgr extends IReturnJSJson {
         mImei = deviceMgr.getIMEI();
     }
 
-    public void obtainRecords(final String imei, final long uid, final WJCallbacks wjCallbacks) {
+    public void obtainRecords(final long uid, final WJCallbacks wjCallbacks) {
         mRxPermissions.requestEach(Manifest.permission.READ_CALL_LOG).subscribe(new Consumer<Permission>() {
             @Override
             public void accept(Permission permission) throws Exception {
                 L.i("Permission result " + permission);
                 if (permission.granted) {
                     L.i("granted");
-                    submitRecords(imei, uid, wjCallbacks);
+                    submitRecords(uid, wjCallbacks);
                 } else if (permission.shouldShowRequestPermissionRationale) {
                     // Denied permission without ask never again
                     L.i("shouldShowRequestPermissionRationale");
@@ -93,7 +89,7 @@ public class RecordMgr extends IReturnJSJson {
         });
     }
 
-    private void submitRecords(final String imei, final Long uid, final WJCallbacks wjCallbacks) {
+    private void submitRecords(final Long uid, final WJCallbacks wjCallbacks) {
         mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
             public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
@@ -189,6 +185,12 @@ public class RecordMgr extends IReturnJSJson {
                         }
                         //destory
                         mCompositeDisposable.clear();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        L.d("", throwable);
+                        buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
                     }
                 }));
     }

@@ -6,13 +6,8 @@ import android.os.Parcelable;
 import com.alibaba.fastjson.annotation.JSONField;
 
 /**
- * Summary:json里面的data层
- * Created by Felix
- * Date: 01/12/2016
- * Time: 18:59
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
- * Version 1.0
+ * Summary:json里面的data层 Created by Felix Date: 01/12/2016 Time: 18:59 QQ:74104
+ * EMAIL:lovejiuwei@gmail.com Version 1.0
  */
 public class DataTransferEntity implements Parcelable {
     @JSONField(name = "url")
@@ -26,6 +21,18 @@ public class DataTransferEntity implements Parcelable {
 
     @JSONField(name = "uid")
     private Long uid = 0L;
+
+    @JSONField(name = "geocoder")
+    private int geocoder = 0;
+
+    public int getGeocoder() {
+        return geocoder;
+    }
+
+    public DataTransferEntity setGeocoder(int geocoder) {
+        this.geocoder = geocoder;
+        return this;
+    }
 
     public String getUrl() {
         return url;
@@ -73,7 +80,8 @@ public class DataTransferEntity implements Parcelable {
         dest.writeString(this.url);
         dest.writeString(this.title);
         dest.writeString(this.finishUrl);
-        dest.writeLong(this.uid);
+        dest.writeValue(this.uid);
+        dest.writeInt(this.geocoder);
     }
 
     public DataTransferEntity() {
@@ -83,7 +91,8 @@ public class DataTransferEntity implements Parcelable {
         this.url = in.readString();
         this.title = in.readString();
         this.finishUrl = in.readString();
-        this.uid = in.readLong();
+        this.uid = (Long) in.readValue(Long.class.getClassLoader());
+        this.geocoder = in.readInt();
     }
 
     public static final Creator<DataTransferEntity> CREATOR = new Creator<DataTransferEntity>() {
@@ -104,7 +113,8 @@ public class DataTransferEntity implements Parcelable {
                 "url='" + url + '\'' +
                 ", title='" + title + '\'' +
                 ", finishUrl='" + finishUrl + '\'' +
-                ", uid='" + uid + '\'' +
+                ", uid=" + uid +
+                ", geocoder=" + geocoder +
                 '}';
     }
 }

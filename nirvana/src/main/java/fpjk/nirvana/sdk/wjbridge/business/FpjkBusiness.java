@@ -238,7 +238,7 @@ public class FpjkBusiness extends IReturnJSJson {
             if (FpjkEnum.Business.GET_CONTACTS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
-                mContactMgr.obtainContacts(mDeviceMgr.getIMEI(), uid, wjCallbacks);
+                mContactMgr.obtainContacts(uid, wjCallbacks);
             } else if (FpjkEnum.Business.OPEN_URL.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 processStrokes(dataTransferEntity, wjCallbacks);
@@ -269,15 +269,17 @@ public class FpjkBusiness extends IReturnJSJson {
                 String callBackJson = buildReturnCorrectJSJson(deviceInfoEntity);
                 wjCallbacks.onCallback(callBackJson);
             } else if (FpjkEnum.Business.GET_LOCATION.getValue().equals(entity.getOpt())) {
-                mLocationMgr.start(wjCallbacks);
+                DataTransferEntity dataTransferEntity = entity.getData();
+                boolean isNeedGeo = dataTransferEntity.getGeocoder() == FpjkEnum.NeedGeo.NO.getValue() ? false : true;
+                mLocationMgr.start(wjCallbacks, isNeedGeo);
             } else if (FpjkEnum.Business.GET_SMS_RECORDS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
-                mSmsMgr.obtainSms(mDeviceMgr.getIMEI(), uid, wjCallbacks);
+                mSmsMgr.obtainSms(uid, wjCallbacks);
             } else if (FpjkEnum.Business.GET_CALL_RECORDS.getValue().equals(entity.getOpt())) {
                 DataTransferEntity dataTransferEntity = entity.getData();
                 long uid = dataTransferEntity.getUid();
-                mRecordMgr.obtainRecords(mDeviceMgr.getIMEI(), uid, wjCallbacks);
+                mRecordMgr.obtainRecords(uid, wjCallbacks);
             } else if (FpjkEnum.Business.REFRESH_NAVIGATION.getValue().equals(entity.getOpt())) {
                 SuccessResponse successResponse = new SuccessResponse();
                 successResponse.setSuccess(1);

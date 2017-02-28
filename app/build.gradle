@@ -43,9 +43,7 @@ dependencies {
     //add libs
     //    compile(name: 'nirvana-release', ext: 'aar')
     //ad module
-//    compile project(':nirvana')
-
-    compile 'fpjk.nirvana.sdk.wjbridge:nirvana:0.2.1'
+    compile project(':nirvana')
 }
 
 repositories {

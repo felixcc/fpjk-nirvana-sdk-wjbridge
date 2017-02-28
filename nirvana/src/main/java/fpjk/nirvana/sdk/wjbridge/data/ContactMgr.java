@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -31,18 +32,14 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
 
 /**
- * Summary:
- * Created by Felix
- * Date: 28/11/2016
- * Time: 16:04
- * QQ:74104
- * EMAIL:lovejiuwei@gmail.com
+ * Summary: Created by Felix Date: 28/11/2016 Time: 16:04 QQ:74104 EMAIL:lovejiuwei@gmail.com
  * Version 1.0
  */
 public class ContactMgr extends IReturnJSJson {
@@ -70,14 +67,35 @@ public class ContactMgr extends IReturnJSJson {
         mImei = deviceMgr.getIMEI();
     }
 
-    public void obtainContacts(final String imei, final Long uid, final WJCallbacks wjCallbacks) {
+    public void obtainContacts(final Long uid, final WJCallbacks wjCallbacks) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            L.d("FUCK obtainContactsobtainContactsobtainContacts");
+        }
+
+        mRxPermissions.request(Manifest.permission.READ_CONTACTS).subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                L.d("FUCK 11111111111111111111111111");
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                L.d("FUCK 22222222222222222222222222");
+            }
+        }, new Action() {
+            @Override
+            public void run() throws Exception {
+                L.d("FUCK 33333333333333333333333333333");
+            }
+        });
+
         mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS).subscribe(new Consumer<Permission>() {
             @Override
             public void accept(Permission permission) throws Exception {
                 L.i("Permission result " + permission);
                 if (permission.granted) {
                     L.i("granted");
-                    submitContacts(imei, uid, wjCallbacks);
+                    submitContacts(uid, wjCallbacks);
                 } else if (permission.shouldShowRequestPermissionRationale) {
                     // Denied permission without ask never again
                     L.i("shouldShowRequestPermissionRationale");
@@ -98,12 +116,15 @@ public class ContactMgr extends IReturnJSJson {
         });
     }
 
-    private void submitContacts(final String imei, final Long uid, final WJCallbacks wjCallbacks) {
+    private void submitContacts(final Long uid, final WJCallbacks wjCallbacks) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            L.d("FUCK submitContactsUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
+        }
         mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
             public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
                 try {
-                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                         subscriber.onError(new Throwable("请开启获取联系人权限"));
                         return;
                     }
@@ -196,6 +217,12 @@ public class ContactMgr extends IReturnJSJson {
                         }
                         //destory
                         mCompositeDisposable.clear();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        L.d("", throwable);
+                        buildErrorJSJson(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue(), wjCallbacks);
                     }
                 }));
     }

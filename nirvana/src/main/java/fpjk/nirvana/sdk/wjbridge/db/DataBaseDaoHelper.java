@@ -8,7 +8,8 @@ import android.support.annotation.NonNull;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 
-import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 import fpjk.nirvana.sdk.wjbridge.jsbridge.WJBridgeUtils;
 import fpjk.nirvana.sdk.wjbridge.logger.L;
@@ -24,11 +25,22 @@ public class DataBaseDaoHelper {
     private DataBaseDaoHelper(Activity context) {
     }
 
-    public synchronized void createIfNotExists(Dao daoInstance, Object object) {
+    /**
+     * 批量插入 不能使用循环一个一个的插入，因为这样会一直打开数据库、插入数据、 关闭数据库
+     */
+    public synchronized void addBatchTask(final Dao daoInstance, final List<Object> values) {
         try {
-            daoInstance.createIfNotExists(object);
-        } catch (SQLException e) {
-            L.e(TAG, e);
+            daoInstance.callBatchTasks(new Callable() {
+                @Override
+                public Object call() throws Exception {
+                    for (Object value : values) {
+                        daoInstance.createIfNotExists(value);
+                    }
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -73,5 +85,4 @@ public class DataBaseDaoHelper {
         }
         return false;
     }
-
 }

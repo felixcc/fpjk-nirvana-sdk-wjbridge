@@ -7,14 +7,15 @@ import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import fpjk.nirvana.sdk.wjbridge.business.entity.ContactList;
@@ -32,7 +33,6 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
@@ -72,23 +72,6 @@ public class ContactMgr extends IReturnJSJson {
             L.d("FUCK obtainContactsobtainContactsobtainContacts");
         }
 
-        mRxPermissions.request(Manifest.permission.READ_CONTACTS).subscribe(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                L.d("FUCK 11111111111111111111111111");
-            }
-        }, new Consumer<Throwable>() {
-            @Override
-            public void accept(Throwable throwable) throws Exception {
-                L.d("FUCK 22222222222222222222222222");
-            }
-        }, new Action() {
-            @Override
-            public void run() throws Exception {
-                L.d("FUCK 33333333333333333333333333333");
-            }
-        });
-
         mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS).subscribe(new Consumer<Permission>() {
             @Override
             public void accept(Permission permission) throws Exception {
@@ -117,9 +100,6 @@ public class ContactMgr extends IReturnJSJson {
     }
 
     private void submitContacts(final Long uid, final WJCallbacks wjCallbacks) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            L.d("FUCK submitContactsUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUu");
-        }
         mCompositeDisposable.add(Observable.create(new ObservableOnSubscribe<Cursor>() {
             @Override
             public void subscribe(ObservableEmitter<Cursor> subscriber) throws Exception {
@@ -184,12 +164,12 @@ public class ContactMgr extends IReturnJSJson {
                     @Override
                     public boolean test(ContactList contactList) throws Exception {
                         List<String> phones = contactList.getPhoneNumList();
-                        for (int i = 0; i < phones.size(); i++) {
-                            String phone = phones.get(i);
+                        Iterator<String> iterator = phones.iterator();
+                        while (iterator.hasNext()) {
+                            String phone = iterator.next();
                             boolean result = DataBaseDaoHelper.get(mContext).queryContactExists(mContactDao, uid, phone);
                             if (result) {
-                                phones.remove(i);
-                                --i;
+                                iterator.remove();
                             }
                         }
                         return !phones.isEmpty();
@@ -203,18 +183,8 @@ public class ContactMgr extends IReturnJSJson {
                         contactListEntity.setContactList(contactLists);
                         String returnJSString = buildReturnCorrectJSJson(contactListEntity);
                         wjCallbacks.onCallback(returnJSString);
-                        //insert DB
-                        for (ContactList value : contactLists) {
-                            DBContactsEntity dbContactsEntity = new DBContactsEntity();
-                            dbContactsEntity.setUid(uid);
-                            dbContactsEntity.setFullName(value.getFullName());
-                            if (value.getPhoneNumList().size() > 0) {
-                                for (String phoneNum : value.getPhoneNumList()) {
-                                    dbContactsEntity.setPhoneNum(phoneNum);
-                                    DataBaseDaoHelper.get(mContext).createIfNotExists(mContactDao, dbContactsEntity);
-                                }
-                            }
-                        }
+                        //insert sql
+                        batchInsertDatas(uid, contactLists);
                         //destory
                         mCompositeDisposable.clear();
                     }
@@ -225,6 +195,25 @@ public class ContactMgr extends IReturnJSJson {
                         buildErrorJSJson(FpjkEnum.ErrorCode.USER_DENIED_ACCESS.getValue(), wjCallbacks);
                     }
                 }));
+    }
+
+    private void batchInsertDatas(Long uid, List<ContactList> contactLists) {
+        //insert DB
+        List<Object> sqlEntitys = new ArrayList<>();
+        for (ContactList value : contactLists) {
+            DBContactsEntity dbContactsEntity = new DBContactsEntity();
+            dbContactsEntity.setUid(uid);
+            dbContactsEntity.setFullName(value.getFullName());
+            for (String phone : value.getPhoneNumList()) {
+                DBContactsEntity theNext = new DBContactsEntity();
+                theNext.setUid(uid);
+                theNext.setFullName(value.getFullName());
+                theNext.setPhoneNum(phone);
+                sqlEntitys.add(theNext);
+            }
+        }
+        Log.d("ContactMgr", "sqlEntitys=" + sqlEntitys.size());
+        DataBaseDaoHelper.get(mContext).addBatchTask(mContactDao, sqlEntitys);
     }
 
     @Override

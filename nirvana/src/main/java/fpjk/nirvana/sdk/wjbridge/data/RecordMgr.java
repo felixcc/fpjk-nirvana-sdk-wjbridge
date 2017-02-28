@@ -11,6 +11,7 @@ import android.text.TextUtils;
 
 import com.j256.ormlite.dao.Dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fpjk.nirvana.sdk.wjbridge.business.entity.RecordEntity;
@@ -173,16 +174,7 @@ public class RecordMgr extends IReturnJSJson {
                         String returnJSString = buildReturnCorrectJSJson(recordEntity);
                         wjCallbacks.onCallback(returnJSString);
                         //insert DB
-                        for (RecordList value : recordLists) {
-                            DBRecordEntity dbRecordEntity = new DBRecordEntity();
-                            dbRecordEntity.setUid(uid);
-                            dbRecordEntity.setType(value.getType());
-                            dbRecordEntity.setPhoneNum(value.getPhoneNum());
-                            dbRecordEntity.setName(value.getName());
-                            dbRecordEntity.setDuration(value.getDuration());
-                            dbRecordEntity.setDate(value.getDate());
-                            DataBaseDaoHelper.get(mContext).createIfNotExists(mRecordDao, dbRecordEntity);
-                        }
+                        batchInsertDatas(uid, recordLists);
                         //destory
                         mCompositeDisposable.clear();
                     }
@@ -193,6 +185,21 @@ public class RecordMgr extends IReturnJSJson {
                         buildErrorJSJson(FpjkEnum.ErrorCode.USER_REJECT_CALL_RECORD.getValue(), wjCallbacks);
                     }
                 }));
+    }
+
+    private void batchInsertDatas(Long uid, List<RecordList> recordLists) {
+        List<Object> sqlEntitys = new ArrayList<>();
+        for (RecordList value : recordLists) {
+            DBRecordEntity dbRecordEntity = new DBRecordEntity();
+            dbRecordEntity.setUid(uid);
+            dbRecordEntity.setType(value.getType());
+            dbRecordEntity.setPhoneNum(value.getPhoneNum());
+            dbRecordEntity.setName(value.getName());
+            dbRecordEntity.setDuration(value.getDuration());
+            dbRecordEntity.setDate(value.getDate());
+            sqlEntitys.add(dbRecordEntity);
+        }
+        DataBaseDaoHelper.get(mContext).addBatchTask(mRecordDao, sqlEntitys);
     }
 
     @Override

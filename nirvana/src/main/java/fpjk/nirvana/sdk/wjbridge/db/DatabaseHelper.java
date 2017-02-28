@@ -50,7 +50,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             sqLiteDatabase.execSQL("DROP TABLE fpjk_local_contacts");
             sqLiteDatabase.execSQL("DROP TABLE fpjk_local_call_log");
-            sqLiteDatabase.execSQL("DROP TABLE fpjk_local_sms");
 
             TableUtils.createTableIfNotExists(connectionSource, DBContactsEntity.class);
             TableUtils.createTableIfNotExists(connectionSource, DBRecordEntity.class);

@@ -1,23 +1,20 @@
 package fpjk.nirvana.sdk.wjbridge.db.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "fpjk_local_contacts")
-public class DBContactsEntity implements Parcelable {
+public class DBContactsEntity {
     @DatabaseField(generatedId = true)
     private long id;
 
-    @DatabaseField(columnName = "uid", index = true)
+    @DatabaseField(index = true)
     private long uid;
 
-    @DatabaseField(columnName = "fullName")
+    @DatabaseField
     private String fullName;
 
-    @DatabaseField(columnName = "phoneNum") //ContactListEntity
+    @DatabaseField
     private String phoneNum;
 
     public long getId() {
@@ -55,41 +52,6 @@ public class DBContactsEntity implements Parcelable {
         this.phoneNum = phoneNum;
         return this;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.id);
-        dest.writeLong(this.uid);
-        dest.writeString(this.fullName);
-        dest.writeString(this.phoneNum);
-    }
-
-    public DBContactsEntity() {
-    }
-
-    protected DBContactsEntity(Parcel in) {
-        this.id = in.readLong();
-        this.uid = in.readLong();
-        this.fullName = in.readString();
-        this.phoneNum = in.readString();
-    }
-
-    public static final Creator<DBContactsEntity> CREATOR = new Creator<DBContactsEntity>() {
-        @Override
-        public DBContactsEntity createFromParcel(Parcel source) {
-            return new DBContactsEntity(source);
-        }
-
-        @Override
-        public DBContactsEntity[] newArray(int size) {
-            return new DBContactsEntity[size];
-        }
-    };
 
     @Override
     public String toString() {

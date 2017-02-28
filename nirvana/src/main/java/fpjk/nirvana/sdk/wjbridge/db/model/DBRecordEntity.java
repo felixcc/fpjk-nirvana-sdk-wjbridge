@@ -11,25 +11,25 @@ public class DBRecordEntity implements Parcelable {
     @DatabaseField(generatedId = true)
     private long id;
 
-    @DatabaseField(columnName = "uid", index = true)
+    @DatabaseField(index = true)
     private long uid;
 
-    @DatabaseField(columnName = "phoneNum")
+    @DatabaseField
     private String phoneNum;
 
-    @DatabaseField(columnName = "name")
+    @DatabaseField
     private String name;
 
-    @DatabaseField(columnName = "content")
+    @DatabaseField
     private String content;
 
-    @DatabaseField(columnName = "date")
+    @DatabaseField
     private Long date;
 
-    @DatabaseField(columnName = "duration")
+    @DatabaseField
     private long duration;
 
-    @DatabaseField(columnName = "type")
+    @DatabaseField
     private Integer type;
 
     public long getId() {

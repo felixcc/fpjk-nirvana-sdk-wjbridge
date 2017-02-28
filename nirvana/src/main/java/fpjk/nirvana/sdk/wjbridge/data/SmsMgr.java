@@ -14,6 +14,7 @@ import com.j256.ormlite.dao.Dao;
 
 import org.reactivestreams.Subscription;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fpjk.nirvana.sdk.wjbridge.business.entity.RecordEntity;
@@ -106,16 +107,21 @@ public class SmsMgr extends IReturnJSJson {
                                 subscriber.onError(new Throwable("请开启获取短信权限"));
                                 return;
                             }
-                            String[] projection = new String[]{"_id", "address", "person",
-                                    "body", "date", "type"};
+                            String[] projection = new String[]{"_id", "address", "person", "body", "date", "type"};
                             Cursor cursor = contentResolver.query(Uri.parse("content://sms/"), projection, null, null, "date desc");
                             if (null == cursor) {
                                 subscriber.onError(new Throwable("CONTENT_URI == Null"));
                                 return;
                             }
+                            //如果当前的 cursor 在表里存在。
+//                            boolean exist = !isIncremental(cursor, uid);
+//                            L.i("当前的 Cursor 是否在表里存在:" + exist);
+//                            if (exist) {
+//                            cursor.move(cursor.getCount());
                             while (cursor.moveToNext() && !cursor.isClosed()) {
                                 subscriber.onNext(cursor);
                             }
+//                            }
                             cursor.close();
                             subscriber.onComplete();
                         } catch (Exception e) {
@@ -149,6 +155,7 @@ public class SmsMgr extends IReturnJSJson {
                                     recordList.setType(intType);
                                     recordList.setContent(strbody);
                                     recordList.setDate(longDate);
+
                                     return recordList;
                                 } catch (Exception e) {
                                     L.e("", e);
@@ -173,16 +180,7 @@ public class SmsMgr extends IReturnJSJson {
                                 String returnJSString = buildReturnCorrectJSJson(recordEntity);
                                 wjCallbacks.onCallback(returnJSString);
                                 //insert DB
-                                for (RecordList value : recordLists) {
-                                    DBRecordEntity dbRecordEntity = new DBRecordEntity();
-                                    dbRecordEntity.setUid(uid);
-                                    dbRecordEntity.setPhoneNum(value.getPhoneNum());
-                                    dbRecordEntity.setName(value.getName());
-                                    dbRecordEntity.setDate(value.getDate());
-                                    dbRecordEntity.setContent(value.getContent());
-                                    dbRecordEntity.setType(value.getType());
-                                    DataBaseDaoHelper.get(mContext).createIfNotExists(mSmsDao, dbRecordEntity);
-                                }
+                                batchInsertDatas(uid, recordLists);
                                 //destory
                                 mCompositeDisposable.clear();
                             }
@@ -193,6 +191,47 @@ public class SmsMgr extends IReturnJSJson {
                                 buildErrorJSJson(FpjkEnum.ErrorCode.USERS_REFUSE_SMS_PERMISSIONS.getValue(), wjCallbacks);
                             }
                         }));
+    }
+
+    private boolean isIncremental(Cursor cursor, Long uid) {
+        if (cursor.moveToLast()) {
+            RecordList recordList = new RecordList();
+            int index_Address = cursor.getColumnIndex("address");
+            int index_Person = cursor.getColumnIndex("person");
+            int index_Body = cursor.getColumnIndex("body");
+            int index_Date = cursor.getColumnIndex("date");
+            int index_Type = cursor.getColumnIndex("type");
+            String strAddress = cursor.getString(index_Address);
+            int intPerson = cursor.getInt(index_Person);
+            String strbody = cursor.getString(index_Body);
+            long longDate = cursor.getLong(index_Date);
+            int intType = cursor.getInt(index_Type);
+            if (TextUtils.isEmpty(strAddress)) {
+                return false;
+            }
+            recordList.setPhoneNum(strAddress);
+            recordList.setName(intPerson + "");
+            recordList.setType(intType);
+            recordList.setContent(strbody);
+            recordList.setDate(longDate);
+            return DataBaseDaoHelper.get(mContext).querySmsExists(mSmsDao, uid, recordList.getPhoneNum(), recordList.getDate());
+        }
+        return false;
+    }
+
+    private void batchInsertDatas(Long uid, List<RecordList> recordLists) {
+        List<Object> sqlEntitys = new ArrayList<>();
+        for (RecordList value : recordLists) {
+            DBRecordEntity dbRecordEntity = new DBRecordEntity();
+            dbRecordEntity.setUid(uid);
+            dbRecordEntity.setPhoneNum(value.getPhoneNum());
+            dbRecordEntity.setName(value.getName());
+            dbRecordEntity.setDate(value.getDate());
+            dbRecordEntity.setContent(value.getContent());
+            dbRecordEntity.setType(value.getType());
+            sqlEntitys.add(dbRecordEntity);
+        }
+        DataBaseDaoHelper.get(mContext).addBatchTask(mSmsDao, sqlEntitys);
     }
 
     @Override

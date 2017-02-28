@@ -2,6 +2,8 @@
           package="fpjk.nirvana.sdk.wjbridge">
 
     <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+
     <application/>
 
 </manifest>

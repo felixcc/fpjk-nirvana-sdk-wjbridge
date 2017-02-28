@@ -133,8 +133,8 @@ public class SmsMgr extends IReturnJSJson {
                         .map(new Function<Cursor, RecordList>() {
                             @Override
                             public RecordList apply(Cursor cursor) throws Exception {
+                                RecordList recordList = new RecordList();
                                 try {
-                                    RecordList recordList = new RecordList();
                                     int index_Address = cursor.getColumnIndex("address");
                                     int index_Person = cursor.getColumnIndex("person");
                                     int index_Body = cursor.getColumnIndex("body");
@@ -148,19 +148,18 @@ public class SmsMgr extends IReturnJSJson {
                                     int intType = cursor.getInt(index_Type);
 
                                     if (TextUtils.isEmpty(strAddress)) {
-                                        return null;
+                                        strAddress = "";
                                     }
+
                                     recordList.setPhoneNum(strAddress);
                                     recordList.setName(intPerson + "");
                                     recordList.setType(intType);
                                     recordList.setContent(strbody);
                                     recordList.setDate(longDate);
-
-                                    return recordList;
                                 } catch (Exception e) {
                                     L.e("", e);
                                 }
-                                return null;
+                                return recordList;
                             }
                         })
                         .filter(new Predicate<RecordList>() {

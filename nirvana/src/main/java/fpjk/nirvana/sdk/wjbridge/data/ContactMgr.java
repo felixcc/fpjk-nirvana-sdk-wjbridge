@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 import com.tbruyelle.rxpermissions2.Permission;
@@ -68,10 +67,6 @@ public class ContactMgr extends IReturnJSJson {
     }
 
     public void obtainContacts(final Long uid, final WJCallbacks wjCallbacks) {
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            L.d("FUCK obtainContactsobtainContactsobtainContacts");
-        }
-
         mRxPermissions.requestEach(Manifest.permission.READ_CONTACTS).subscribe(new Consumer<Permission>() {
             @Override
             public void accept(Permission permission) throws Exception {
@@ -158,7 +153,7 @@ public class ContactMgr extends IReturnJSJson {
                         return contactBean;
                     }
                 })
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(new Predicate<ContactList>() {
                     @Override
@@ -212,7 +207,6 @@ public class ContactMgr extends IReturnJSJson {
                 sqlEntitys.add(theNext);
             }
         }
-        Log.d("ContactMgr", "sqlEntitys=" + sqlEntitys.size());
         DataBaseDaoHelper.get(mContext).addBatchTask(mContactDao, sqlEntitys);
     }
 

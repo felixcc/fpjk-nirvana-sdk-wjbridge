@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "fpjk.nirvana.sdk"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -35,7 +35,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.2.0'
     //    //fastjson
-    //    compile 'com.alibaba:fastjson:1.2.21'
+    //    compile 'com.alibaba:fastjson:1.2.21'1
+
     //    //rxjava
     //    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     //    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
@@ -44,6 +45,7 @@ dependencies {
     //    compile(name: 'nirvana-release', ext: 'aar')
     //ad module
     compile project(':nirvana')
+//    compile 'fpjk.nirvana.sdk.wjbridge:nirvana:0.0.2'
 }
 
 repositories {

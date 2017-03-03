@@ -158,35 +158,6 @@ public class FpjkBusiness extends IReturnJSJson {
                                 wjCallbacks.onCallback(callBackJson);
                                 mLocationMgr.stopLocation();
                             }
-
-                            //webview
-                            if (o instanceof EventPageReceivedStarted) {
-                                L.d("EventPageReceivedStarted");
-                            }
-
-                            if (o instanceof EventPageReceivedFinished) {
-                                L.d("EventPageReceivedFinished");
-                            }
-
-                            if (o instanceof EventPageReceivedTitle) {
-                                //get document title 晚于与JS交互
-                                if (mSwitchTheStrokesShownTitle) {
-                                    mSwitchTheStrokesShownTitle = false;
-                                    return;
-                                }
-                                String title = ((EventPageReceivedTitle) o).getTitle();
-                                if (title.contains("找不到") ||
-                                        title.contains("不到") ||
-                                        title.contains("找") ||
-                                        title.contains("error") ||
-                                        title.contains("denied") ||
-                                        title.contains("webview")) {
-                                    mFpjkView.setTitle("钱站");
-                                } else {
-                                    mFpjkView.setTitle(title);
-                                }
-                                L.d("EventPageReceivedTitle", title);
-                            }
                             L.d("processRxBusEvent[%s]", o);
                         } catch (Exception e) {
                             L.e("processRxBusEvent", e);
@@ -213,6 +184,15 @@ public class FpjkBusiness extends IReturnJSJson {
                     }
                 }
 
+                //webview
+                if (o instanceof EventPageReceivedStarted) {
+                    L.d("EventPageReceivedStarted");
+                }
+
+                if (o instanceof EventPageReceivedFinished) {
+                    L.d("EventPageReceivedFinished");
+                }
+
                 if (o instanceof EventPageReceivedError) {
                     L.d("EventPageReceivedError");
                     EventPageReceivedError error = (EventPageReceivedError) o;
@@ -227,6 +207,26 @@ public class FpjkBusiness extends IReturnJSJson {
                     if (null != mIReceivedStrategy) {
                         mIReceivedStrategy.onReceivedOnPageError();
                     }
+                }
+
+                if (o instanceof EventPageReceivedTitle) {
+                    //get document title 晚于与JS交互
+                    if (mSwitchTheStrokesShownTitle) {
+                        mSwitchTheStrokesShownTitle = false;
+                        return;
+                    }
+                    String title = ((EventPageReceivedTitle) o).getTitle();
+                    if (title.contains("找不到") ||
+                            title.contains("不到") ||
+                            title.contains("找") ||
+                            title.contains("error") ||
+                            title.contains("denied") ||
+                            title.contains("webview")) {
+                        mFpjkView.setTitle("钱站");
+                    } else {
+                        mFpjkView.setTitle(title);
+                    }
+                    L.d("EventPageReceivedTitle", title);
                 }
             }
         }));

@@ -13,7 +13,7 @@ public class MainActivity extends Activity {
 
     FpjkView mFpjkView;
 
-    String url = "http://10.10.232.242:9527/s";//首页
+    String url = "http://10.10.232.242:9527/";//首页
 //    String url = "http://10.10.191.154:9000/";//测试
 
 //    String url = "http://10.10.232.242:9527?userToken=010fc460-fd8f-11e6-82fd-599da5512996";//测试

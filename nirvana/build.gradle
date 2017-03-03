@@ -44,24 +44,6 @@ android {
     }
 }
 
-sourceSets {
-    min.java.srcDirs = ['src/java']
-    min.resources.srcDirs = ['src/resources']
-}
-
-task generateJavadocs(type: Javadoc) {
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-    options.addStringOption('charSet', 'UTF-8')
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task generateJavadocsJar(type: Jar, dependsOn: generateJavadocs) {
-    classifier = 'javadoc'
-    from generateJavadocs.destinationDir
-}
-
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.2.0'

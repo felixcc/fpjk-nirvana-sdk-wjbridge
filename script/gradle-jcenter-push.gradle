@@ -51,13 +51,12 @@ afterEvaluate { project ->
         archives javadocJar
         archives sourcesJar
     }
+
 }
 
 private configurePOM(def pom) {
     pom.project {
         packaging POM_PACKAGING
-        groupId POM_GROUP_ID
-        artifactId POM_ARTIFACT_ID
 
         name POM_NAME
         description POM_DESCRIPTION
@@ -97,22 +96,13 @@ private configurePOM(def pom) {
     }
 }
 
-// Default Bintray
-def getRepositoryUser() {
-    return hasProperty('BINTRAY_USER') ? BINTRAY_USER : ""
-}
-
-def getRepositoryKey() {
-    return hasProperty('BINTRAY_KEY') ? BINTRAY_KEY : ""
-}
-
-def getRepositoryGPGPassword() {
-    return hasProperty('BINTRAY_GPG_PASSWORD') ? BINTRAY_GPG_PASSWORD : ""
-}
+//配置gradle-bintray-plugin插件
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = getRepositoryUser();
-    key = getRepositoryKey();
+    user = properties.getProperty('BINTRAY_USER');
+    key = properties.getProperty('BINTRAY_KEY');
 
     group = POM_GROUP_ID
     version = VERSION_NAME
@@ -130,12 +120,6 @@ bintray {
         publicDownloadNumbers = true
         version {
             desc = POM_DESCRIPTION
-            gpg {
-                sign = !(getRepositoryGPGPassword() == null || getRepositoryGPGPassword() == "");
-                // true //Determines whether to GPG sign the files. The default is false
-                passphrase = getRepositoryGPGPassword();
-                //Optional. The passphrase for GPG signing'
-            }
         }
     }
 }

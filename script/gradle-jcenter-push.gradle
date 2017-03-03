@@ -51,12 +51,12 @@ afterEvaluate { project ->
         archives javadocJar
         archives sourcesJar
     }
-
 }
 
 private configurePOM(def pom) {
     pom.project {
         packaging POM_PACKAGING
+        groupId POM_GROUP_ID
 
         name POM_NAME
         description POM_DESCRIPTION
@@ -101,8 +101,8 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = properties.getProperty('BINTRAY_USER');
-    key = properties.getProperty('BINTRAY_KEY');
+    user = properties.getProperty('bintray.user');
+    key = properties.getProperty('bintray.apikey');
 
     group = POM_GROUP_ID
     version = VERSION_NAME

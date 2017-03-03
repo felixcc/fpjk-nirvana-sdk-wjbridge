@@ -107,8 +107,16 @@
   *;
 }
 
--keep class com.squareup.okhttp.**
--keepclassmembernames class com.squareup.okhttp.**
--keep  class com.squareup.okhttp.** {
-  *;
-}
+-keep class fpjk.nirvana.sdk.wjbridge.business.entity.**{*;}
+-keep class fpjk.nirvana.sdk.wjbridge.data.event.**{*;}
+-keep class fpjk.nirvana.sdk.wjbridge.db.**{*;}
+
+-dontwarn sun.misc.Unsafe
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
+-dontwarn javax.annotation.CheckReturnValue
+-dontwarn javax.annotation.CheckForNull
+-dontwarn javax.annotation.concurrent.GuardedBy
+-dontwarn javax.annotation.concurrent.Immutable
+-dontwarn javax.annotation.concurrent.ThreadSafe
+-dontwarn javax.annotation.concurrent.NotThreadSafe
